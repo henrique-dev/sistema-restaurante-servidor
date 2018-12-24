@@ -7,6 +7,8 @@
 package com.br.phdev.srs.daos;
 
 import com.br.phdev.srs.exceptions.DAOException;
+import com.br.phdev.srs.models.Complemento;
+import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.Genero;
 import com.br.phdev.srs.models.Tipo;
 import java.sql.Connection;
@@ -22,15 +24,15 @@ import java.util.List;
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
 public class GerenciadorDAO extends BasicDAO {
-    
+
     public GerenciadorDAO(Connection conexao) {
         super(conexao);
     }
-    
+
     public List<Genero> getGeneros() throws DAOException {
         List<Genero> generos = null;
         String sql = "call listar_generos";
-        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)){
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             generos = new ArrayList<>();
             while (rs.next()) {
@@ -44,55 +46,39 @@ public class GerenciadorDAO extends BasicDAO {
         }
         return generos;
     }
-    
+
     public void adicionarGeneros(List<Genero> generos) throws DAOException {
-        StringBuilder sql = new StringBuilder("INSERT INTO genero (nome) VALUES (");
-        for (int i = 0; i < generos.size(); i++) {
-            sql.append('?');
-            if (i < generos.size() - 1) {
-                sql.append("),(");
-            } else {
-                sql.append(")");
+        String sql = "CALL inserir_genero(?)";
+        for (Genero genero : generos) {
+            try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+                stmt.setString(1, genero.getNome());
+                stmt.execute();
+            } catch (SQLException e) {
+                throw new DAOException(e);
             }
-        }
-        try (PreparedStatement stmt = super.conexao.prepareStatement(sql.toString())) {
-            for (int i = 0; i < generos.size(); i++) {
-                stmt.setString(i + 1, generos.get(i).getNome());
-            }
-            stmt.execute();
-        } catch (SQLException e) {
-            throw new DAOException(e);
         }
     }
 
-    public String removerGeneros(List<Genero> generos) throws DAOException, SQLIntegrityConstraintViolationException {
-        StringBuilder sql = new StringBuilder("DELETE FROM genero WHERE genero.id_genero in (");
-        for (int i = 0; i < generos.size(); i++) {
-            sql.append('?');
-            if (i < generos.size() - 1) {
-                sql.append(",");
-            } else {
-                sql.append(")");
+    public void removerGeneros(List<Genero> generos) throws DAOException, SQLIntegrityConstraintViolationException {
+        String sql = "CALL remover_genero(?)";
+        for (Genero genero : generos) {
+            try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+                stmt.setLong(1, genero.getId());
+                stmt.execute();
+            } catch (SQLException e) {
+                if (e instanceof SQLIntegrityConstraintViolationException) {
+                    throw new SQLIntegrityConstraintViolationException("Algum genero está sendo utilizado e não pode ser excluido.");
+                } else {
+                    throw new DAOException(e);
+                }
             }
         }
-        try (PreparedStatement stmt = super.conexao.prepareStatement(sql.toString())) {
-            for (int i = 0; i < generos.size(); i++) {
-                stmt.setLong(i + 1, generos.get(i).getId());
-            }
-            stmt.execute();
-        } catch (SQLException e) {
-            if (e instanceof SQLIntegrityConstraintViolationException) {
-                throw new SQLIntegrityConstraintViolationException("Algum genero está sendo utilizado e não pode ser excluido.");
-            }
-            throw new DAOException(e);
-        }
-        return "";
     }
-    
+
     public List<Tipo> getTipos() throws DAOException {
         List<Tipo> tipos = null;
         String sql = "call listar_tipos";
-        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)){
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             tipos = new ArrayList<>();
             while (rs.next()) {
@@ -105,50 +91,115 @@ public class GerenciadorDAO extends BasicDAO {
             throw new DAOException(e);
         }
         return tipos;
-    }   
-    
+    }
+
     public void adicionarTipos(List<Tipo> tipos) throws DAOException {
-        StringBuilder sql = new StringBuilder("INSERT INTO tipo (nome) VALUES (");
-        for (int i = 0; i < tipos.size(); i++) {
-            sql.append('?');
-            if (i < tipos.size() - 1) {
-                sql.append("),(");
-            } else {
-                sql.append(")");
+        String sql = "CALL inserir_tipo(?)";
+        for (Tipo tipo : tipos) {
+            try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+                stmt.setString(1, tipo.getNome());
+                stmt.execute();
+            } catch (SQLException e) {
+                throw new DAOException(e);
             }
         }
-        try (PreparedStatement stmt = super.conexao.prepareStatement(sql.toString())) {
-            for (int i = 0; i < tipos.size(); i++) {
-                stmt.setString(i + 1, tipos.get(i).getNome());
+    }
+
+    public void removerTipos(List<Tipo> tipos) throws DAOException, SQLIntegrityConstraintViolationException {
+        String sql = "CALL remover_tipo(?)";
+        for (Tipo tipo : tipos) {
+            try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+                stmt.setLong(1, tipo.getId());
+                stmt.execute();
+            } catch (SQLException e) {
+                if (e instanceof SQLIntegrityConstraintViolationException) {
+                    throw new SQLIntegrityConstraintViolationException("Algum tipo está sendo utilizado e não pode ser excluido.");
+                } else {
+                    throw new DAOException(e);
+                }
             }
+        }
+    }
+
+    public List<Complemento> getComplementos() throws DAOException {
+        List<Complemento> complementos = null;
+        String sql = "CALL listar_complementos";
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            complementos = new ArrayList<>();
+            while (rs.next()) {
+                Complemento complemento = new Complemento();
+                complemento.setId(rs.getLong("id_complemento"));
+                complemento.setNome(rs.getString("nome"));
+                complemento.setPreco(rs.getDouble("preco"));
+                complemento.setFoto(new Foto(rs.getLong("id_arquivo"), null));
+                complementos.add(complemento);
+            }
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        }
+        return complementos;
+    }
+
+    public void adicionarComplemento(Complemento complemento) throws DAOException {
+        String sql = "call inserir_complemento(?,?,?)";
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql.toString())) {
+            stmt.setString(1, complemento.getNome());
+            stmt.setDouble(2, complemento.getPreco());
+            stmt.setDouble(3, complemento.getFoto().getId());
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public String removerTipos(List<Tipo> tipos) throws DAOException, SQLIntegrityConstraintViolationException {
-        StringBuilder sql = new StringBuilder("DELETE FROM tipo WHERE tipo.id_tipo in (");
-        for (int i = 0; i < tipos.size(); i++) {
-            sql.append('?');
-            if (i < tipos.size() - 1) {
-                sql.append(",");
-            } else {
-                sql.append(")");
+    public void removerComplementos(List<Complemento> complementos) throws DAOException, SQLIntegrityConstraintViolationException {        
+        List<Complemento> complementosParaApagarFoto = new ArrayList<>();
+        for (Complemento complemento : complementos) {
+            try {
+                String sql = "CALL remover_complemento(?)";
+                PreparedStatement stmt = super.conexao.prepareStatement(sql);
+                stmt.setLong(1, complemento.getFoto().getId());
+                stmt.execute();
+                stmt.close();                              
+                sql = "CALL remover_arquivo(?)";
+                stmt = super.conexao.prepareStatement(sql);
+                stmt.setLong(1, complemento.getId());                
+                stmt.execute();
+                stmt.close();
+                complementosParaApagarFoto.add(complemento);
+            } catch (SQLException e) {
+                if (e instanceof SQLIntegrityConstraintViolationException) {
+                    //throw new SQLIntegrityConstraintViolationException("Algum complmento está sendo utilizado e não pode ser excluido.");
+                }
+                throw new DAOException(e);
             }
         }
-        try (PreparedStatement stmt = super.conexao.prepareStatement(sql.toString())) {
-            for (int i = 0; i < tipos.size(); i++) {
-                stmt.setLong(i + 1, tipos.get(i).getId());
+        complementos.clear();
+        complementos.addAll(complementosParaApagarFoto);
+    }
+
+    public long adicionarArquivo() throws DAOException {
+        String sql = "call inserir_arquivo";
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getLong("id");
             }
-            stmt.execute();
+            return -1;
         } catch (SQLException e) {
-            if (e instanceof SQLIntegrityConstraintViolationException) {
-                throw new SQLIntegrityConstraintViolationException("Algum tipo está sendo utilizado e não pode ser excluido.");
-            }
             throw new DAOException(e);
         }
-        return "";
     }
-    
+
+    public void removerArquivo(Foto foto) throws DAOException {
+        String sql = "call remover_arquivo(?)";
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+            stmt.setLong(1, foto.getId());
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
 }

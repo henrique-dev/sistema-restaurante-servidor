@@ -13,11 +13,8 @@ import java.sql.Timestamp;
  */
 public class Arquivo {            
     
-    private int id;
-    private String nome;
-    private String caminho;    
-    private int tamanho;
-    private int tipo;
+    private int id;        
+    private int tamanho;    
 
     public int getId() {
         return id;
@@ -26,30 +23,6 @@ public class Arquivo {
     public void setId(int id) {
         this.id = id;
     }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getCaminho() {
-        return caminho;
-    }
-
-    public void setCaminho(String caminho) {
-        this.caminho = caminho;
-    }            
-
-    public int getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(int tipo) {
-        this.tipo = tipo;
-    }        
 
     public int getTamanho() {
         return tamanho;

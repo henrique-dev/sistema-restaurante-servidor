@@ -6,6 +6,8 @@
 package com.br.phdev.srs.utils;
 
 import com.br.phdev.srs.exceptions.StorageException;
+import com.br.phdev.srs.models.Complemento;
+import com.br.phdev.srs.models.Foto;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -16,6 +18,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -26,46 +29,39 @@ public class ServicoArmazenamento {
     
     private static final String MASTER_PATH = "/home/henrique/Documentos/Teste/";       
     
-    /*
-    public com.br.phdev.sistemarestaurante.utils.Arquivo store(MultipartFile multipartFile, int type, User user) throws StorageException {
-        if (type < 0 && type > 20)
-            throw new StorageException("Falha ao armazenar o arquivo. O tipo não é valido");        
-        com.br.phdev.sistemarestaurante.utils.Arquivo fileSaved;
+    
+    public void salvar(MultipartFile arquivo, long id) throws StorageException {                
         try {
-            
-            byte[] bytes = multipartFile.getBytes();
-            String path = user.getClass().getSimpleName()+ "/" + user.getId() + "/" + type;
-            Arquivo file = new Arquivo(MASTER_PATH + path);
+            byte[] bytes = arquivo.getBytes();            
+            File file = new File(MASTER_PATH);
             if (!file.exists()) {                
                 file.mkdirs();
             }           
-            Date currentDate = Calendar.getInstance().getTime();
-            String dateParsed = new SimpleDateFormat("dd-MM-yyyy-hh-mm-s-ms").format(currentDate);
-            path = path + "/" + multipartFile.getOriginalFilename() + "-" + dateParsed;
-            file = new Arquivo(MASTER_PATH + path);            
+            //Date currentDate = Calendar.getInstance().getTime();
+            //String dateParsed = new SimpleDateFormat("dd-MM-yyyy-hh-mm-s-ms").format(currentDate);            
+            file = new File(MASTER_PATH + id);
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 fos.write(bytes);
                 fos.flush();
-            }
-            fileSaved = new com.br.phdev.sistemarestaurante.utils.Arquivo();
-            fileSaved.setFileName(multipartFile.getOriginalFilename());
-            fileSaved.setFilePath(path);
-            fileSaved.setType(type);
-            fileSaved.setFileUploadDate(new Timestamp(currentDate.getTime()));
-            fileSaved.setFileLength((int)file.length());            
+            }            
         } catch (IOException e) {
             throw new StorageException("Falha ao gravar arquivo no disco", e);
-        }
-        return fileSaved;
-    }*/       
+        }        
+    }
     
-    public void delete(Arquivo fileToDelete) throws SecurityException {
-        File file = new File(MASTER_PATH + fileToDelete.getCaminho());
+    public void excluir(long path) throws SecurityException {
+        File file = new File(MASTER_PATH + path);
         file.delete();
     }
+    
+    public void excluir(List<Complemento> complementos) throws SecurityException {
+        for (Complemento complemento : complementos) {
+            excluir(complemento.getFoto().getId());
+        }        
+    }
 
-    public byte[] carregar(Arquivo fileSaved) {
-        File file = new File(MASTER_PATH + fileSaved.getCaminho());
+    public byte[] carregar(Foto foto) {
+        File file = new File(MASTER_PATH + foto.getId());
         byte[] bytes = new byte[(int)file.length()];
         try (FileInputStream fis = new FileInputStream(file)) {
             fis.read(bytes);

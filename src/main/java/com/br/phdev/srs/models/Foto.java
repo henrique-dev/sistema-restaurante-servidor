@@ -6,6 +6,8 @@
  */
 package com.br.phdev.srs.models;
 
+import java.io.File;
+
 /**
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
@@ -13,15 +15,15 @@ package com.br.phdev.srs.models;
 public class Foto {
     
     private long id;
-    private String caminho;
+    private File arquivo;
 
     public Foto() {
     }        
 
-    public Foto(long id, String caminho) {
+    public Foto(long id, File arquivo) {
         this.id = id;
-        this.caminho = caminho;
-    }
+        this.arquivo = arquivo;
+    }    
 
     public long getId() {
         return id;
@@ -31,13 +33,13 @@ public class Foto {
         this.id = id;
     }
 
-    public String getCaminho() {
-        return caminho;
+    public File getArquivo() {
+        return arquivo;
     }
 
-    public void setCaminho(String caminho) {
-        this.caminho = caminho;
-    }        
+    public void setArquivo(File arquivo) {
+        this.arquivo = arquivo;
+    }    
     
     @Override
     public boolean equals(Object obj) {

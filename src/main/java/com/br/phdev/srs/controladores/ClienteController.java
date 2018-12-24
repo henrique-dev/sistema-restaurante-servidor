@@ -13,6 +13,7 @@ import com.br.phdev.srs.models.Cliente;
 import com.br.phdev.srs.models.ConfirmaPedido;
 import com.br.phdev.srs.models.Endereco;
 import com.br.phdev.srs.models.FormaPagamento;
+import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.ListaItens;
 import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.Pedido;
@@ -185,8 +186,8 @@ public class ClienteController {
     public ResponseEntity<byte[]> image(@PathVariable int idArquivo) {
         byte[] bytes = null;
         try (Connection con = new FabricaConexao().conectar()) {
-            Arquivo arquivo = new ClienteDAO(con).getPublicFile(idArquivo);
-            bytes = new ServicoArmazenamento().carregar(arquivo);            
+            Foto foto = new ClienteDAO(con).getPublicFile(idArquivo);
+            bytes = new ServicoArmazenamento().carregar(foto);            
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (DAOException e) {

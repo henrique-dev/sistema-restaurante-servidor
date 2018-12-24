@@ -206,21 +206,20 @@ public class ClienteDAO extends BasicDAO {
         return formaPagamentos;
     }
 
-    public Arquivo getPublicFile(int idArquivo) throws DAOException {
-        Arquivo arquivo = null;
+    public Foto getPublicFile(int idArquivo) throws DAOException {
+        Foto foto = null;
         String sql = "call get_foto(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setInt(1, idArquivo);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                arquivo = new Arquivo();
-                arquivo.setId(idArquivo);
-                arquivo.setCaminho(rs.getString("caminho"));
+                foto = new Foto();
+                foto.setId(idArquivo);                
             }
         } catch (SQLException e) {
             throw new DAOException("Falha ao adquirir informações do arquivo", e);
         }
-        return arquivo;
+        return foto;
     }    
 
     public ConfirmaPedido inserirPrecos(ConfirmaPedido confirmaPedido) throws DAOException {
