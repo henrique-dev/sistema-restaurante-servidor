@@ -53,7 +53,7 @@ public class ClienteDAO extends BasicDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 if (rs.getString("erro") == null) {
-                    cliente = new Cliente(
+                    cliente = new Cliente(                            
                             rs.getLong("id_cliente"),
                             rs.getString("nome"),
                             rs.getString("cpf"),
@@ -70,6 +70,27 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException("Erro ao recuperar informações", e);
         }
         return cliente;
+    }
+    
+    public void gerarSessao(Usuario usuario, String token) throws DAOException {
+        String sql = "CALL sessao_validar(?,?)";
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+            stmt.setLong(1, usuario.getIdUsuario());
+            stmt.setString(2, token);
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+    
+    public void sairSessao(Usuario usuario) throws DAOException {
+        String sql = "CALL sessao_desvalidar(?)";
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+            stmt.setLong(1, usuario.getIdUsuario());
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        }
     }
 
     public ListaItens getItens() throws DAOException {
@@ -98,8 +119,7 @@ public class ClienteDAO extends BasicDAO {
                     item.setId(rs.getLong("id_item"));
                     item.setNome(rs.getString("nome"));
                     item.setPreco(rs.getDouble("preco"));
-                    item.setModificavel(rs.getBoolean("modificavel"));
-                    fotos.add(new Foto(rs.getLong("id_arquivo"), null));
+                    item.setModificavel(rs.getBoolean("modificavel"));                    
                     Genero genero = new Genero(rs.getLong("id_genero"), rs.getString("genero"));
                     item.setGenero(genero);
                     generos.add(genero);

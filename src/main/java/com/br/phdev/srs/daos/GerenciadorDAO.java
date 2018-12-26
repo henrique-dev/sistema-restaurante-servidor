@@ -10,6 +10,8 @@ import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.models.Complemento;
 import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.Genero;
+import com.br.phdev.srs.models.Item;
+import com.br.phdev.srs.models.ListaItens;
 import com.br.phdev.srs.models.Tipo;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,7 +19,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -31,7 +35,7 @@ public class GerenciadorDAO extends BasicDAO {
 
     public List<Genero> getGeneros() throws DAOException {
         List<Genero> generos = null;
-        String sql = "call listar_generos";
+        String sql = "CALL listar_generos";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             generos = new ArrayList<>();
@@ -77,7 +81,7 @@ public class GerenciadorDAO extends BasicDAO {
 
     public List<Tipo> getTipos() throws DAOException {
         List<Tipo> tipos = null;
-        String sql = "call listar_tipos";
+        String sql = "CALL listar_tipos";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             tipos = new ArrayList<>();
@@ -142,7 +146,7 @@ public class GerenciadorDAO extends BasicDAO {
     }
 
     public void adicionarComplemento(Complemento complemento) throws DAOException {
-        String sql = "call inserir_complemento(?,?,?)";
+        String sql = "CALL inserir_complemento(?,?,?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql.toString())) {
             stmt.setString(1, complemento.getNome());
             stmt.setDouble(2, complemento.getPreco());
@@ -153,7 +157,7 @@ public class GerenciadorDAO extends BasicDAO {
         }
     }
 
-    public void removerComplementos(List<Complemento> complementos) throws DAOException, SQLIntegrityConstraintViolationException {        
+    public void removerComplementos(List<Complemento> complementos) throws DAOException, SQLIntegrityConstraintViolationException {
         List<Complemento> complementosParaApagarFoto = new ArrayList<>();
         for (Complemento complemento : complementos) {
             try {
@@ -161,10 +165,10 @@ public class GerenciadorDAO extends BasicDAO {
                 PreparedStatement stmt = super.conexao.prepareStatement(sql);
                 stmt.setLong(1, complemento.getFoto().getId());
                 stmt.execute();
-                stmt.close();                              
+                stmt.close();
                 sql = "CALL remover_arquivo(?)";
                 stmt = super.conexao.prepareStatement(sql);
-                stmt.setLong(1, complemento.getId());                
+                stmt.setLong(1, complemento.getId());
                 stmt.execute();
                 stmt.close();
                 complementosParaApagarFoto.add(complemento);
@@ -179,8 +183,103 @@ public class GerenciadorDAO extends BasicDAO {
         complementos.addAll(complementosParaApagarFoto);
     }
 
+    public List<Item> getItens() throws DAOException {
+        List<Item> itens = null;
+        String sql = "call listar_itens";
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            itens = new ArrayList<>();
+            Set<Tipo> tipos = new HashSet<>();
+            Set<Genero> generos = new HashSet<>();
+            Set<Foto> fotos = new HashSet<>();
+            Item item = new Item();
+            long pratoAtual = -1;
+            while (rs.next()) {
+                long idPrato = rs.getLong("id_item");
+                if (idPrato != pratoAtual) {
+                    if (pratoAtual != -1) {
+                        item.setTipos(tipos);
+                        item.setFotos(fotos);
+                        itens.add(item);
+                    }
+                    pratoAtual = idPrato;
+                    item = new Item();
+                    tipos = new HashSet<>();
+                    fotos = new HashSet<>();
+                    item.setId(rs.getLong("id_item"));
+                    item.setNome(rs.getString("nome"));
+                    item.setPreco(rs.getDouble("preco"));
+                    item.setDescricao(rs.getString("descricao"));
+                    item.setModificavel(rs.getBoolean("modificavel"));                    
+                    Genero genero = new Genero(rs.getLong("id_genero"), rs.getString("genero"));
+                    item.setGenero(genero);
+                    generos.add(genero);
+                }
+                tipos.add(new Tipo(rs.getLong("id_tipo"), rs.getString("tipo_nome")));
+            }
+            if (pratoAtual != -1) {
+                item.setTipos(tipos);
+                item.setFotos(fotos);
+                itens.add(item);                
+            }
+        } catch (SQLException e) {
+            throw new DAOException("Erro ao recuperar informações", e);
+        }
+        return itens;
+    }
+
+    public void adicionarItem(Item item) throws DAOException {
+        String sql = "CALL inserir_item(?,?,?,?,?)";
+        try {
+            PreparedStatement stmt = super.conexao.prepareStatement(sql);
+            stmt.setString(1, item.getNome());
+            stmt.setDouble(2, item.getPreco());
+            stmt.setString(3, item.getDescricao());
+            stmt.setLong(4, item.getGenero().getId());
+            stmt.setBoolean(5, item.isModificavel());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {                
+                item.setId(rs.getLong("id"));
+                System.out.println("Adicionando o item de id: " + item.getId());
+                System.out.println("Quantidade de tipos para adicionar: " + item.getTipos().size());
+                System.out.println("Quantidade de complementos para adicionar: " + item.getComplementos().size());
+                System.out.println("Quantidade de arquivos para adicionar: " + item.getFotos().size());
+                stmt.close();
+                for (Tipo tipo : item.getTipos()) {
+                    sql = "CALL inserir_item_tipo(?,?)";
+                    stmt = super.conexao.prepareStatement(sql);
+                    stmt.setLong(1, item.getId());
+                    stmt.setLong(2, tipo.getId());
+                    stmt.execute();
+                    stmt.close();
+                }
+                if (item.isModificavel()) {
+                    for (Complemento complemento : item.getComplementos()) {
+                        sql = "CALL inserir_item_complemento(?,?)";
+                        stmt = super.conexao.prepareStatement(sql);
+                        stmt.setLong(1, item.getId());
+                        stmt.setLong(2, complemento.getId());
+                        stmt.execute();
+                        stmt.close();
+                    }
+                }
+                for (Foto foto : item.getFotos()) {
+                    sql = "CALL inserir_item_arquivo(?,?)";
+                    stmt = super.conexao.prepareStatement(sql);
+                    stmt.setLong(1, item.getId());
+                    stmt.setLong(2, foto.getId());
+                    stmt.execute();
+                    stmt.close();
+                }
+            } else
+                stmt.close();
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
     public long adicionarArquivo() throws DAOException {
-        String sql = "call inserir_arquivo";
+        String sql = "CALL inserir_arquivo";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -193,7 +292,7 @@ public class GerenciadorDAO extends BasicDAO {
     }
 
     public void removerArquivo(Foto foto) throws DAOException {
-        String sql = "call remover_arquivo(?)";
+        String sql = "CALL remover_arquivo(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setLong(1, foto.getId());
             stmt.execute();

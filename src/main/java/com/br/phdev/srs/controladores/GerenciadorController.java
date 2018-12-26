@@ -13,6 +13,7 @@ import com.br.phdev.srs.jdbc.FabricaConexao;
 import com.br.phdev.srs.models.Complemento;
 import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.Genero;
+import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.Tipo;
 import com.br.phdev.srs.utils.Mensagem;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
@@ -28,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -36,11 +38,11 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Controller
 public class GerenciadorController {
-    
+
     @PostMapping("gerenciador/listar-generos")
     public ResponseEntity<List<Genero>> listarGeneros(HttpSession sessao) {
         List<Genero> generos = null;
-        try (Connection conexao = new FabricaConexao().conectar()){
+        try (Connection conexao = new FabricaConexao().conectar()) {
             GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
             generos = gerenciadorDAO.getGeneros();
         } catch (DAOException e) {
@@ -49,14 +51,14 @@ public class GerenciadorController {
             e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);        
-        return new ResponseEntity<>(generos, httpHeaders, HttpStatus.OK);        
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(generos, httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("gerenciador/cadastrar-generos")
     public ResponseEntity<Mensagem> cadastrarGeneros(@RequestBody List<Genero> generos) {
         Mensagem mensagem = new Mensagem();
-        try (Connection conexao = new FabricaConexao().conectar()){
+        try (Connection conexao = new FabricaConexao().conectar()) {
             GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
             gerenciadorDAO.adicionarGeneros(generos);
             mensagem.setCodigo(0);
@@ -71,14 +73,14 @@ public class GerenciadorController {
             e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);        
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);        
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("gerenciador/remover-generos")
     public ResponseEntity<Mensagem> removerGeneros(@RequestBody List<Genero> generos) {
         Mensagem mensagem = new Mensagem();
-        try (Connection conexao = new FabricaConexao().conectar()){
+        try (Connection conexao = new FabricaConexao().conectar()) {
             GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
             gerenciadorDAO.removerGeneros(generos);
             mensagem.setCodigo(0);
@@ -95,17 +97,17 @@ public class GerenciadorController {
                 mensagem.setCodigo(-1);
                 mensagem.setDescricao("Erro ao abrir conexão");
                 e.printStackTrace();
-            }            
+            }
         }
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);        
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);        
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("gerenciador/listar-tipos")
     public ResponseEntity<List<Tipo>> listarTipos(HttpSession sessao) {
         List<Tipo> tipos = null;
-        try (Connection conexao = new FabricaConexao().conectar()){
+        try (Connection conexao = new FabricaConexao().conectar()) {
             GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
             tipos = gerenciadorDAO.getTipos();
         } catch (DAOException e) {
@@ -114,14 +116,14 @@ public class GerenciadorController {
             e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);        
-        return new ResponseEntity<>(tipos, httpHeaders, HttpStatus.OK);        
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(tipos, httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("gerenciador/cadastrar-tipos")
     public ResponseEntity<Mensagem> cadastrarTipos(@RequestBody List<Tipo> tipos) {
         Mensagem mensagem = new Mensagem();
-        try (Connection conexao = new FabricaConexao().conectar()){
+        try (Connection conexao = new FabricaConexao().conectar()) {
             GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
             gerenciadorDAO.adicionarTipos(tipos);
             mensagem.setCodigo(0);
@@ -136,14 +138,14 @@ public class GerenciadorController {
             e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);        
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);        
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("gerenciador/remover-tipos")
     public ResponseEntity<Mensagem> removerTipos(@RequestBody List<Tipo> tipos) {
         Mensagem mensagem = new Mensagem();
-        try (Connection conexao = new FabricaConexao().conectar()){
+        try (Connection conexao = new FabricaConexao().conectar()) {
             GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
             gerenciadorDAO.removerTipos(tipos);
             mensagem.setCodigo(0);
@@ -160,17 +162,17 @@ public class GerenciadorController {
                 mensagem.setCodigo(-1);
                 mensagem.setDescricao("Erro ao abrir conexão");
                 e.printStackTrace();
-            }            
+            }
         }
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);        
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);        
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("gerenciador/listar-complementos")
     public ResponseEntity<List<Complemento>> listarComplementos(HttpSession sessao) {
         List<Complemento> complementos = null;
-        try (Connection conexao = new FabricaConexao().conectar()){
+        try (Connection conexao = new FabricaConexao().conectar()) {
             GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
             complementos = gerenciadorDAO.getComplementos();
         } catch (DAOException e) {
@@ -179,15 +181,14 @@ public class GerenciadorController {
             e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);        
-        return new ResponseEntity<>(complementos, httpHeaders, HttpStatus.OK);        
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(complementos, httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("gerenciador/cadastrar-complemento")
     public ResponseEntity<Mensagem> cadastrarComplemento(MultipartFile arquivo, String nome, double preco) {
         Mensagem mensagem = new Mensagem();
-        System.out.println("HERE");
-        try (Connection conexao = new FabricaConexao().conectar()){
+        try (Connection conexao = new FabricaConexao().conectar()) {
             GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
             long id = gerenciadorDAO.adicionarArquivo();
             ServicoArmazenamento sa = new ServicoArmazenamento();
@@ -209,14 +210,14 @@ public class GerenciadorController {
             e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);        
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);        
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("gerenciador/remover-complementos")
     public ResponseEntity<Mensagem> removerComplementos(@RequestBody List<Complemento> complementos) {
         Mensagem mensagem = new Mensagem();
-        try (Connection conexao = new FabricaConexao().conectar()){
+        try (Connection conexao = new FabricaConexao().conectar()) {
             GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
             ServicoArmazenamento servicoArmazenamento = new ServicoArmazenamento();
             gerenciadorDAO.removerComplementos(complementos);
@@ -235,11 +236,77 @@ public class GerenciadorController {
                 mensagem.setCodigo(-1);
                 mensagem.setDescricao("Erro ao abrir conexão");
                 e.printStackTrace();
-            }            
+            }
         }
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);        
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);        
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-    
+
+    @PostMapping("gerenciador/listar-itens")
+    public ResponseEntity<List<Item>> listarItens() {
+        List<Item> itens = null;
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
+            itens = gerenciadorDAO.getItens();
+        } catch (DAOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(itens, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping("gerenciador/cadastrar-item")
+    public ResponseEntity<Mensagem> cadastrarItem(@RequestBody Item item) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
+            gerenciadorDAO.adicionarItem(item);
+            mensagem.setCodigo(0);
+            mensagem.setDescricao("Item inserido com sucesso");
+        } catch (DAOException e) {
+            mensagem.setCodigo(-1);
+            mensagem.setDescricao("Erro na inserção do item");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            mensagem.setCodigo(-1);
+            mensagem.setDescricao("Erro ao abrir conexão");
+            e.printStackTrace();
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping("gerenciador/salvar-imagem")
+    public ResponseEntity<Mensagem> salvarImagem(MultipartFile arquivo) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
+            long id = gerenciadorDAO.adicionarArquivo();
+            ServicoArmazenamento sa = new ServicoArmazenamento();
+            sa.salvar(arquivo, id);
+            mensagem.setCodigo(0);
+            mensagem.setDescricao(String.valueOf(id));
+        } catch (DAOException e) {
+            mensagem.setCodigo(-1);
+            mensagem.setDescricao("Erro na inserção dos complementos");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            mensagem.setCodigo(-1);
+            mensagem.setDescricao("Erro ao abrir conexão");
+            e.printStackTrace();
+        } catch (StorageException e) {
+            mensagem.setCodigo(-1);
+            mensagem.setDescricao("Erro ao salvar o arquivo no disco");
+            e.printStackTrace();
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+
 }

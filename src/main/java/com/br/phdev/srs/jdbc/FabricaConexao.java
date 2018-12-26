@@ -14,11 +14,7 @@ import java.sql.SQLException;
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
-public class FabricaConexao {
-
-    public FabricaConexao() {
-        System.out.println("FabricaConexao CRIADA");
-    }        
+public class FabricaConexao {    
     
     public Connection conectar() {
         Connection conexao = null;
