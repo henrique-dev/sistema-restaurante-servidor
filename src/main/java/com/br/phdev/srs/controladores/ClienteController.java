@@ -23,6 +23,8 @@ import com.br.phdev.srs.utils.Arquivo;
 import com.br.phdev.srs.utils.Mensagem;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.br.phdev.srs.utils.ServicoPagamento;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -91,6 +93,25 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+    
+    @PostMapping("cliente/teste")    
+    public ResponseEntity<HttpHeaders> teste(HttpSession sessao, HttpServletRequest request) {
+        Mensagem mensagem = new Mensagem();
+                
+        HttpHeaders httpHeadersTmp = new HttpHeaders();
+        Enumeration headersEnum = request.getHeaderNames();
+        while (headersEnum.hasMoreElements()) {
+            String header = (String) headersEnum.nextElement();
+            Enumeration valuesEnum = request.getHeaders(header);            
+            while (valuesEnum.hasMoreElements()) {
+                httpHeadersTmp.add(header, valuesEnum.nextElement().toString());
+            }            
+        }                                        
+        
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(httpHeadersTmp, httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping("cliente/sair")
