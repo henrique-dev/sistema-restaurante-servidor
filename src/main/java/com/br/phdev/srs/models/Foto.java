@@ -16,14 +16,16 @@ public class Foto {
     
     private long id;
     private File arquivo;
+    private int tamanho;
 
     public Foto() {
     }        
 
-    public Foto(long id, File arquivo) {
+    public Foto(long id, File arquivo, int tamanho) {
         this.id = id;
         this.arquivo = arquivo;
-    }    
+        this.tamanho = tamanho;
+    }        
 
     public long getId() {
         return id;
@@ -40,6 +42,14 @@ public class Foto {
     public void setArquivo(File arquivo) {
         this.arquivo = arquivo;
     }    
+
+    public int getTamanho() {
+        return tamanho;
+    }
+
+    public void setTamanho(int tamanho) {
+        this.tamanho = tamanho;
+    }        
     
     @Override
     public boolean equals(Object obj) {

@@ -13,6 +13,7 @@ import com.br.phdev.srs.models.Genero;
 import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.ListaItens;
 import com.br.phdev.srs.models.Tipo;
+import com.br.phdev.srs.utils.ServicoArmazenamento;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -136,7 +137,9 @@ public class GerenciadorDAO extends BasicDAO {
                 complemento.setId(rs.getLong("id_complemento"));
                 complemento.setNome(rs.getString("nome"));
                 complemento.setPreco(rs.getDouble("preco"));
-                complemento.setFoto(new Foto(rs.getLong("id_arquivo"), null));
+                Foto foto = new Foto();
+                foto.setId(rs.getLong("id_arquivo"));
+                complemento.setFoto(ServicoArmazenamento.setTamanho(foto));
                 complementos.add(complemento);
             }
         } catch (SQLException e) {
@@ -189,8 +192,7 @@ public class GerenciadorDAO extends BasicDAO {
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             itens = new ArrayList<>();
-            Set<Tipo> tipos = new HashSet<>();
-            Set<Genero> generos = new HashSet<>();
+            Set<Tipo> tipos = new HashSet<>();            
             Set<Foto> fotos = null;
             Set<Complemento> complementos = null;
             Item item = new Item();
@@ -206,7 +208,9 @@ public class GerenciadorDAO extends BasicDAO {
                             ResultSet rs2 = stmt2.executeQuery();
                             fotos = new HashSet<>();
                             while (rs2.next()) {
-                                fotos.add(new Foto(rs2.getLong("id_arquivo"), null));
+                                Foto foto = new Foto();
+                                foto.setId(rs2.getLong("id_arquivo"));                                
+                                fotos.add(ServicoArmazenamento.setTamanho(foto));
                             }
                         } catch (SQLException e) {
                             e.printStackTrace();
@@ -240,8 +244,7 @@ public class GerenciadorDAO extends BasicDAO {
                     item.setDescricao(rs.getString("descricao"));
                     item.setModificavel(rs.getBoolean("modificavel"));
                     Genero genero = new Genero(rs.getLong("id_genero"), rs.getString("genero"));
-                    item.setGenero(genero);
-                    generos.add(genero);
+                    item.setGenero(genero);                    
                 }
                 tipos.add(new Tipo(rs.getLong("id_tipo"), rs.getString("tipo_nome")));
             }
@@ -253,7 +256,9 @@ public class GerenciadorDAO extends BasicDAO {
                     ResultSet rs2 = stmt2.executeQuery();
                     fotos = new HashSet<>();
                     while (rs2.next()) {
-                        fotos.add(new Foto(rs2.getLong("id_arquivo"), null));
+                        Foto foto = new Foto();
+                        foto.setId(rs2.getLong("id_arquivo"));
+                        fotos.add(ServicoArmazenamento.setTamanho(foto));
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();

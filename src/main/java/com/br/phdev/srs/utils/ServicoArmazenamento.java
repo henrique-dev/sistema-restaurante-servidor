@@ -12,12 +12,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -58,6 +52,13 @@ public class ServicoArmazenamento {
         for (Complemento complemento : complementos) {
             excluir(complemento.getFoto().getId());
         }        
+    }
+    
+    public static Foto setTamanho(Foto foto) {
+        File file = new File(MASTER_PATH + foto.getId());
+        foto.setTamanho((int)file.length());
+        System.out.println("TAMANHO DO ARQUIVO: " + foto.getTamanho());
+        return foto;
     }
 
     public byte[] carregar(Foto foto) {

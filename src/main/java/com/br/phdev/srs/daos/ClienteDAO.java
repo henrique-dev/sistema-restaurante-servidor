@@ -20,6 +20,7 @@ import com.br.phdev.srs.models.Pedido;
 import com.br.phdev.srs.models.Tipo;
 import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.utils.Arquivo;
+import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Connection;
@@ -114,8 +115,10 @@ public class ClienteDAO extends BasicDAO {
                             ResultSet rs2 = stmt2.executeQuery();
                             fotos = new HashSet<>();
                             while (rs2.next()) {
-                                fotos.add(new Foto(rs2.getLong("id_arquivo"), null));                                
-                            }                            
+                                Foto foto = new Foto();
+                                foto.setId(rs2.getLong("id_arquivo"));
+                                fotos.add(ServicoArmazenamento.setTamanho(foto));
+                            }
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
@@ -137,19 +140,21 @@ public class ClienteDAO extends BasicDAO {
             }
             stmt.close();
             if (pratoAtual != -1) {
-                item.setTipos(tipos);                
+                item.setTipos(tipos);
 
                 try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
                     stmt2.setLong(1, item.getId());
                     ResultSet rs2 = stmt2.executeQuery();
                     fotos = new HashSet<>();
                     while (rs2.next()) {
-                        fotos.add(new Foto(rs2.getLong("id_arquivo"), null));
-                    }                    
+                        Foto foto = new Foto();
+                        foto.setId(rs2.getLong("id_arquivo"));
+                        fotos.add(ServicoArmazenamento.setTamanho(foto));
+                    }
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                
+
                 item.setFotos(fotos);
                 itens.add(item);
                 listaItens = new ListaItens();
@@ -163,7 +168,7 @@ public class ClienteDAO extends BasicDAO {
     }
 
     public Item getItem(long idItem) throws DAOException {
-        Item prato = null;
+        Item item = null;
         String sql = "call info_item(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setLong(1, idItem);
@@ -171,38 +176,60 @@ public class ClienteDAO extends BasicDAO {
             Set<Tipo> tipos = new HashSet<>();
             Set<Foto> fotos = new HashSet<>();
             Set<Complemento> complementos = new HashSet<>();
-            prato = new Item();
-            long pratoAtual = -1;
+            item = new Item();
+            long itemAtual = -1;
             while (rs.next()) {
-                if (idItem != pratoAtual) {
-                    pratoAtual = idItem;
+                long idItemRecuperado = rs.getLong("id_item");
+                if (idItemRecuperado != itemAtual) {                    
+                    itemAtual = idItemRecuperado;                    
                     tipos = new HashSet<>();
                     fotos = new HashSet<>();
-                    prato.setId(rs.getLong("id_item"));
-                    prato.setNome(rs.getString("nome"));
-                    prato.setPreco(rs.getDouble("preco"));
-                    prato.setDescricao(rs.getString("descricao"));
-                    prato.setModificavel(rs.getBoolean("modificavel"));
-                    prato.setGenero(new Genero(rs.getLong("id_genero"), rs.getString("genero")));
+                    item.setId(rs.getLong("id_item"));
+                    item.setNome(rs.getString("nome"));
+                    item.setPreco(rs.getDouble("preco"));
+                    item.setDescricao(rs.getString("descricao"));
+                    item.setModificavel(rs.getBoolean("modificavel"));
+                    Genero genero = new Genero(rs.getLong("id_genero"), rs.getString("genero"));
+                    item.setGenero(genero);                    
                 }
                 tipos.add(new Tipo(rs.getLong("id_tipo"), rs.getString("tipo_nome")));
-                fotos.add(new Foto(rs.getLong("id_arquivo"), null));
-                complementos.add(new Complemento(
-                        rs.getLong("id_complemento"),
-                        rs.getString("complemento_nome"),
-                        rs.getDouble("complemento_preco"),
-                        new Foto(rs.getLong("complemento_id_arquivo"), null)));
             }
-            if (pratoAtual != -1) {
-                prato.setTipos(tipos);
-                prato.setFotos(fotos);
-                prato.setComplementos(complementos);
+            if (itemAtual != -1) {                
+                try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
+                    stmt2.setLong(1, item.getId());
+                    ResultSet rs2 = stmt2.executeQuery();
+                    fotos = new HashSet<>();
+                    while (rs2.next()) {
+                        Foto foto = new Foto();
+                        foto.setId(rs.getLong("id_arquivo"));
+                        fotos.add(ServicoArmazenamento.setTamanho(foto));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_complementos_item(?)")) {
+                    stmt2.setLong(1, item.getId());
+                    ResultSet rs2 = stmt2.executeQuery();
+                    complementos = new HashSet<>();
+                    while (rs2.next()) {
+                        complementos.add(new Complemento(
+                                rs2.getLong("id_complemento"),
+                                rs2.getString("nome"),
+                                0,
+                                null));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                item.setTipos(tipos);
+                item.setComplementos(complementos);
+                item.setFotos(fotos);
             }
         } catch (SQLException e) {
             e.printStackTrace();
             throw new DAOException("Erro ao recuperar informações", e);
         }
-        return prato;
+        return item;
     }
 
     public List<Endereco> getEnderecos(Cliente cliente) throws DAOException {

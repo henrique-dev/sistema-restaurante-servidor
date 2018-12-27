@@ -193,7 +193,7 @@ public class GerenciadorController {
             long id = gerenciadorDAO.adicionarArquivo();
             ServicoArmazenamento sa = new ServicoArmazenamento();
             sa.salvar(arquivo, id);
-            gerenciadorDAO.adicionarComplemento(new Complemento(0, nome, preco, new Foto(id, null)));
+            gerenciadorDAO.adicionarComplemento(new Complemento(0, nome, preco, new Foto(id, null, 0)));
             mensagem.setCodigo(0);
             mensagem.setDescricao("Complementos inseridos com sucesso");
         } catch (DAOException e) {
