@@ -204,7 +204,7 @@ public class GerenciadorDAO extends BasicDAO {
                         item.setTipos(tipos);
 
                         try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
-                            stmt2.setLong(1, idPrato);
+                            stmt2.setLong(1, pratoAtual);
                             ResultSet rs2 = stmt2.executeQuery();
                             fotos = new HashSet<>();
                             while (rs2.next()) {
@@ -252,7 +252,7 @@ public class GerenciadorDAO extends BasicDAO {
                 item.setTipos(tipos);
 
                 try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
-                    stmt2.setLong(1, item.getId());
+                    stmt2.setLong(1, pratoAtual);
                     ResultSet rs2 = stmt2.executeQuery();
                     fotos = new HashSet<>();
                     while (rs2.next()) {
