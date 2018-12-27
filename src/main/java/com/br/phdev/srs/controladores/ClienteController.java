@@ -67,7 +67,6 @@ public class ClienteController {
                         + Calendar.getInstance().getTime().toString();
                 MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
                 byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));
-
                 StringBuilder tokenHex = new StringBuilder();
                 for (byte b : textoDigerido) {
                     tokenHex.append(String.format("%02X", 0xFF & b));
