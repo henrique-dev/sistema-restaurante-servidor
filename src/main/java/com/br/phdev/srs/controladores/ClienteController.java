@@ -95,8 +95,8 @@ public class ClienteController {
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
     
-    @PostMapping("cliente/teste")    
-    public ResponseEntity<HttpHeaders> teste(HttpSession sessao, HttpServletRequest request) {
+    @PostMapping("cliente/teste-requisicao")    
+    public ResponseEntity<HttpHeaders> testeRequisicao(HttpSession sessao, HttpServletRequest request) {
         Mensagem mensagem = new Mensagem();
                 
         HttpHeaders httpHeadersTmp = new HttpHeaders();
