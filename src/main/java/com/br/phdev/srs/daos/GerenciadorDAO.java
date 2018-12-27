@@ -192,6 +192,7 @@ public class GerenciadorDAO extends BasicDAO {
             Set<Tipo> tipos = new HashSet<>();
             Set<Genero> generos = new HashSet<>();
             Set<Foto> fotos = null;
+            Set<Complemento> complementos = null;
             Item item = new Item();
             long pratoAtual = -1;
             while (rs.next()) {
@@ -199,19 +200,34 @@ public class GerenciadorDAO extends BasicDAO {
                 if (idPrato != pratoAtual) {
                     if (pratoAtual != -1) {
                         item.setTipos(tipos);
-                        
+
                         try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
                             stmt2.setLong(1, idPrato);
                             ResultSet rs2 = stmt2.executeQuery();
                             fotos = new HashSet<>();
                             while (rs2.next()) {
                                 fotos.add(new Foto(rs2.getLong("id_arquivo"), null));
-                            }                            
+                            }
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
-                        item.setFotos(fotos);                        
-                        
+
+                        try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_complementos_item(?)")) {
+                            stmt2.setLong(1, idPrato);
+                            ResultSet rs2 = stmt2.executeQuery();
+                            complementos = new HashSet<>();
+                            while (rs2.next()) {
+                                complementos.add(new Complemento(
+                                        rs.getLong("id_complemento"),
+                                        rs.getString("nome"),
+                                        rs.getDouble("preco"),
+                                        new Foto(rs.getLong("id_arquivo"), null)));
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        item.setComplementos(complementos);
+                        item.setFotos(fotos);
                         itens.add(item);
                     }
                     pratoAtual = idPrato;
@@ -222,7 +238,7 @@ public class GerenciadorDAO extends BasicDAO {
                     item.setNome(rs.getString("nome"));
                     item.setPreco(rs.getDouble("preco"));
                     item.setDescricao(rs.getString("descricao"));
-                    item.setModificavel(rs.getBoolean("modificavel"));                    
+                    item.setModificavel(rs.getBoolean("modificavel"));
                     Genero genero = new Genero(rs.getLong("id_genero"), rs.getString("genero"));
                     item.setGenero(genero);
                     generos.add(genero);
@@ -231,21 +247,35 @@ public class GerenciadorDAO extends BasicDAO {
             }
             if (pratoAtual != -1) {
                 item.setTipos(tipos);
-                
+
                 try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
                     stmt2.setLong(1, item.getId());
                     ResultSet rs2 = stmt2.executeQuery();
                     fotos = new HashSet<>();
                     while (rs2.next()) {
                         fotos.add(new Foto(rs2.getLong("id_arquivo"), null));
-                    }                    
+                    }
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                
+                try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_complementos_item(?)")) {
+                    stmt2.setLong(1, item.getId());
+                    ResultSet rs2 = stmt2.executeQuery();
+                    complementos = new HashSet<>();
+                    while (rs2.next()) {
+                        complementos.add(new Complemento(
+                                rs.getLong("id_complemento"),
+                                rs.getString("nome"),
+                                rs.getDouble("preco"),
+                                new Foto(rs.getLong("id_arquivo"), null)));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                item.setComplementos(complementos);
                 item.setFotos(fotos);
-                
-                itens.add(item);                
+
+                itens.add(item);
             }
         } catch (SQLException e) {
             throw new DAOException("Erro ao recuperar informações", e);
@@ -263,7 +293,7 @@ public class GerenciadorDAO extends BasicDAO {
             stmt.setLong(4, item.getGenero().getId());
             stmt.setBoolean(5, item.isModificavel());
             ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {                
+            if (rs.next()) {
                 item.setId(rs.getLong("id"));
                 System.out.println("Adicionando o item de id: " + item.getId());
                 System.out.println("Quantidade de tipos para adicionar: " + item.getTipos().size());
@@ -296,8 +326,9 @@ public class GerenciadorDAO extends BasicDAO {
                     stmt.execute();
                     stmt.close();
                 }
-            } else
+            } else {
                 stmt.close();
+            }
         } catch (SQLException e) {
             throw new DAOException(e);
         }

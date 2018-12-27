@@ -142,7 +142,7 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.UNAUTHORIZED);
-    }    
+    }
 
     @PostMapping(value = "cliente/listar-itens")
     public ResponseEntity<ListaItens> getPratos() {
