@@ -83,10 +83,10 @@ public class ClienteDAO extends BasicDAO {
         }
     }
     
-    public void sairSessao(Usuario usuario) throws DAOException {
+    public void sairSessao(Usuario usuario, String token) throws DAOException {
         String sql = "CALL sessao_desvalidar(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
-            stmt.setLong(1, usuario.getIdUsuario());
+            stmt.setLong(1, usuario.getIdUsuario());            
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(e);

@@ -30,6 +30,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,40 +59,35 @@ public class ClienteController {
     @PostMapping("cliente/autenticar")
     public ResponseEntity<Mensagem> autenticar(@RequestBody Usuario usuario, HttpSession sessao) {
         Mensagem mensagem = new Mensagem();
-        if (sessao.getAttribute("usuario") == null) {
-            try (Connection conexao = new FabricaConexao().conectar()) {
-                ClienteDAO clienteDAO = new ClienteDAO(conexao);
-                Cliente cliente = clienteDAO.autenticar(usuario);
-                if (cliente != null) {
-                    String textoParaHash = usuario.getNomeUsuario() + usuario.getSenhaUsuario()
-                            + Calendar.getInstance().getTime().toString();
-                    MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
-                    byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            Cliente cliente = clienteDAO.autenticar(usuario);
+            if (cliente != null) {
+                String textoParaHash = usuario.getNomeUsuario() + usuario.getSenhaUsuario()
+                        + Calendar.getInstance().getTime().toString();
+                MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
+                byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));
 
-                    StringBuilder tokenHex = new StringBuilder();
-                    for (byte b : textoDigerido) {
-                        tokenHex.append(String.format("%02X", 0xFF & b));
-                    }
-                    clienteDAO.gerarSessao(cliente, tokenHex.toString());
-                    mensagem.setCodigo(0);
-                    mensagem.setDescricao(tokenHex.toString());
-                    sessao.setAttribute("usuario", new Usuario());
-                } else {
-                    mensagem.setCodigo(-1);
-                    mensagem.setDescricao("Usuário ou senha inválidos");
+                StringBuilder tokenHex = new StringBuilder();
+                for (byte b : textoDigerido) {
+                    tokenHex.append(String.format("%02X", 0xFF & b));
                 }
-            } catch (DAOException e) {
-                e.printStackTrace();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                clienteDAO.gerarSessao(cliente, tokenHex.toString());
+                mensagem.setCodigo(0);
+                mensagem.setDescricao(tokenHex.toString());
+                sessao.setAttribute("usuario", cliente);
+            } else {
+                mensagem.setCodigo(-1);
+                mensagem.setDescricao("Usuário ou senha inválidos");
             }
-        } else {
-            mensagem.setCodigo(1);
-            mensagem.setDescricao("Você já está logado");
+        } catch (DAOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -99,11 +95,11 @@ public class ClienteController {
     }
 
     @PostMapping("cliente/sair")
-    public ResponseEntity<Mensagem> sair(HttpSession sessao) {
+    public ResponseEntity<Mensagem> sair(HttpSession sessao, HttpServletRequest request) {
         Mensagem mensagem = new Mensagem();
-        try (Connection conexao = new FabricaConexao().conectar()){
+        try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.sairSessao((Usuario)sessao.getAttribute("usuario"));
+            clienteDAO.sairSessao((Usuario) sessao.getAttribute("usuario"), null);
             mensagem.setCodigo(0);
             mensagem.setDescricao("Desconectado do sistema");
             sessao.removeAttribute("usuario");
@@ -117,7 +113,7 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-    
+
     @RequestMapping("cliente/sem-autorizacao")
     public ResponseEntity<Mensagem> semAutorizacao() {
         Mensagem mensagem = new Mensagem();
