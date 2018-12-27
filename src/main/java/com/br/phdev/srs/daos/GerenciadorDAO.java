@@ -220,8 +220,8 @@ public class GerenciadorDAO extends BasicDAO {
                                 complementos.add(new Complemento(
                                         rs.getLong("id_complemento"),
                                         rs.getString("nome"),
-                                        rs.getDouble("preco"),
-                                        new Foto(rs.getLong("id_arquivo"), null)));
+                                        0,
+                                        null));
                             }
                         } catch (SQLException e) {
                             e.printStackTrace();
