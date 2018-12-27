@@ -266,7 +266,7 @@ public class ClienteController {
         return new ResponseEntity<>(formaPagamentos, httpHeaders, HttpStatus.OK);
     }
 
-    @PostMapping("cliente/imagens/{idArquivo}")
+    @GetMapping("cliente/imagens/{idArquivo}")
     @ResponseBody
     public ResponseEntity<byte[]> image(@PathVariable int idArquivo) {
         byte[] bytes = null;
