@@ -25,7 +25,8 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
             System.out.println(request.getSession().getId());
             return true;
         } else {
-            if (uri.contains("cliente/autenticar") || uri.contains("cliente/sem-autorizacao") || uri.contains("cliente/teste")) {
+            if (uri.contains("cliente/autenticar") || uri.contains("cliente/sem-autorizacao") || uri.contains("cliente/teste")
+                    || uri.contains("cliente/imagens")) {
                 return true;
             } else {                                
                 response.sendRedirect("sem-autorizacao");
