@@ -111,7 +111,7 @@ public class ClienteDAO extends BasicDAO {
                         item.setTipos(tipos);
 
                         try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
-                            stmt2.setLong(1, idPrato);
+                            stmt2.setLong(1, pratoAtual);
                             ResultSet rs2 = stmt2.executeQuery();
                             fotos = new HashSet<>();
                             while (rs2.next()) {
@@ -122,6 +122,7 @@ public class ClienteDAO extends BasicDAO {
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
+                        
                         item.setFotos(fotos);
                         itens.add(item);
                     }
@@ -137,13 +138,12 @@ public class ClienteDAO extends BasicDAO {
                     generos.add(genero);
                 }
                 tipos.add(new Tipo(rs.getLong("id_tipo"), rs.getString("tipo_nome")));
-            }
-            stmt.close();
+            }            
             if (pratoAtual != -1) {
                 item.setTipos(tipos);
 
                 try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
-                    stmt2.setLong(1, item.getId());
+                    stmt2.setLong(1, pratoAtual);
                     ResultSet rs2 = stmt2.executeQuery();
                     fotos = new HashSet<>();
                     while (rs2.next()) {
