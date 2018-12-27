@@ -299,11 +299,7 @@ public class GerenciadorDAO extends BasicDAO {
             stmt.setBoolean(5, item.isModificavel());
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                item.setId(rs.getLong("id"));
-                System.out.println("Adicionando o item de id: " + item.getId());
-                System.out.println("Quantidade de tipos para adicionar: " + item.getTipos().size());
-                System.out.println("Quantidade de complementos para adicionar: " + item.getComplementos().size());
-                System.out.println("Quantidade de arquivos para adicionar: " + item.getFotos().size());
+                item.setId(rs.getLong("id"));                
                 stmt.close();
                 for (Tipo tipo : item.getTipos()) {
                     sql = "CALL inserir_item_tipo(?,?)";
