@@ -218,8 +218,8 @@ public class GerenciadorDAO extends BasicDAO {
                             complementos = new HashSet<>();
                             while (rs2.next()) {
                                 complementos.add(new Complemento(
-                                        rs.getLong("id_complemento"),
-                                        rs.getString("nome"),
+                                        rs2.getLong("id_complemento"),
+                                        rs2.getString("nome"),
                                         0,
                                         null));
                             }
@@ -264,10 +264,10 @@ public class GerenciadorDAO extends BasicDAO {
                     complementos = new HashSet<>();
                     while (rs2.next()) {
                         complementos.add(new Complemento(
-                                rs.getLong("id_complemento"),
-                                rs.getString("nome"),
-                                rs.getDouble("preco"),
-                                new Foto(rs.getLong("id_arquivo"), null)));
+                                rs2.getLong("id_complemento"),
+                                rs2.getString("nome"),
+                                0,
+                                null));
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
