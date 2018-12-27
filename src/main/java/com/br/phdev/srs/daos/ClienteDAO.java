@@ -201,7 +201,7 @@ public class ClienteDAO extends BasicDAO {
                     fotos = new HashSet<>();
                     while (rs2.next()) {
                         Foto foto = new Foto();
-                        foto.setId(rs.getLong("id_arquivo"));
+                        foto.setId(rs2.getLong("id_arquivo"));
                         fotos.add(ServicoArmazenamento.setTamanho(foto));
                     }
                 } catch (SQLException e) {
@@ -216,7 +216,7 @@ public class ClienteDAO extends BasicDAO {
                                 rs2.getLong("id_complemento"),
                                 rs2.getString("nome"),
                                 0,
-                                null));
+                                new Foto(rs2.getLong("id_arquivo"), null, 0)));
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
