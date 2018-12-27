@@ -142,16 +142,7 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.UNAUTHORIZED);
-    }
-
-    @PostMapping("cliente/teste")
-    public ResponseEntity<Mensagem> teste(HttpSession sessao) {
-        Mensagem mensagem = new Mensagem();
-        System.out.println(sessao.getId());
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
-    }
+    }    
 
     @PostMapping(value = "cliente/listar-itens")
     public ResponseEntity<ListaItens> getPratos() {
@@ -169,7 +160,7 @@ public class ClienteController {
         return new ResponseEntity<>(listaItens, httpHeaders, HttpStatus.OK);
     }
 
-    @PostMapping(value = "InfoItem")
+    @PostMapping(value = "cliente/info-item")
     public ResponseEntity<Item> infoPrato(@RequestBody Item item) {
         Item prato = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
@@ -185,7 +176,7 @@ public class ClienteController {
         return new ResponseEntity<>(prato, httpHeaders, HttpStatus.OK);
     }
 
-    @PostMapping(value = "PreConfirmarPedido")
+    @PostMapping(value = "cliente/pre-confirmar-pedido")
     public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
@@ -209,7 +200,7 @@ public class ClienteController {
         return new ResponseEntity<>(confirmaPedido, httpHeaders, HttpStatus.OK);
     }
 
-    @PostMapping("ConfirmarPedido")
+    @PostMapping("cliente/confirmar-pedido")
     public ResponseEntity<Pedido> confirmarPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
         Pedido pedido = new Pedido();
         try (Connection conexao = new FabricaConexao().conectar()) {
@@ -239,7 +230,7 @@ public class ClienteController {
         return new ResponseEntity<>(pedido, httpHeaders, HttpStatus.OK);
     }
 
-    @PostMapping(value = "ListarEnderecos")
+    @PostMapping("cliente/listar-enderecos")
     public ResponseEntity<List<Endereco>> infoEndereco(HttpSession sessao) {
         List<Endereco> enderecos = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
@@ -257,7 +248,7 @@ public class ClienteController {
         return new ResponseEntity<>(enderecos, httpHeaders, HttpStatus.OK);
     }
 
-    @PostMapping(value = "ListarFormasPagamento")
+    @PostMapping(value = "cliente/listar-formas-pagamento")
     public ResponseEntity<List<FormaPagamento>> listarFormasPagamento(HttpSession sessao) {
         List<FormaPagamento> formaPagamentos = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
@@ -275,16 +266,16 @@ public class ClienteController {
         return new ResponseEntity<>(formaPagamentos, httpHeaders, HttpStatus.OK);
     }
 
-    @PostMapping("Imagem/{idArquivo}")
+    @PostMapping("cliente/imagens/{idArquivo}")
     @ResponseBody
     public ResponseEntity<byte[]> image(@PathVariable int idArquivo) {
         byte[] bytes = null;
         try (Connection con = new FabricaConexao().conectar()) {
-            Foto foto = new ClienteDAO(con).getPublicFile(idArquivo);
+            //Foto foto = new ClienteDAO(con).getPublicFile(idArquivo);
+            Foto foto = new Foto();
+            foto.setId(idArquivo);
             bytes = new ServicoArmazenamento().carregar(foto);
         } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (DAOException e) {
             e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();

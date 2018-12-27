@@ -191,7 +191,7 @@ public class GerenciadorDAO extends BasicDAO {
             itens = new ArrayList<>();
             Set<Tipo> tipos = new HashSet<>();
             Set<Genero> generos = new HashSet<>();
-            Set<Foto> fotos = new HashSet<>();
+            Set<Foto> fotos = null;
             Item item = new Item();
             long pratoAtual = -1;
             while (rs.next()) {
@@ -199,7 +199,19 @@ public class GerenciadorDAO extends BasicDAO {
                 if (idPrato != pratoAtual) {
                     if (pratoAtual != -1) {
                         item.setTipos(tipos);
-                        item.setFotos(fotos);
+                        
+                        try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
+                            stmt2.setLong(1, idPrato);
+                            ResultSet rs2 = stmt2.executeQuery();
+                            fotos = new HashSet<>();
+                            while (rs2.next()) {
+                                fotos.add(new Foto(rs2.getLong("id_arquivo"), null));
+                            }                            
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        item.setFotos(fotos);                        
+                        
                         itens.add(item);
                     }
                     pratoAtual = idPrato;
@@ -219,7 +231,20 @@ public class GerenciadorDAO extends BasicDAO {
             }
             if (pratoAtual != -1) {
                 item.setTipos(tipos);
+                
+                try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
+                    stmt2.setLong(1, item.getId());
+                    ResultSet rs2 = stmt2.executeQuery();
+                    fotos = new HashSet<>();
+                    while (rs2.next()) {
+                        fotos.add(new Foto(rs2.getLong("id_arquivo"), null));
+                    }                    
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                
                 item.setFotos(fotos);
+                
                 itens.add(item);                
             }
         } catch (SQLException e) {

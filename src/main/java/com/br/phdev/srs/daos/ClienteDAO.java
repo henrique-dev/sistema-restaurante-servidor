@@ -53,7 +53,7 @@ public class ClienteDAO extends BasicDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 if (rs.getString("erro") == null) {
-                    cliente = new Cliente(                            
+                    cliente = new Cliente(
                             rs.getLong("id_cliente"),
                             rs.getString("nome"),
                             rs.getString("cpf"),
@@ -71,7 +71,7 @@ public class ClienteDAO extends BasicDAO {
         }
         return cliente;
     }
-    
+
     public void gerarSessao(Usuario usuario, String token) throws DAOException {
         String sql = "CALL sessao_validar(?,?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
@@ -82,11 +82,11 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException(e);
         }
     }
-    
+
     public void sairSessao(Usuario usuario, String token) throws DAOException {
         String sql = "CALL sessao_desvalidar(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
-            stmt.setLong(1, usuario.getIdUsuario());            
+            stmt.setLong(1, usuario.getIdUsuario());
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(e);
@@ -95,13 +95,12 @@ public class ClienteDAO extends BasicDAO {
 
     public ListaItens getItens() throws DAOException {
         ListaItens listaItens = null;
-        String sql = "call listar_itens";
-        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL listar_itens")) {
             ResultSet rs = stmt.executeQuery();
             List<Item> itens = new ArrayList<>();
             Set<Tipo> tipos = new HashSet<>();
             Set<Genero> generos = new HashSet<>();
-            Set<Foto> fotos = new HashSet<>();
+            Set<Foto> fotos = null;
             Item item = new Item();
             long pratoAtual = -1;
             while (rs.next()) {
@@ -109,25 +108,48 @@ public class ClienteDAO extends BasicDAO {
                 if (idPrato != pratoAtual) {
                     if (pratoAtual != -1) {
                         item.setTipos(tipos);
+
+                        try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
+                            stmt2.setLong(1, idPrato);
+                            ResultSet rs2 = stmt2.executeQuery();
+                            fotos = new HashSet<>();
+                            while (rs2.next()) {
+                                fotos.add(new Foto(rs2.getLong("id_arquivo"), null));                                
+                            }                            
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
                         item.setFotos(fotos);
                         itens.add(item);
                     }
                     pratoAtual = idPrato;
                     item = new Item();
                     tipos = new HashSet<>();
-                    fotos = new HashSet<>();
                     item.setId(rs.getLong("id_item"));
                     item.setNome(rs.getString("nome"));
                     item.setPreco(rs.getDouble("preco"));
-                    item.setModificavel(rs.getBoolean("modificavel"));                    
+                    item.setModificavel(rs.getBoolean("modificavel"));
                     Genero genero = new Genero(rs.getLong("id_genero"), rs.getString("genero"));
                     item.setGenero(genero);
                     generos.add(genero);
                 }
                 tipos.add(new Tipo(rs.getLong("id_tipo"), rs.getString("tipo_nome")));
             }
+            stmt.close();
             if (pratoAtual != -1) {
-                item.setTipos(tipos);
+                item.setTipos(tipos);                
+
+                try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
+                    stmt2.setLong(1, item.getId());
+                    ResultSet rs2 = stmt2.executeQuery();
+                    fotos = new HashSet<>();
+                    while (rs2.next()) {
+                        fotos.add(new Foto(rs2.getLong("id_arquivo"), null));
+                    }                    
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                
                 item.setFotos(fotos);
                 itens.add(item);
                 listaItens = new ListaItens();
@@ -234,13 +256,13 @@ public class ClienteDAO extends BasicDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 foto = new Foto();
-                foto.setId(idArquivo);                
+                foto.setId(idArquivo);
             }
         } catch (SQLException e) {
             throw new DAOException("Falha ao adquirir informações do arquivo", e);
         }
         return foto;
-    }    
+    }
 
     public ConfirmaPedido inserirPrecos(ConfirmaPedido confirmaPedido) throws DAOException {
         String sql = "call get_preco_item(?)";
@@ -300,16 +322,16 @@ public class ClienteDAO extends BasicDAO {
         }
         return confirmaPedido;
     }
-    
+
     public void inserirPedido(Pedido pedido, Cliente cliente) throws DAOException {
         String sql = "call inserir_pedido(?,?,?,?,?,?)";
-        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {                        
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setObject(1, pedido.getData());
-            stmt.setDouble(1, pedido.getPrecoTotal());            
+            stmt.setDouble(1, pedido.getPrecoTotal());
             stmt.setLong(2, pedido.getFormaPagamento().getId());
             stmt.setLong(3, cliente.getId());
             stmt.setLong(4, pedido.getEndereco().getId());
-            ObjectMapper objectMapper = new ObjectMapper();            
+            ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(pedido.getItens());
             stmt.setString(5, json);
             stmt.execute();
