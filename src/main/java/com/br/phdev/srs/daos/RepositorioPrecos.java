@@ -42,11 +42,14 @@ public class RepositorioPrecos {
         try (PreparedStatement stmt = conexao.prepareStatement("CALL get_data_ultima_alteracao(?)")) {
             stmt.setLong(1, 1);
             ResultSet rs = stmt.executeQuery();
-            Timestamp timestamp = (Timestamp) rs.getObject("ultima_modificacao_itens");
-            return timestamp.toString();
+            if (rs.next()) {
+            Timestamp timestamp = (Timestamp) rs.getObject("ultima_modificacao_itens");            
+            return timestamp.toString();            
+            }            
         } catch (SQLException e) {
             throw new DAOException(e, 200);
         }
+        return null;
     }    
 
 }
