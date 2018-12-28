@@ -209,6 +209,24 @@ public class ClienteController {
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.UNAUTHORIZED);
     }
 
+    @PostMapping("cliente/meu-perfil")
+    public ResponseEntity<Cliente> meuPerfil(HttpSession sessao) {
+        Cliente cliente = (Cliente) sessao.getAttribute("usuario");
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            clienteDAO.getCliente(cliente);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            cliente = null;
+        } catch (DAOException e) {
+            e.printStackTrace();
+            cliente = null;
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(cliente, httpHeaders, HttpStatus.UNAUTHORIZED);
+    }
+
     @PostMapping(value = "cliente/listar-itens")
     public ResponseEntity<ListaItens> getPratos() {
         ListaItens listaItens = null;

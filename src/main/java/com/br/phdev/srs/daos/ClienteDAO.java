@@ -229,6 +229,23 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException(e, 200);
         }
     }
+    
+    public void getCliente(Cliente cliente) throws DAOException {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL get_perfil_cliente(?)")) {
+            stmt.setLong(1, cliente.getId());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                cliente.setNome(rs.getString("nome"));
+                cliente.setCpf(rs.getString("cpf"));
+                cliente.setNome(rs.getString("telefone"));
+                cliente.setNome(rs.getString("email"));                
+                cliente.setEnderecos(getEnderecos(cliente));
+            } else
+                cliente = null;
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
+        }        
+    }
 
     public ListaItens getItens() throws DAOException {
         ListaItens listaItens = null;
