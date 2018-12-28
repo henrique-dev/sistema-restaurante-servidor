@@ -20,6 +20,7 @@ import java.sql.SQLException;
 public class Teste {
     
     public static void main(String[] args) {
+        /*
         try (Connection conexao = new FabricaConexao().conectar()){            
             GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
             System.out.println(GerenciadorDAO.getProximoIndex(conexao, BasicDAO.Tabela.item));
@@ -33,7 +34,31 @@ public class Teste {
                     System.err.println(sqle.getMessage());
                 }                
             }
+        }*/
+        String cpf = "01741053200";
+        StringBuilder ultimosDigitos = new StringBuilder();
+        int soma = 0;
+        int fator = 10;
+        for (int i=0; i<cpf.length()-2; i++) {
+            soma += Integer.parseInt(String.valueOf(cpf.charAt(i))) * fator--;
         }
+        int resto = soma % 11;
+        if (resto == 0 || resto == 1)
+            ultimosDigitos.append(0);
+        else
+            ultimosDigitos.append((resto - 11));
+        soma = 0;
+        fator = 11;
+        for (int i=0; i<cpf.length()-2; i++) {
+            soma += Integer.parseInt(String.valueOf(cpf.charAt(i))) * fator--;
+        }
+        soma += Integer.parseInt(String.valueOf(ultimosDigitos.toString())) * 2;
+        resto = soma % 11;
+        if (resto == 0 || resto == 1)
+            ultimosDigitos.append(0);
+        else
+            ultimosDigitos.append((resto - 11));
+        System.out.println("Ultimos digitos: " + ultimosDigitos.toString());
     }
     
 }

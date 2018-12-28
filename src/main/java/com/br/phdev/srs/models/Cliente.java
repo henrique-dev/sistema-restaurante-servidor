@@ -88,7 +88,7 @@ public class Cliente extends Usuario {
 
     public void setEnderecos(List<Endereco> enderecos) {
         this.enderecos = enderecos;
-    }
+    }        
 
     @Override
     public String toString() {

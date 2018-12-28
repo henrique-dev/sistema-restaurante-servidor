@@ -8,6 +8,8 @@ package com.br.phdev.srs.controladores;
 
 import com.br.phdev.srs.daos.ClienteDAO;
 import com.br.phdev.srs.exceptions.DAOException;
+import com.br.phdev.srs.exceptions.DAOExpectedException;
+import com.br.phdev.srs.exceptions.DAOIncorrectData;
 import com.br.phdev.srs.jdbc.FabricaConexao;
 import com.br.phdev.srs.models.Cliente;
 import com.br.phdev.srs.models.ConfirmaPedido;
@@ -87,21 +89,17 @@ public class ClienteController {
                 mensagem.setCodigo(-1);
                 mensagem.setDescricao("Usuário ou senha inválidos");
             }
-        } catch (DAOException e) {
+        } catch (DAOException | SQLException | NoSuchAlgorithmException | UnsupportedEncodingException | DAOIncorrectData e) {
             e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            mensagem.setCodigo(-1);
+            mensagem.setDescricao(e.getMessage());            
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-
-    @PostMapping("cliente/teste-requisicao")
+    
+    /*@PostMapping("cliente/teste-requisicao")
     public ResponseEntity<HttpHeaders> testeRequisicao(HttpSession sessao, HttpServletRequest request) {
         Mensagem mensagem = new Mensagem();
 
@@ -118,7 +116,7 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(httpHeadersTmp, httpHeaders, HttpStatus.OK);
-    }
+    }*/
 
     @PostMapping("cliente/sair")
     public ResponseEntity<Mensagem> sair(HttpSession sessao, HttpServletRequest request) {
@@ -130,10 +128,10 @@ public class ClienteController {
             mensagem.setDescricao("Desconectado do sistema");
             sessao.removeAttribute("usuario");
             sessao.invalidate();
-        } catch (DAOException e) {
+        } catch (DAOException | SQLException e) {
             e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            mensagem.setCodigo(-1);
+            mensagem.setDescricao(e.getMessage());
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -148,39 +146,29 @@ public class ClienteController {
         StringBuilder token = new StringBuilder();
         try (Connection conexao = new FabricaConexao().conectar()) {
             MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
-            byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));            
-            for (int i=0; i<textoDigerido.length; i = i + 14) {
+            byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));
+            for (int i = 0; i < textoDigerido.length; i = i + 14) {
                 token.append(String.format("%02X", 0xFF & textoDigerido[i]));
             }
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.cadastrar(cliente, true, token.toString());            
+            clienteDAO.cadastrar(cliente, true, token.toString());
             new ServicoValidacaoCliente().enviarMensagem(cliente.getTelefone(), token.toString());
-            mensagem.setDescricao("Pre cadastro realizado. Falta somente ativar");
+            mensagem.setDescricao("Pre cadastro realizado. Agora só falta ativar");
             mensagem.setCodigo(0);
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException | SQLException | DAOException | DAOExpectedException | DAOIncorrectData e) {
             e.printStackTrace();
+            mensagem.setDescricao(e.getMessage());
             mensagem.setCodigo(-1);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            mensagem.setCodigo(-1);
-        } catch (DAOException e) {
-            if (e.getCause() instanceof SQLIntegrityConstraintViolationException) {
-                mensagem.setDescricao("O numero de telefone já se encontra cadastrado");
-                mensagem.setCodigo(2);
-            } else {
-                e.printStackTrace();
-                mensagem.setCodigo(-1);
-            }            
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-    
+
     @RequestMapping("cliente/validar-cadastro")
     public ResponseEntity<Mensagem> validarCadastro(@RequestBody ValidaCadastro validaCadastro) {
-        Mensagem mensagem = new Mensagem();        
-        try (Connection conexao = new FabricaConexao().conectar()) {            
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             if (clienteDAO.validarCadastro(validaCadastro)) {
                 mensagem.setCodigo(0);
@@ -188,18 +176,16 @@ public class ClienteController {
             } else {
                 mensagem.setCodigo(-2);
                 mensagem.setDescricao("Houve um problema ao ativar a conta");
-            }
-        } catch (SQLException e) {
+            } 
+        } catch (SQLException | DAOException | DAOIncorrectData e) {
             e.printStackTrace();
-            mensagem.setCodigo(-1);
-        } catch (DAOException e) {
-            e.printStackTrace();
+            mensagem.setDescricao(e.getMessage());
             mensagem.setCodigo(-1);
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
-    }    
+    }
 
     @RequestMapping("cliente/sem-autorizacao")
     public ResponseEntity<Mensagem> semAutorizacao() {
