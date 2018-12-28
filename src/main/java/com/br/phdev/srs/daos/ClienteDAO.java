@@ -232,8 +232,8 @@ public class ClienteDAO extends BasicDAO {
             if (rs.next()) {
                 cliente.setNome(rs.getString("nome"));
                 cliente.setCpf(rs.getString("cpf"));
-                cliente.setNome(rs.getString("telefone"));
-                cliente.setNome(rs.getString("email"));                
+                cliente.setTelefone(rs.getString("telefone"));
+                cliente.setEmail(rs.getString("email"));                
                 cliente.setEnderecos(getEnderecos(cliente));
             } else
                 cliente = null;
