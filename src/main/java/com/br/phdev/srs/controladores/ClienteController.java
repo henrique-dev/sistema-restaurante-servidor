@@ -7,6 +7,7 @@
 package com.br.phdev.srs.controladores;
 
 import com.br.phdev.srs.daos.ClienteDAO;
+import com.br.phdev.srs.daos.RepositorioPrecos;
 import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.DAOExpectedException;
 import com.br.phdev.srs.exceptions.DAOIncorrectData;
@@ -107,24 +108,26 @@ public class ClienteController {
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
 
-    /*@PostMapping("cliente/teste-requisicao")
-    public ResponseEntity<HttpHeaders> testeRequisicao(HttpSession sessao, HttpServletRequest request) {
+    @GetMapping("cliente/teste")
+    public ResponseEntity<Mensagem> testeRequisicao(HttpSession sessao, HttpServletRequest request) {
         Mensagem mensagem = new Mensagem();
-
-        HttpHeaders httpHeadersTmp = new HttpHeaders();
-        Enumeration headersEnum = request.getHeaderNames();
-        while (headersEnum.hasMoreElements()) {
-            String header = (String) headersEnum.nextElement();
-            Enumeration valuesEnum = request.getHeaders(header);
-            while (valuesEnum.hasMoreElements()) {
-                httpHeadersTmp.add(header, valuesEnum.nextElement().toString());
-            }
+        
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            mensagem.setDescricao(RepositorioPrecos.getInstancia().carregarPrecos(conexao));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(200);
+            mensagem.setDescricao(e.getMessage());
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(e.codigo);
+            mensagem.setDescricao(e.getMessage());
         }
-
+        
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(httpHeadersTmp, httpHeaders, HttpStatus.OK);
-    }*/
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
     
     @PostMapping("cliente/sair")
     public ResponseEntity<Mensagem> sair(HttpSession sessao, HttpServletRequest request) {
@@ -224,33 +227,7 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
-    }
-
-    @RequestMapping("cliente/validar-cadastro-aaaaaaaaaa")
-    public ResponseEntity<Mensagem> validarCadastro(@RequestBody ValidaCadastro validaCadastro) {
-        Mensagem mensagem = new Mensagem();
-        try (Connection conexao = new FabricaConexao().conectar()) {
-            ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (clienteDAO.validarCadastro(validaCadastro)) {
-                mensagem.setCodigo(100);
-                mensagem.setDescricao("Sua conta foi ativada");
-            } else {
-                mensagem.setCodigo(101);
-                mensagem.setDescricao("Houve um problema ao ativar a conta");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            mensagem.setDescricao(e.getMessage());
-            mensagem.setCodigo(200);
-        } catch (DAOException e) {
-            e.printStackTrace();
-            mensagem.setCodigo(e.codigo);
-            mensagem.setDescricao(e.getMessage());
-        }
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
-    }
+    }    
 
     @RequestMapping("cliente/sem-autorizacao")
     public ResponseEntity<Mensagem> semAutorizacao() {
@@ -345,7 +322,7 @@ public class ClienteController {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             ServicoPagamento servicoPagamento = new ServicoPagamento();
-            if (!servicoPagamento.efetuarPagamento()) {
+            if (servicoPagamento.efetuarPagamento()) {
                 pedido = new Pedido();
                 pedido.setData(new Timestamp(Calendar.getInstance().getTimeInMillis()));
                 pedido.setEndereco(confirmaPedido.getEnderecos().get(0));
