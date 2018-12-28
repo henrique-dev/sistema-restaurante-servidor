@@ -29,6 +29,7 @@ import com.br.phdev.srs.utils.ServicoPagamento;
 import com.br.phdev.srs.utils.ServicoValidacaoCliente;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.twilio.exception.ApiException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -147,11 +148,15 @@ public class ClienteController {
 
     @RequestMapping("cliente/cadastrar")
     public ResponseEntity<Mensagem> cadastrar(@RequestBody Cliente cliente) {
-        Mensagem mensagem = new Mensagem();                
-        try (Connection conexao = new FabricaConexao().conectar()) {            
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             String token = clienteDAO.cadastrar(cliente, true, this.chave);
-            new ServicoValidacaoCliente().enviarMensagem(cliente.getTelefone(), token);
+            try {
+                new ServicoValidacaoCliente().enviarMensagem(cliente.getTelefone(), token);
+            } catch (ApiException e) {
+                e.printStackTrace();
+            }
             mensagem.setDescricao("Pre cadastro realizado. Agora só falta ativar");
             mensagem.setCodigo(100);
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException | SQLException e) {
@@ -307,7 +312,7 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(enderecos, httpHeaders, HttpStatus.OK);
-    }        
+    }
 
     @PostMapping(value = "cliente/listar-formas-pagamento")
     public ResponseEntity<List<FormaPagamento>> listarFormasPagamento(HttpSession sessao) {

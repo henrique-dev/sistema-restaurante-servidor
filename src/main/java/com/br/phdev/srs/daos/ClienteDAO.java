@@ -51,7 +51,7 @@ public class ClienteDAO extends BasicDAO {
         super(conexao);
     }
 
-    public String cadastrar(Cliente cliente, boolean opcao, String chave) throws DAOException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    synchronized public String cadastrar(Cliente cliente, boolean opcao, String chave) throws DAOException, NoSuchAlgorithmException, UnsupportedEncodingException {
         if (cliente == null) {
             throw new DAOIncorrectData(300);
         }
