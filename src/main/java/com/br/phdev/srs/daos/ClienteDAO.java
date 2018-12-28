@@ -26,11 +26,15 @@ import com.br.phdev.srs.utils.Arquivo;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,9 +51,10 @@ public class ClienteDAO extends BasicDAO {
         super(conexao);
     }
 
-    public void cadastrar(Cliente cliente, boolean opcao, String token) throws DAOException {
-        if (cliente == null)
+    public String cadastrar(Cliente cliente, boolean opcao, String chave) throws DAOException, NoSuchAlgorithmException, UnsupportedEncodingException {
+        if (cliente == null) {
             throw new DAOIncorrectData(300);
+        }
         if (cliente.getNome() == null || cliente.getCpf() == null || cliente.getEmail() == null
                 || cliente.getTelefone() == null || cliente.getSenhaUsuario() == null) {
             throw new DAOIncorrectData(300);
@@ -59,7 +64,7 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOIncorrectData(301);
         }
         for (char c : cliente.getNome().toCharArray()) {
-            if (!(((int) c > 64 && (int) c < 91) || ((int) c > 96 && (int) c < 122)) && (int)c != 32) {
+            if (!(((int) c > 64 && (int) c < 91) || ((int) c > 96 && (int) c < 122)) && (int) c != 32) {
                 throw new DAOIncorrectData(302);
             }
         }
@@ -76,32 +81,44 @@ public class ClienteDAO extends BasicDAO {
                 throw new DAOIncorrectData(305);
             }
         }
-        
+
         StringBuilder ultimosDigitos = new StringBuilder();
         int soma = 0;
         int fator = 10;
-        for (int i=0; i<cliente.getCpf().length()-2; i++) {
+        for (int i = 0; i < cliente.getCpf().length() - 2; i++) {
             soma += Integer.parseInt(String.valueOf(cliente.getCpf().charAt(i))) * fator--;
         }
         int resto = soma % 11;
-        if (resto == 0 || resto == 1)
+        if (resto == 0 || resto == 1) {
             ultimosDigitos.append(0);
-        else
+        } else {
             ultimosDigitos.append((11 - resto));
+        }
         soma = 0;
         fator = 11;
-        for (int i=0; i<cliente.getCpf().length()-2; i++) {
+        for (int i = 0; i < cliente.getCpf().length() - 2; i++) {
             soma += Integer.parseInt(String.valueOf(cliente.getCpf().charAt(i))) * fator--;
         }
         soma += Integer.parseInt(String.valueOf(ultimosDigitos.toString())) * 2;
         resto = soma % 11;
-        if (resto == 0 || resto == 1)
+        if (resto == 0 || resto == 1) {
             ultimosDigitos.append(0);
-        else
+        } else {
             ultimosDigitos.append((11 - resto));
-        
-        if (!cliente.getCpf().endsWith(ultimosDigitos.toString()))
+        }
+
+        if (!cliente.getCpf().endsWith(ultimosDigitos.toString())) {
             throw new DAOIncorrectData(306);
+        }
+
+        StringBuilder token = new StringBuilder();
+        String textoParaHash = cliente.getEmail() + cliente.getTelefone()
+                + Calendar.getInstance().getTime().toString() + chave;
+        MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
+        byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));
+        for (int i = 0; i < textoDigerido.length; i = i + 14) {
+            token.append(String.format("%02X", 0xFF & textoDigerido[i]));
+        }
 
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL cadastrar_cliente(?,?,?,?,?,?,?)")) {
             stmt.setString(1, cliente.getNome());
@@ -110,21 +127,24 @@ public class ClienteDAO extends BasicDAO {
             stmt.setString(4, cliente.getEmail());
             stmt.setString(5, cliente.getSenhaUsuario());
             stmt.setBoolean(6, opcao);
-            stmt.setString(7, token);
+            stmt.setString(7, token.toString());
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 if (rs.getString("erro") != null) {
                     throw new DAOExpectedException(rs.getString("erro"), 400);
                 }
+                return token.toString();
             }
         } catch (SQLException e) {
-            throw new DAOException("Falha ao tentar autenticar o usuário", e, 200);
+            throw new DAOException(e, 200);
         }
+        return null;
     }
 
     public boolean validarCadastro(ValidaCadastro validaCadastro) throws DAOException {
-        if (validaCadastro == null)
+        if (validaCadastro == null) {
             throw new DAOIncorrectData(300);
+        }
         if (validaCadastro.getUsuario() == null || validaCadastro.getToken() == null) {
             throw new DAOIncorrectData(300);
         }
@@ -140,14 +160,15 @@ public class ClienteDAO extends BasicDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DAOException("Falha ao tentar validar o cadastro", e, 200);
+            throw new DAOException(e, 200);
         }
         return false;
     }
 
     public Cliente autenticar(Usuario usuario) throws DAOException {
-        if (usuario == null)
+        if (usuario == null) {
             throw new DAOIncorrectData(300);
+        }
         if (usuario.getNomeUsuario() == null || usuario.getSenhaUsuario() == null) {
             throw new DAOIncorrectData(300);
         }
@@ -177,7 +198,7 @@ public class ClienteDAO extends BasicDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DAOException("Erro ao recuperar informações", e, 200);
+            throw new DAOException(e, 200);
         }
         return cliente;
     }
@@ -194,10 +215,12 @@ public class ClienteDAO extends BasicDAO {
     }
 
     public void sairSessao(Usuario usuario, String token) throws DAOException {
-        if (usuario == null)
+        if (usuario == null) {
             throw new DAOIncorrectData(300);
-        if (usuario.getIdUsuario() == 0)
+        }
+        if (usuario.getIdUsuario() == 0) {
             throw new DAOIncorrectData(301);
+        }
         String sql = "CALL sessao_desvalidar(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setLong(1, usuario.getIdUsuario());
@@ -281,24 +304,26 @@ public class ClienteDAO extends BasicDAO {
     }
 
     public Item getItem(Item item) throws DAOException {
-        if (item == null)
+        if (item == null) {
             throw new DAOIncorrectData(300);
-        if (item.getId() == 0)
+        }
+        if (item.getId() == 0) {
             throw new DAOIncorrectData(301);
+        }
         String sql = "call info_item(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setLong(1, item.getId());
             ResultSet rs = stmt.executeQuery();
             Set<Tipo> tipos = new HashSet<>();
             Set<Foto> fotos = new HashSet<>();
-            Set<Complemento> complementos = new HashSet<>();            
+            Set<Complemento> complementos = new HashSet<>();
             long itemAtual = -1;
             while (rs.next()) {
                 long idItemRecuperado = rs.getLong("id_item");
                 if (idItemRecuperado != itemAtual) {
                     itemAtual = idItemRecuperado;
                     tipos = new HashSet<>();
-                    fotos = new HashSet<>();                    
+                    fotos = new HashSet<>();
                     item.setNome(rs.getString("nome"));
                     item.setPreco(rs.getDouble("preco"));
                     item.setDescricao(rs.getString("descricao"));
@@ -347,10 +372,12 @@ public class ClienteDAO extends BasicDAO {
     }
 
     public List<Endereco> getEnderecos(Cliente cliente) throws DAOException {
-        if (cliente == null)
+        if (cliente == null) {
             throw new DAOIncorrectData(300);
-        if (cliente.getId() == 0)
+        }
+        if (cliente.getId() == 0) {
             throw new DAOIncorrectData(301);
+        }
         List<Endereco> enderecos = null;
         String sql = "call listar_enderecos(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
@@ -375,10 +402,12 @@ public class ClienteDAO extends BasicDAO {
     }
 
     public List<FormaPagamento> getFormasPagamento(Cliente cliente) throws DAOException {
-        if (cliente == null)
+        if (cliente == null) {
             throw new DAOIncorrectData(300);
-        if (cliente.getId() == 0)
+        }
+        if (cliente.getId() == 0) {
             throw new DAOIncorrectData(301);
+        }
         List<FormaPagamento> formaPagamentos = null;
         String sql = "call listar_formaspagamento(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
@@ -398,8 +427,9 @@ public class ClienteDAO extends BasicDAO {
     }
 
     public Foto getPublicFile(int idArquivo) throws DAOException {
-        if (idArquivo == 0)
+        if (idArquivo == 0) {
             throw new DAOIncorrectData(301);
+        }
         Foto foto = null;
         String sql = "call get_foto(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
@@ -416,10 +446,12 @@ public class ClienteDAO extends BasicDAO {
     }
 
     public ConfirmaPedido inserirPrecos(ConfirmaPedido confirmaPedido) throws DAOException, DAOIncorrectData {
-        if (confirmaPedido.getItens() == null)
+        if (confirmaPedido.getItens() == null) {
             throw new DAOIncorrectData(300);
-        if (confirmaPedido.getItens().isEmpty())
+        }
+        if (confirmaPedido.getItens().isEmpty()) {
             throw new DAOIncorrectData(301);
+        }
         String sql = "call get_preco_item(?)";
         try {
             PreparedStatement stmt = super.conexao.prepareStatement(sql);
@@ -479,8 +511,9 @@ public class ClienteDAO extends BasicDAO {
     }
 
     public void inserirPedido(Pedido pedido, Cliente cliente) throws DAOException {
-        if (pedido == null || cliente == null)
-            throw new DAOIncorrectData(300);        
+        if (pedido == null || cliente == null) {
+            throw new DAOIncorrectData(300);
+        }
         String sql = "call inserir_pedido(?,?,?,?,?,?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setObject(1, pedido.getData());

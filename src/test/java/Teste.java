@@ -37,7 +37,7 @@ public class Teste {
         }*/
         
         
-        String cpf = "01741053200";
+        String cpf = "02295260202";
         StringBuilder ultimosDigitos = new StringBuilder();
         int soma = 0;
         int fator = 10;

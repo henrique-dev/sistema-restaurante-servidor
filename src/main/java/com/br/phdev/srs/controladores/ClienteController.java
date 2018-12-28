@@ -147,19 +147,11 @@ public class ClienteController {
 
     @RequestMapping("cliente/cadastrar")
     public ResponseEntity<Mensagem> cadastrar(@RequestBody Cliente cliente) {
-        Mensagem mensagem = new Mensagem();
-        String textoParaHash = cliente.getEmail() + cliente.getTelefone()
-                + Calendar.getInstance().getTime().toString() + this.chave;
-        StringBuilder token = new StringBuilder();
-        try (Connection conexao = new FabricaConexao().conectar()) {
-            MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
-            byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));
-            for (int i = 0; i < textoDigerido.length; i = i + 14) {
-                token.append(String.format("%02X", 0xFF & textoDigerido[i]));
-            }
+        Mensagem mensagem = new Mensagem();                
+        try (Connection conexao = new FabricaConexao().conectar()) {            
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.cadastrar(cliente, true, token.toString());
-            new ServicoValidacaoCliente().enviarMensagem(cliente.getTelefone(), token.toString());
+            String token = clienteDAO.cadastrar(cliente, true, this.chave);
+            new ServicoValidacaoCliente().enviarMensagem(cliente.getTelefone(), token);
             mensagem.setDescricao("Pre cadastro realizado. Agora só falta ativar");
             mensagem.setCodigo(100);
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException | SQLException e) {
