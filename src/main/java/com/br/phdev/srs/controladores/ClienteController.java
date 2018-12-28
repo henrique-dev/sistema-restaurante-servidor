@@ -215,6 +215,7 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             clienteDAO.getCliente(cliente);
+            cliente.setIdUsuario(0);            
         } catch (SQLException e) {
             e.printStackTrace();
             cliente = null;
