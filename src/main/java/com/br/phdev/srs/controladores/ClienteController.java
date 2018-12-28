@@ -11,6 +11,7 @@ import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.DAOExpectedException;
 import com.br.phdev.srs.exceptions.DAOIncorrectData;
 import com.br.phdev.srs.jdbc.FabricaConexao;
+import com.br.phdev.srs.models.Cadastro;
 import com.br.phdev.srs.models.Cliente;
 import com.br.phdev.srs.models.ConfirmaPedido;
 import com.br.phdev.srs.models.Endereco;
@@ -81,10 +82,11 @@ public class ClienteController {
                 for (byte b : textoDigerido) {
                     tokenHex.append(String.format("%02X", 0xFF & b));
                 }
-                clienteDAO.gerarSessao(cliente, tokenHex.toString());
+                clienteDAO.gerarSessao(usuario, tokenHex.toString());
                 mensagem.setCodigo(100);
                 mensagem.setDescricao(tokenHex.toString());
-                sessao.setAttribute("usuario", cliente);
+                sessao.setAttribute("usuario", usuario);
+                sessao.setAttribute("cliente", cliente);
                 sessao.setAttribute("token", tokenHex.toString());
             } else {
                 mensagem.setCodigo(101);
@@ -131,6 +133,7 @@ public class ClienteController {
             mensagem.setCodigo(100);
             mensagem.setDescricao("Desconectado do sistema");
             sessao.removeAttribute("usuario");
+            sessao.removeAttribute("cliente");
             sessao.invalidate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -147,13 +150,13 @@ public class ClienteController {
     }
 
     @RequestMapping("cliente/cadastrar")
-    public ResponseEntity<Mensagem> cadastrar(@RequestBody Cliente cliente) {
+    public ResponseEntity<Mensagem> cadastrar(@RequestBody Cadastro cadastro) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            String token = clienteDAO.cadastrar(cliente, true, this.chave);
+            String token = clienteDAO.cadastrar(cadastro, true, this.chave);
             try {
-                new ServicoValidacaoCliente().enviarMensagem(cliente.getTelefone(), token);
+                new ServicoValidacaoCliente().enviarMensagem(cadastro.getTelefone(), token);
             } catch (ApiException e) {
                 e.printStackTrace();
             }
@@ -211,11 +214,10 @@ public class ClienteController {
 
     @PostMapping("cliente/meu-perfil")
     public ResponseEntity<Cliente> meuPerfil(HttpSession sessao) {
-        Cliente cliente = (Cliente) sessao.getAttribute("usuario");
+        Cliente cliente = (Cliente) sessao.getAttribute("cliente");
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.getCliente(cliente);
-            cliente.setIdUsuario(0);            
+            clienteDAO.getCliente(cliente);            
         } catch (SQLException e) {
             e.printStackTrace();
             cliente = null;
@@ -265,7 +267,7 @@ public class ClienteController {
     public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            Cliente cliente = (Cliente) sessao.getAttribute("usuario");
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             clienteDAO.inserirPrecos(confirmaPedido);
             List<Endereco> enderecos = clienteDAO.getEnderecos(cliente);
             List<FormaPagamento> formaPagamentos = clienteDAO.getFormasPagamento(cliente);

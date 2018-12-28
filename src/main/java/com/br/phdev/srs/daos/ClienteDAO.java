@@ -9,6 +9,7 @@ package com.br.phdev.srs.daos;
 import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.DAOExpectedException;
 import com.br.phdev.srs.exceptions.DAOIncorrectData;
+import com.br.phdev.srs.models.Cadastro;
 import com.br.phdev.srs.models.Cliente;
 import com.br.phdev.srs.models.Complemento;
 import com.br.phdev.srs.models.ConfirmaPedido;
@@ -51,32 +52,32 @@ public class ClienteDAO extends BasicDAO {
         super(conexao);
     }
 
-    synchronized public String cadastrar(Cliente cliente, boolean opcao, String chave) throws DAOException, NoSuchAlgorithmException, UnsupportedEncodingException {
-        if (cliente == null) {
+    synchronized public String cadastrar(Cadastro cadastro, boolean opcao, String chave) throws DAOException, NoSuchAlgorithmException, UnsupportedEncodingException {
+        if (cadastro == null) {
             throw new DAOIncorrectData(300);
         }
-        if (cliente.getNome() == null || cliente.getCpf() == null || cliente.getEmail() == null
-                || cliente.getTelefone() == null || cliente.getSenhaUsuario() == null) {
+        if (cadastro.getNome() == null || cadastro.getCpf() == null || cadastro.getEmail() == null
+                || cadastro.getTelefone() == null || cadastro.getSenhaUsuario() == null) {
             throw new DAOIncorrectData(300);
         }
-        if (cliente.getNome().trim().isEmpty() || cliente.getCpf().trim().isEmpty() || cliente.getEmail().trim().isEmpty()
-                || cliente.getTelefone().trim().isEmpty() || cliente.getSenhaUsuario().trim().isEmpty()) {
+        if (cadastro.getNome().trim().isEmpty() || cadastro.getCpf().trim().isEmpty() || cadastro.getEmail().trim().isEmpty()
+                || cadastro.getTelefone().trim().isEmpty() || cadastro.getSenhaUsuario().trim().isEmpty()) {
             throw new DAOIncorrectData(301);
         }
-        for (char c : cliente.getNome().toCharArray()) {
+        for (char c : cadastro.getNome().toCharArray()) {
             if (!(((int) c > 64 && (int) c < 91) || ((int) c > 96 && (int) c < 122)) && (int) c != 32) {
                 throw new DAOIncorrectData(302);
             }
         }
-        if (!cliente.getEmail().contains("@")) {
+        if (!cadastro.getEmail().contains("@")) {
             throw new DAOIncorrectData(303);
         }
-        for (char c : cliente.getCpf().toCharArray()) {
+        for (char c : cadastro.getCpf().toCharArray()) {
             if (!((int) c > 47 && (int) c < 58)) {
                 throw new DAOIncorrectData(304);
             }
         }
-        for (char c : cliente.getTelefone().toCharArray()) {
+        for (char c : cadastro.getTelefone().toCharArray()) {
             if (!((int) c > 47 && (int) c < 58)) {
                 throw new DAOIncorrectData(305);
             }
@@ -85,8 +86,8 @@ public class ClienteDAO extends BasicDAO {
         StringBuilder ultimosDigitos = new StringBuilder();
         int soma = 0;
         int fator = 10;
-        for (int i = 0; i < cliente.getCpf().length() - 2; i++) {
-            soma += Integer.parseInt(String.valueOf(cliente.getCpf().charAt(i))) * fator--;
+        for (int i = 0; i < cadastro.getCpf().length() - 2; i++) {
+            soma += Integer.parseInt(String.valueOf(cadastro.getCpf().charAt(i))) * fator--;
         }
         int resto = soma % 11;
         if (resto == 0 || resto == 1) {
@@ -96,8 +97,8 @@ public class ClienteDAO extends BasicDAO {
         }
         soma = 0;
         fator = 11;
-        for (int i = 0; i < cliente.getCpf().length() - 2; i++) {
-            soma += Integer.parseInt(String.valueOf(cliente.getCpf().charAt(i))) * fator--;
+        for (int i = 0; i < cadastro.getCpf().length() - 2; i++) {
+            soma += Integer.parseInt(String.valueOf(cadastro.getCpf().charAt(i))) * fator--;
         }
         soma += Integer.parseInt(String.valueOf(ultimosDigitos.toString())) * 2;
         resto = soma % 11;
@@ -107,12 +108,12 @@ public class ClienteDAO extends BasicDAO {
             ultimosDigitos.append((11 - resto));
         }
 
-        if (!cliente.getCpf().endsWith(ultimosDigitos.toString())) {
+        if (!cadastro.getCpf().endsWith(ultimosDigitos.toString())) {
             throw new DAOIncorrectData(306);
         }
 
         StringBuilder token = new StringBuilder();
-        String textoParaHash = cliente.getEmail() + cliente.getTelefone()
+        String textoParaHash = cadastro.getEmail() + cadastro.getTelefone()
                 + Calendar.getInstance().getTime().toString() + chave;
         MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
         byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));
@@ -121,11 +122,11 @@ public class ClienteDAO extends BasicDAO {
         }
 
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL cadastrar_cliente(?,?,?,?,?,?,?)")) {
-            stmt.setString(1, cliente.getNome());
-            stmt.setString(2, cliente.getCpf());
-            stmt.setString(3, cliente.getTelefone());
-            stmt.setString(4, cliente.getEmail());
-            stmt.setString(5, cliente.getSenhaUsuario());
+            stmt.setString(1, cadastro.getNome());
+            stmt.setString(2, cadastro.getCpf());
+            stmt.setString(3, cadastro.getTelefone());
+            stmt.setString(4, cadastro.getEmail());
+            stmt.setString(5, cadastro.getSenhaUsuario());
             stmt.setBoolean(6, opcao);
             stmt.setString(7, token.toString());
             ResultSet rs = stmt.executeQuery();
@@ -181,20 +182,14 @@ public class ClienteDAO extends BasicDAO {
             PreparedStatement stmt = super.conexao.prepareStatement(sql);
             stmt.setString(1, usuario.getNomeUsuario());
             stmt.setString(2, usuario.getSenhaUsuario());
-            ResultSet rs = stmt.executeQuery();
+            ResultSet rs = stmt.executeQuery();            
             if (rs.next()) {
                 if (rs.getString("erro") == null) {
-                    cliente = new Cliente(
-                            rs.getLong("id_cliente"),
-                            rs.getString("nome"),
-                            rs.getString("cpf"),
-                            rs.getString("telefone"),
-                            rs.getString("email"),
-                            null,
-                            rs.getLong("id_usuario"),
-                            usuario.getNomeUsuario(),
-                            null
-                    );
+                    usuario.setIdUsuario(rs.getLong("id_usuario"));
+                    usuario.setNomeUsuario(null);
+                    usuario.setSenhaUsuario(null);
+                    cliente = new Cliente();
+                    cliente.setId(rs.getLong("id_cliente"));
                 }
             }
         } catch (SQLException e) {

@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
-public class Cliente extends Usuario {
+public class Cliente {
     
     private long id;
     private String nome;
@@ -26,21 +26,16 @@ public class Cliente extends Usuario {
     
     public Cliente(long id) {
         this.id = id;
-    }            
+    }                     
 
-    public Cliente(long idUsuario, String nomeUsuario, String senha) {
-        super(idUsuario, nomeUsuario, senha);
-    }        
-
-    public Cliente(long id, String nome, String cpf, String telefone, String email, List<Endereco> enderecos, long idUsuario, String nomeUsuario, String senha) {
-        super(idUsuario, nomeUsuario, senha);
+    public Cliente(long id, String nome, String cpf, String telefone, String email, List<Endereco> enderecos) {
         this.id = id;
         this.nome = nome;
         this.cpf = cpf;
         this.telefone = telefone;
         this.email = email;
         this.enderecos = enderecos;
-    }
+    }    
 
     public long getId() {
         return id;
