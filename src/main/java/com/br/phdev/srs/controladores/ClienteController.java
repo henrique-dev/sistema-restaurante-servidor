@@ -210,7 +210,7 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             clienteDAO.cadastrar(cadastro);            
-            mensagem.setDescricao("Pre cadastro realizado. Agora só falta ativar");
+            mensagem.setDescricao("Cadastro realizado com sucesso");
             mensagem.setCodigo(100);
         } catch (SQLException e) {
             e.printStackTrace();
