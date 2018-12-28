@@ -113,7 +113,7 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOIncorrectData(306);
         }        
 
-        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL cadastrar_cliente(?,?,?,?,?,?,?)")) {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL cadastrar_cliente(?,?,?,?,?,?)")) {
             stmt.setString(1, cadastro.getNome());
             stmt.setString(2, cadastro.getCpf());
             stmt.setString(3, cadastro.getTelefone());
