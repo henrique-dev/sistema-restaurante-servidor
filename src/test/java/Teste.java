@@ -36,7 +36,7 @@ public class Teste {
             }
         }*/
         
-        /*
+        
         String cpf = "01741053200";
         StringBuilder ultimosDigitos = new StringBuilder();
         int soma = 0;
@@ -48,7 +48,7 @@ public class Teste {
         if (resto == 0 || resto == 1)
             ultimosDigitos.append(0);
         else
-            ultimosDigitos.append((resto - 11));
+            ultimosDigitos.append((11 - resto));
         soma = 0;
         fator = 11;
         for (int i=0; i<cpf.length()-2; i++) {
@@ -59,16 +59,17 @@ public class Teste {
         if (resto == 0 || resto == 1)
             ultimosDigitos.append(0);
         else
-            ultimosDigitos.append((resto - 11));
+            ultimosDigitos.append((11 - resto));
         System.out.println("Ultimos digitos: " + ultimosDigitos.toString());
-        */
+        
+        /*
         String nome = "Paulo Henrique";
         for (char c : nome.toCharArray()) {                        
             if (!(((int) c > 64 && (int) c < 91) || ((int) c > 96 && (int) c < 122)) && (int)c != 32) {
                 System.out.println(c);
                 System.out.println("Nome errado");
             }
-        }
+        }*/
     }
     
 }

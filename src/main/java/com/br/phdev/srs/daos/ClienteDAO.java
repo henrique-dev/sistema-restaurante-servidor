@@ -87,7 +87,7 @@ public class ClienteDAO extends BasicDAO {
         if (resto == 0 || resto == 1)
             ultimosDigitos.append(0);
         else
-            ultimosDigitos.append((resto - 11));
+            ultimosDigitos.append((11 - resto));
         soma = 0;
         fator = 11;
         for (int i=0; i<cliente.getCpf().length()-2; i++) {
@@ -98,7 +98,7 @@ public class ClienteDAO extends BasicDAO {
         if (resto == 0 || resto == 1)
             ultimosDigitos.append(0);
         else
-            ultimosDigitos.append((resto - 11));
+            ultimosDigitos.append((11 - resto));
         
         if (!cliente.getCpf().endsWith(ultimosDigitos.toString()))
             throw new DAOIncorrectData(306);

@@ -92,7 +92,7 @@ public class ClienteController {
         } catch (SQLException | NoSuchAlgorithmException | UnsupportedEncodingException e) {
             e.printStackTrace();
             mensagem.setCodigo(200);
-            mensagem.setDescricao(e.getMessage());            
+            mensagem.setDescricao(e.getMessage());
         } catch (DAOException e) {
             e.printStackTrace();
             mensagem.setCodigo(e.codigo);
@@ -102,7 +102,7 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-    
+
     /*@PostMapping("cliente/teste-requisicao")
     public ResponseEntity<HttpHeaders> testeRequisicao(HttpSession sessao, HttpServletRequest request) {
         Mensagem mensagem = new Mensagem();
@@ -121,7 +121,6 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(httpHeadersTmp, httpHeaders, HttpStatus.OK);
     }*/
-
     @PostMapping("cliente/sair")
     public ResponseEntity<Mensagem> sair(HttpSession sessao, HttpServletRequest request) {
         Mensagem mensagem = new Mensagem();
@@ -188,7 +187,7 @@ public class ClienteController {
             } else {
                 mensagem.setCodigo(101);
                 mensagem.setDescricao("Houve um problema ao ativar a conta");
-            } 
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             mensagem.setDescricao(e.getMessage());
@@ -230,25 +229,27 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/info-item")
-    public ResponseEntity<Object> infoPrato(@RequestBody Item item) {        
+    public ResponseEntity<Item> infoPrato(@RequestBody Item item) {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             clienteDAO.getItem(item);
         } catch (DAOException e) {
             e.printStackTrace();
+            item = null;
         } catch (SQLException e) {
             e.printStackTrace();
+            item = null;
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>((Object)item, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(item, httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping(value = "cliente/pre-confirmar-pedido")
     public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            Cliente cliente = (Cliente)sessao.getAttribute("usuario");            
+            Cliente cliente = (Cliente) sessao.getAttribute("usuario");
             clienteDAO.inserirPrecos(confirmaPedido);
             List<Endereco> enderecos = clienteDAO.getEnderecos(cliente);
             List<FormaPagamento> formaPagamentos = clienteDAO.getFormasPagamento(cliente);
@@ -259,8 +260,10 @@ public class ClienteController {
             sessao.setAttribute("pre-pedido-preco", confirmaPedido.getPrecoTotal());
         } catch (DAOException e) {
             e.printStackTrace();
+            confirmaPedido = null;
         } catch (SQLException e) {
             e.printStackTrace();
+            confirmaPedido = null;
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -269,13 +272,13 @@ public class ClienteController {
 
     @PostMapping("cliente/confirmar-pedido")
     public ResponseEntity<Pedido> confirmarPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
-        Pedido pedido = new Pedido();
+        Pedido pedido = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            //Cliente cliente = (Cliente)sessao.getAttribute("cliente");
-            Cliente cliente = new Cliente(1);
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             ServicoPagamento servicoPagamento = new ServicoPagamento();
             if (!servicoPagamento.efetuarPagamento()) {
+                pedido = new Pedido();
                 pedido.setData(new Timestamp(Calendar.getInstance().getTimeInMillis()));
                 pedido.setEndereco(confirmaPedido.getEnderecos().get(0));
                 pedido.setFormaPagamento(confirmaPedido.getFormaPagamentos().get(0));
@@ -302,8 +305,7 @@ public class ClienteController {
         List<Endereco> enderecos = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            //Cliente cliente = (Cliente)sessao.getAttribute("cliente");
-            Cliente cliente = new Cliente(1);
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             enderecos = clienteDAO.getEnderecos(cliente);
         } catch (DAOException e) {
             e.printStackTrace();
@@ -313,15 +315,14 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(enderecos, httpHeaders, HttpStatus.OK);
-    }
+    }        
 
     @PostMapping(value = "cliente/listar-formas-pagamento")
     public ResponseEntity<List<FormaPagamento>> listarFormasPagamento(HttpSession sessao) {
         List<FormaPagamento> formaPagamentos = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            //Cliente cliente = (Cliente)sessao.getAttribute("cliente");
-            Cliente cliente = new Cliente(1);
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             formaPagamentos = clienteDAO.getFormasPagamento(cliente);
         } catch (DAOException e) {
             e.printStackTrace();
@@ -337,14 +338,9 @@ public class ClienteController {
     @ResponseBody
     public ResponseEntity<byte[]> image(@PathVariable int idArquivo) {
         byte[] bytes = null;
-        try (Connection con = new FabricaConexao().conectar()) {
-            //Foto foto = new ClienteDAO(con).getPublicFile(idArquivo);
-            Foto foto = new Foto();
-            foto.setId(idArquivo);
-            bytes = new ServicoArmazenamento().carregar(foto);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        Foto foto = new Foto();
+        foto.setId(idArquivo);
+        bytes = new ServicoArmazenamento().carregar(foto);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.IMAGE_PNG);
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
