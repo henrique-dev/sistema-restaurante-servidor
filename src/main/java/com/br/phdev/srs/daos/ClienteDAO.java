@@ -19,6 +19,7 @@ import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.Pedido;
 import com.br.phdev.srs.models.Tipo;
 import com.br.phdev.srs.models.Usuario;
+import com.br.phdev.srs.models.ValidaCadastro;
 import com.br.phdev.srs.utils.Arquivo;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,6 +43,38 @@ public class ClienteDAO extends BasicDAO {
 
     public ClienteDAO(Connection conexao) {
         super(conexao);
+    }
+    
+    public void cadastrar(Cliente cliente, boolean opcao, String token) throws DAOException {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL cadastrar_cliente(?,?,?,?,?,?,?)")) {
+            stmt.setString(1, cliente.getNome());
+            stmt.setString(2, cliente.getCpf());
+            stmt.setString(3, cliente.getTelefone());
+            stmt.setString(4, cliente.getEmail());
+            stmt.setString(5, cliente.getSenhaUsuario());
+            stmt.setBoolean(6, opcao);
+            stmt.setString(7, token);
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+    
+    public boolean validarCadastro(ValidaCadastro validaCadastro) throws DAOException {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL validar_cadastro(?)")) {
+            stmt.setString(1, validaCadastro.getUsuario());
+            stmt.setString(2, validaCadastro.getToken());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                if (rs.getString("erro") == null) {
+                    return true;
+                } else
+                    return false;
+            }
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        }
+        return false;
     }
 
     public Cliente autenticar(Usuario usuario) throws DAOException {

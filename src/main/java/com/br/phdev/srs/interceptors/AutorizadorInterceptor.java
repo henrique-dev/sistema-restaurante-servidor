@@ -18,11 +18,10 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String uri = request.getRequestURI();
-        System.out.println(uri);
+        System.out.println(uri);        
         //response.setHeader("Access-Control-Allow-Origin", "*");
-        //response.setHeader("Access-Control-Allow-Headers", "*");        
-        if (request.getSession().getAttribute("usuario") != null) {
-            System.out.println(request.getSession().getId());
+        //response.setHeader("Access-Control-Allow-Headers", "*"); 
+        if (request.getSession().getAttribute("usuario") != null) {            
             return true;
         } else {
             if (uri.contains("cliente/autenticar") || uri.contains("cliente/sem-autorizacao") || uri.contains("cliente/teste")

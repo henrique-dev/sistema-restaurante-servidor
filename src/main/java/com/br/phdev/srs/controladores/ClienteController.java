@@ -19,6 +19,7 @@ import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.Pedido;
 import com.br.phdev.srs.models.Teste;
 import com.br.phdev.srs.models.Usuario;
+import com.br.phdev.srs.models.ValidaCadastro;
 import com.br.phdev.srs.utils.Arquivo;
 import com.br.phdev.srs.utils.Mensagem;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
@@ -58,6 +59,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class ClienteController {
 
+    private final String chave = "ZXDas7966mby@";
+
     @PostMapping("cliente/autenticar")
     public ResponseEntity<Mensagem> autenticar(@RequestBody Usuario usuario, HttpSession sessao) {
         Mensagem mensagem = new Mensagem();
@@ -77,6 +80,7 @@ public class ClienteController {
                 mensagem.setCodigo(0);
                 mensagem.setDescricao(tokenHex.toString());
                 sessao.setAttribute("usuario", cliente);
+                sessao.setAttribute("token", tokenHex.toString());
             } else {
                 mensagem.setCodigo(-1);
                 mensagem.setDescricao("Usuário ou senha inválidos");
@@ -94,21 +98,21 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-    
-    @PostMapping("cliente/teste-requisicao")    
+
+    @PostMapping("cliente/teste-requisicao")
     public ResponseEntity<HttpHeaders> testeRequisicao(HttpSession sessao, HttpServletRequest request) {
         Mensagem mensagem = new Mensagem();
-                
+
         HttpHeaders httpHeadersTmp = new HttpHeaders();
         Enumeration headersEnum = request.getHeaderNames();
         while (headersEnum.hasMoreElements()) {
             String header = (String) headersEnum.nextElement();
-            Enumeration valuesEnum = request.getHeaders(header);            
+            Enumeration valuesEnum = request.getHeaders(header);
             while (valuesEnum.hasMoreElements()) {
                 httpHeadersTmp.add(header, valuesEnum.nextElement().toString());
-            }            
-        }                                        
-        
+            }
+        }
+
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(httpHeadersTmp, httpHeaders, HttpStatus.OK);
@@ -133,6 +137,61 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
+
+    @RequestMapping("cliente/cadastrar")
+    public ResponseEntity<Mensagem> cadastrar(@RequestBody Cliente cliente) {
+        Mensagem mensagem = new Mensagem();
+        String textoParaHash = cliente.getEmail() + cliente.getTelefone()
+                + Calendar.getInstance().getTime().toString() + this.chave;
+        StringBuilder token = new StringBuilder();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
+            byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));            
+            for (int i=0; i<textoDigerido.length; i = i + 14) {
+                token.append(String.format("%02X", 0xFF & textoDigerido[i]));
+            }
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            clienteDAO.cadastrar(cliente, true, token.toString());
+            mensagem.setDescricao("Pre cadastro realizado. Falta somente ativar");
+            mensagem.setCodigo(0);
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(-1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(-1);
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(-1);
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+    
+    @RequestMapping("cliente/validar-cadastro")
+    public ResponseEntity<Mensagem> validarCadastro(@RequestBody ValidaCadastro validaCadastro) {
+        Mensagem mensagem = new Mensagem();        
+        try (Connection conexao = new FabricaConexao().conectar()) {            
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            if (clienteDAO.validarCadastro(validaCadastro)) {
+                mensagem.setCodigo(0);
+                mensagem.setDescricao("Sua conta foi ativada");
+            } else {
+                mensagem.setCodigo(-2);
+                mensagem.setDescricao("Houve um problema ao ativar a conta");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(-1);
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(-1);
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }    
 
     @RequestMapping("cliente/sem-autorizacao")
     public ResponseEntity<Mensagem> semAutorizacao() {
