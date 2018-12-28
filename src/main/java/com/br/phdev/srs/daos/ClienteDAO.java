@@ -61,7 +61,7 @@ public class ClienteDAO extends BasicDAO {
     }
     
     public boolean validarCadastro(ValidaCadastro validaCadastro) throws DAOException {
-        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL validar_cadastro(?)")) {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL validar_cadastro(?,?)")) {
             stmt.setString(1, validaCadastro.getUsuario());
             stmt.setString(2, validaCadastro.getToken());
             ResultSet rs = stmt.executeQuery();
