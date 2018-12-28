@@ -26,7 +26,8 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
             return true;
         } else {
             if (uri.contains("cliente/autenticar") || uri.contains("cliente/sem-autorizacao") || uri.contains("cliente/teste")
-                    || uri.contains("cliente/imagens") || uri.contains("validar-cadastro") || uri.contains("cadastrar") || uri.contains("sair")) {
+                    || uri.contains("cliente/imagens") || uri.contains("validar-cadastro") || uri.contains("cadastrar") || uri.contains("sair")
+                    || uri.contains("verificar-numero") || uri.equals("validar-numero")) {
                 return true;
             } else {                                
                 response.sendRedirect("sem-autorizacao");                
