@@ -11,6 +11,7 @@ import com.br.phdev.srs.exceptions.DAOExpectedException;
 import com.br.phdev.srs.exceptions.DAOIncorrectData;
 import com.br.phdev.srs.models.Cadastro;
 import com.br.phdev.srs.models.Cliente;
+import com.br.phdev.srs.models.Codigo;
 import com.br.phdev.srs.models.Complemento;
 import com.br.phdev.srs.models.ConfirmaPedido;
 import com.br.phdev.srs.models.Endereco;
@@ -52,7 +53,7 @@ public class ClienteDAO extends BasicDAO {
         super(conexao);
     }
 
-    synchronized public String cadastrar(Cadastro cadastro, boolean opcao, String chave) throws DAOException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public String cadastrar(Cadastro cadastro) throws DAOException {
         if (cadastro == null) {
             throw new DAOIncorrectData(300);
         }
@@ -110,31 +111,20 @@ public class ClienteDAO extends BasicDAO {
 
         if (!cadastro.getCpf().endsWith(ultimosDigitos.toString())) {
             throw new DAOIncorrectData(306);
-        }
-
-        StringBuilder token = new StringBuilder();
-        String textoParaHash = cadastro.getEmail() + cadastro.getTelefone()
-                + Calendar.getInstance().getTime().toString() + chave;
-        MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
-        byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));
-        for (int i = 0; i < textoDigerido.length; i = i + 14) {
-            token.append(String.format("%02X", 0xFF & textoDigerido[i]));
-        }
+        }        
 
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL cadastrar_cliente(?,?,?,?,?,?,?)")) {
             stmt.setString(1, cadastro.getNome());
             stmt.setString(2, cadastro.getCpf());
             stmt.setString(3, cadastro.getTelefone());
             stmt.setString(4, cadastro.getEmail());
-            stmt.setString(5, cadastro.getSenhaUsuario());
-            stmt.setBoolean(6, opcao);
-            stmt.setString(7, token.toString());
+            stmt.setString(5, cadastro.getSenhaUsuario());            
+            stmt.setString(6, cadastro.getCodigo());
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 if (rs.getString("erro") != null) {
                     throw new DAOExpectedException(rs.getString("erro"), 400);
-                }
-                return token.toString();
+                }                
             }
         } catch (SQLException e) {
             throw new DAOException(e, 200);
@@ -142,6 +132,60 @@ public class ClienteDAO extends BasicDAO {
         return null;
     }
 
+    public String preCadastrar(String usuario, String chave) throws DAOException, NoSuchAlgorithmException, UnsupportedEncodingException {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL pre_cadastrar_usuario(?,?)")) {
+            stmt.setString(1, usuario);
+
+            StringBuilder token = new StringBuilder();
+            String textoParaHash = usuario
+                    + Calendar.getInstance().getTime().toString() + chave;
+            MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
+            byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));
+            for (int i = 0; i < textoDigerido.length; i = i + 14) {
+                token.append(String.format("%02X", 0xFF & textoDigerido[i]));
+            }
+
+            stmt.setString(2, token.toString());
+            stmt.execute();
+            return token.toString();
+        } catch (SQLException e) {
+            if (e.getSQLState().equals("45000")) {
+                throw new DAOException(e, 500);
+            } else if (e.getSQLState().equals("45001")) {
+                throw new DAOException(e, 501);
+            }
+            throw new DAOException(e, 200);
+        }       
+    }
+    
+    public boolean validarNumero(Codigo codigo) throws DAOException {
+        if (codigo == null) {
+            throw new DAOIncorrectData(300);
+        }
+        if (codigo.getCodigo() == null) {
+            throw new DAOIncorrectData(300);
+        }
+        if (codigo.getCodigo().isEmpty()) {
+            throw new DAOIncorrectData(301);
+        }
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL validar_numero(?,?)")) {
+            stmt.setString(1, codigo.getTelefone());
+            stmt.setString(2, codigo.getCodigo());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                if (rs.getString("erro") == null) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
+        }
+        return false;
+    }
+
+    @Deprecated
     public boolean validarCadastro(ValidaCadastro validaCadastro) throws DAOException {
         if (validaCadastro == null) {
             throw new DAOIncorrectData(300);
@@ -182,7 +226,7 @@ public class ClienteDAO extends BasicDAO {
             PreparedStatement stmt = super.conexao.prepareStatement(sql);
             stmt.setString(1, usuario.getNomeUsuario());
             stmt.setString(2, usuario.getSenhaUsuario());
-            ResultSet rs = stmt.executeQuery();            
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 if (rs.getString("erro") == null) {
                     usuario.setIdUsuario(rs.getLong("id_usuario"));
@@ -224,7 +268,7 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException(e, 200);
         }
     }
-    
+
     public void getCliente(Cliente cliente) throws DAOException {
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL get_perfil_cliente(?)")) {
             stmt.setLong(1, cliente.getId());
@@ -233,13 +277,14 @@ public class ClienteDAO extends BasicDAO {
                 cliente.setNome(rs.getString("nome"));
                 cliente.setCpf(rs.getString("cpf"));
                 cliente.setTelefone(rs.getString("telefone"));
-                cliente.setEmail(rs.getString("email"));                
+                cliente.setEmail(rs.getString("email"));
                 cliente.setEnderecos(getEnderecos(cliente));
-            } else
+            } else {
                 cliente = null;
+            }
         } catch (SQLException e) {
             throw new DAOException(e, 200);
-        }        
+        }
     }
 
     public ListaItens getItens() throws DAOException {

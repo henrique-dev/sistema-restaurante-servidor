@@ -13,6 +13,7 @@ import com.br.phdev.srs.exceptions.DAOIncorrectData;
 import com.br.phdev.srs.jdbc.FabricaConexao;
 import com.br.phdev.srs.models.Cadastro;
 import com.br.phdev.srs.models.Cliente;
+import com.br.phdev.srs.models.Codigo;
 import com.br.phdev.srs.models.ConfirmaPedido;
 import com.br.phdev.srs.models.Endereco;
 import com.br.phdev.srs.models.FormaPagamento;
@@ -124,6 +125,7 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(httpHeadersTmp, httpHeaders, HttpStatus.OK);
     }*/
+    
     @PostMapping("cliente/sair")
     public ResponseEntity<Mensagem> sair(HttpSession sessao, HttpServletRequest request) {
         Mensagem mensagem = new Mensagem();
@@ -149,18 +151,18 @@ public class ClienteController {
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }        
 
-    @RequestMapping("cliente/pre-cadastrar")
-    public ResponseEntity<Mensagem> preCadastrar(@RequestBody Cadastro cadastro) {
+    @RequestMapping("cliente/verificar-numero")
+    public ResponseEntity<Mensagem> verificarNumero(@RequestBody Cadastro cadastro) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            String token = clienteDAO.cadastrar(cadastro, true, this.chave);
+            String token = clienteDAO.preCadastrar(cadastro.getTelefone(), this.chave);
             try {
                 new ServicoValidacaoCliente().enviarMensagem(cadastro.getTelefone(), token);
             } catch (ApiException e) {
                 e.printStackTrace();
             }
-            mensagem.setDescricao("Pre cadastro realizado. Agora só falta ativar");
+            mensagem.setDescricao("Um código foi enviado para seu número. Insira esse código no aplicativo");
             mensagem.setCodigo(100);
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException | SQLException e) {
             e.printStackTrace();
@@ -176,20 +178,38 @@ public class ClienteController {
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
     
+    @RequestMapping("cliente/validar-numero")
+    public ResponseEntity<Mensagem> validarNumero(@RequestBody Codigo codigo) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            if (clienteDAO.validarNumero(codigo)) {
+                mensagem.setDescricao("Numero verificado com sucesso");
+                mensagem.setCodigo(100);
+            }
+        } catch (SQLException e) {            
+            e.printStackTrace();
+            mensagem.setCodigo(200);
+            mensagem.setDescricao(e.getMessage());
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(200);
+            mensagem.setDescricao(e.getMessage());
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+    
     @RequestMapping("cliente/cadastrar")
     public ResponseEntity<Mensagem> cadastrar(@RequestBody Cadastro cadastro) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            String token = clienteDAO.cadastrar(cadastro, true, this.chave);
-            try {
-                new ServicoValidacaoCliente().enviarMensagem(cadastro.getTelefone(), token);
-            } catch (ApiException e) {
-                e.printStackTrace();
-            }
+            clienteDAO.cadastrar(cadastro);            
             mensagem.setDescricao("Pre cadastro realizado. Agora só falta ativar");
             mensagem.setCodigo(100);
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             mensagem.setDescricao(e.getMessage());
             mensagem.setCodigo(200);
@@ -203,7 +223,7 @@ public class ClienteController {
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
 
-    @RequestMapping("cliente/validar-cadastro")
+    @RequestMapping("cliente/validar-cadastro-aaaaaaaaaa")
     public ResponseEntity<Mensagem> validarCadastro(@RequestBody ValidaCadastro validaCadastro) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {

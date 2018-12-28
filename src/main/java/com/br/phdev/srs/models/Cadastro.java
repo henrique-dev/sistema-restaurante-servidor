@@ -16,6 +16,7 @@ public class Cadastro {
     private String telefone;
     private String email;   
     private String senhaUsuario;
+    private String codigo;
 
     public String getNome() {
         return nome;
@@ -55,6 +56,14 @@ public class Cadastro {
 
     public void setSenhaUsuario(String senhaUsuario) {
         this.senhaUsuario = senhaUsuario;
+    }        
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
     }        
     
 }
