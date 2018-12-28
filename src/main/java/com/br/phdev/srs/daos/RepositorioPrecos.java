@@ -39,17 +39,25 @@ public class RepositorioPrecos {
     }
 
     public String carregarPrecos(Connection conexao) throws DAOException {
+        StringBuilder data = new StringBuilder();
         try (PreparedStatement stmt = conexao.prepareStatement("CALL get_data_ultima_alteracao(?)")) {
             stmt.setLong(1, 1);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-            Timestamp timestamp = (Timestamp) rs.getObject("ultima_modificacao_itens");            
-            return timestamp.toString();            
-            }            
+                Timestamp timestamp = (Timestamp) rs.getObject("ultima_modificacao_itens");
+                if (this.dataUltimoModificacao == null) {
+                    this.dataUltimoModificacao = timestamp;
+                    data.append("Data extraida: " + timestamp + "\n");                    
+                } else {
+                    data.append("Data extraida: " + timestamp + "\n");
+                    data.append("Data atual: " + dataUltimoModificacao + "\n");
+                }
+                //return timestamp.toString();
+            }
         } catch (SQLException e) {
             throw new DAOException(e, 200);
         }
-        return null;
-    }    
+        return data.toString();
+    }
 
 }
