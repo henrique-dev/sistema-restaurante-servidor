@@ -9,6 +9,16 @@ package com.br.phdev.srs.models;
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
-public class ItemPedido {
+public class ItemPedido extends Item {
+    
+    private int quantidade;
+
+    public int getQuantidade() {
+        return quantidade;
+    }
+
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
+    }        
     
 }

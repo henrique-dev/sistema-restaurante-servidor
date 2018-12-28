@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class ConfirmaPedido {
         
-    private List<Item> itens;
+    private List<ItemPedido> itens;
     private List<FormaPagamento> formaPagamentos;
     private List<Endereco> enderecos;
     private double precoTotal;
@@ -22,20 +22,20 @@ public class ConfirmaPedido {
     public ConfirmaPedido() {
     }
 
-    public ConfirmaPedido(List<Item> itens, List<FormaPagamento> formaPagamentos, List<Endereco> enderecos, double precoTotal) {
+    public ConfirmaPedido(List<ItemPedido> itens, List<FormaPagamento> formaPagamentos, List<Endereco> enderecos, double precoTotal) {
         this.itens = itens;
         this.formaPagamentos = formaPagamentos;
         this.enderecos = enderecos;
         this.precoTotal = precoTotal;
-    }    
+    }      
 
-    public List<Item> getItens() {
+    public List<ItemPedido> getItens() {
         return itens;
     }
 
-    public void setItens(List<Item> itens) {
+    public void setItens(List<ItemPedido> itens) {
         this.itens = itens;
-    }
+    }    
 
     public List<FormaPagamento> getFormaPagamentos() {
         return formaPagamentos;

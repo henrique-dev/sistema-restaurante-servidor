@@ -110,19 +110,7 @@ public class ClienteController {
 
     @GetMapping("cliente/teste")
     public ResponseEntity<Mensagem> testeRequisicao(HttpSession sessao, HttpServletRequest request) {
-        Mensagem mensagem = new Mensagem();
-        
-        try (Connection conexao = new FabricaConexao().conectar()) {
-            mensagem.setDescricao(RepositorioPrecos.getInstancia().carregarPrecos(conexao));
-        } catch (SQLException e) {
-            e.printStackTrace();
-            mensagem.setCodigo(200);
-            mensagem.setDescricao(e.getMessage());
-        } catch (DAOException e) {
-            e.printStackTrace();
-            mensagem.setCodigo(e.codigo);
-            mensagem.setDescricao(e.getMessage());
-        }
+        Mensagem mensagem = new Mensagem();                
         
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);

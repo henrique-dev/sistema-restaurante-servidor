@@ -20,6 +20,7 @@ import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.Genero;
 import com.br.phdev.srs.models.ListaItens;
 import com.br.phdev.srs.models.Item;
+import com.br.phdev.srs.models.ItemPedido;
 import com.br.phdev.srs.models.Pedido;
 import com.br.phdev.srs.models.Tipo;
 import com.br.phdev.srs.models.Usuario;
@@ -111,20 +112,20 @@ public class ClienteDAO extends BasicDAO {
 
         if (!cadastro.getCpf().endsWith(ultimosDigitos.toString())) {
             throw new DAOIncorrectData(306);
-        }        
+        }
 
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL cadastrar_cliente(?,?,?,?,?,?)")) {
             stmt.setString(1, cadastro.getNome());
             stmt.setString(2, cadastro.getCpf());
             stmt.setString(3, cadastro.getTelefone());
             stmt.setString(4, cadastro.getEmail());
-            stmt.setString(5, cadastro.getSenhaUsuario());            
+            stmt.setString(5, cadastro.getSenhaUsuario());
             stmt.setString(6, cadastro.getCodigo());
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 if (rs.getString("erro") != null) {
                     throw new DAOExpectedException(rs.getString("erro"), 400);
-                }                
+                }
             }
         } catch (SQLException e) {
             throw new DAOException(e, 200);
@@ -155,9 +156,9 @@ public class ClienteDAO extends BasicDAO {
                 throw new DAOException(e, 501);
             }
             throw new DAOException(e, 200);
-        }       
+        }
     }
-    
+
     public boolean validarNumero(Codigo codigo) throws DAOException {
         if (codigo == null) {
             throw new DAOIncorrectData(300);
@@ -510,6 +511,33 @@ public class ClienteDAO extends BasicDAO {
         if (confirmaPedido.getItens().isEmpty()) {
             throw new DAOIncorrectData(301);
         }
+        RepositorioPrecos repositorioPrecos = RepositorioPrecos.getInstancia();
+        repositorioPrecos.carregar(super.conexao);
+        double valorTotal = 0;
+        for (ItemPedido ip : confirmaPedido.getItens()) {
+            double valorItem = 0;
+            if (ip.getComplementos() != null) {
+                for (Complemento c : ip.getComplementos()) {
+                    repositorioPrecos.inserirPrecoNoComplemento(c);
+                    valorItem += c.getPreco();
+                }
+            }
+            repositorioPrecos.inserirPrecoNoItem(ip);
+            valorItem += ip.getPreco();
+            valorTotal += valorItem * ip.getQuantidade();
+        }
+        confirmaPedido.setPrecoTotal(valorTotal);
+        return confirmaPedido;
+    }
+
+    /*
+    public ConfirmaPedido inserirPrecos(ConfirmaPedido confirmaPedido) throws DAOException, DAOIncorrectData {
+        if (confirmaPedido.getItens() == null) {
+            throw new DAOIncorrectData(300);
+        }
+        if (confirmaPedido.getItens().isEmpty()) {
+            throw new DAOIncorrectData(301);
+        }
         String sql = "call get_preco_item(?)";
         try {
             PreparedStatement stmt = super.conexao.prepareStatement(sql);
@@ -566,8 +594,7 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException("Falha ao adquirir informações do pedido", e, 200);
         }
         return confirmaPedido;
-    }
-
+    }*/
     public void inserirPedido(Pedido pedido, Cliente cliente) throws DAOException {
         if (pedido == null || cliente == null) {
             throw new DAOIncorrectData(300);

@@ -7,6 +7,8 @@ package com.br.phdev.srs.daos;
 
 import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
+import com.br.phdev.srs.models.Complemento;
+import com.br.phdev.srs.models.Item;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,8 +24,8 @@ public class RepositorioPrecos {
 
     private static RepositorioPrecos instancia;
 
-    private HashMap<Long, Double> itens;
-    private HashMap<Long, Double> complementos;
+    private final HashMap<Long, Double> itens;
+    private final HashMap<Long, Double> complementos;
     private Timestamp dataUltimoModificacao;
 
     private RepositorioPrecos() {
@@ -37,9 +39,16 @@ public class RepositorioPrecos {
         }
         return instancia;
     }
+    
+    public void inserirPrecoNoItem(Item item) {
+        item.setPreco(this.itens.get(item.getId()));
+    }
+    
+    public void inserirPrecoNoComplemento(Complemento complemento) {
+        complemento.setPreco(this.complementos.get(complemento.getId()));
+    }
 
-    public String carregarPrecos(Connection conexao) throws DAOException {
-        StringBuilder data = new StringBuilder();
+    public void carregar(Connection conexao) throws DAOException {
         try (PreparedStatement stmt = conexao.prepareStatement("CALL get_data_ultima_alteracao(?)")) {
             stmt.setLong(1, 1);
             ResultSet rs = stmt.executeQuery();
@@ -47,21 +56,36 @@ public class RepositorioPrecos {
                 Timestamp timestamp = (Timestamp) rs.getObject("ultima_modificacao_itens");
                 if (this.dataUltimoModificacao == null) {
                     this.dataUltimoModificacao = timestamp;
-                    data.append("Carregando preços");
+                    this.carregarDados(conexao);
                 } else {
                     if (this.dataUltimoModificacao.equals(timestamp)) {
-                        data.append("Itens atuais encontram-se atualizados. Não será preciso baixar");
-                    } else {
-                        data.append("Itens atuais encontram-se desatualizados. Será necessário baixar os novos dados");                        
+                        
+                    } else {                        
                         this.dataUltimoModificacao = timestamp;
+                        this.carregarDados(conexao);
                     }
-                }
-                //return timestamp.toString();
+                }                
             }
         } catch (SQLException e) {
             throw new DAOException(e, 200);
+        }        
+    }        
+
+    private void carregarDados(Connection conexao) throws SQLException {
+        this.itens.clear();
+        this.complementos.clear();
+        try (PreparedStatement stmt2 = conexao.prepareStatement("CALL listar_somente_itens")) {
+            ResultSet rs = stmt2.executeQuery();
+            while (rs.next()) {
+                this.itens.put(rs.getLong("id_item"), rs.getDouble("preco"));
+            }
         }
-        return data.toString();
+        try (PreparedStatement stmt2 = conexao.prepareStatement("CALL listar_somente_complementos")) {
+            ResultSet rs = stmt2.executeQuery();
+            while (rs.next()) {
+                this.complementos.put(rs.getLong("id_complemento"), rs.getDouble("preco"));
+            }
+        }
     }
 
 }
