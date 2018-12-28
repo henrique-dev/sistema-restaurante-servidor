@@ -47,10 +47,14 @@ public class RepositorioPrecos {
                 Timestamp timestamp = (Timestamp) rs.getObject("ultima_modificacao_itens");
                 if (this.dataUltimoModificacao == null) {
                     this.dataUltimoModificacao = timestamp;
-                    data.append("Data extraida: " + timestamp + "\n");                    
+                    data.append("Carregando preços");
                 } else {
-                    data.append("Data extraida: " + timestamp + "\n");
-                    data.append("Data atual: " + dataUltimoModificacao + "\n");
+                    if (this.dataUltimoModificacao.equals(timestamp)) {
+                        data.append("Itens atuais encontram-se atualizados. Não será preciso baixar");
+                    } else {
+                        data.append("Itens atuais encontram-se desatualizados. Será necessário baixar os novos dados");                        
+                        this.dataUltimoModificacao = timestamp;
+                    }
                 }
                 //return timestamp.toString();
             }
