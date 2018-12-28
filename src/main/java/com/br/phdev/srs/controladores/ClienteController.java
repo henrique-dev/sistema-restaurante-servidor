@@ -227,7 +227,7 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(cliente, httpHeaders, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(cliente, httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping(value = "cliente/listar-itens")
