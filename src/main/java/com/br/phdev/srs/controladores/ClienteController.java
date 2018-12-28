@@ -81,18 +81,22 @@ public class ClienteController {
                     tokenHex.append(String.format("%02X", 0xFF & b));
                 }
                 clienteDAO.gerarSessao(cliente, tokenHex.toString());
-                mensagem.setCodigo(0);
+                mensagem.setCodigo(100);
                 mensagem.setDescricao(tokenHex.toString());
                 sessao.setAttribute("usuario", cliente);
                 sessao.setAttribute("token", tokenHex.toString());
             } else {
-                mensagem.setCodigo(-1);
+                mensagem.setCodigo(101);
                 mensagem.setDescricao("Usuário ou senha inválidos");
             }
-        } catch (DAOException | SQLException | NoSuchAlgorithmException | UnsupportedEncodingException | DAOIncorrectData e) {
+        } catch (SQLException | NoSuchAlgorithmException | UnsupportedEncodingException e) {
             e.printStackTrace();
-            mensagem.setCodigo(-1);
+            mensagem.setCodigo(200);
             mensagem.setDescricao(e.getMessage());            
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(e.codigo);
+            mensagem.setDescricao(e.getMessage());
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -124,13 +128,17 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             clienteDAO.sairSessao((Usuario) sessao.getAttribute("usuario"), null);
-            mensagem.setCodigo(0);
+            mensagem.setCodigo(100);
             mensagem.setDescricao("Desconectado do sistema");
             sessao.removeAttribute("usuario");
             sessao.invalidate();
-        } catch (DAOException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
-            mensagem.setCodigo(-1);
+            mensagem.setCodigo(200);
+            mensagem.setDescricao(e.getMessage());
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(e.codigo);
             mensagem.setDescricao(e.getMessage());
         }
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -154,11 +162,15 @@ public class ClienteController {
             clienteDAO.cadastrar(cliente, true, token.toString());
             new ServicoValidacaoCliente().enviarMensagem(cliente.getTelefone(), token.toString());
             mensagem.setDescricao("Pre cadastro realizado. Agora só falta ativar");
-            mensagem.setCodigo(0);
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException | SQLException | DAOException | DAOExpectedException | DAOIncorrectData e) {
+            mensagem.setCodigo(100);
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException | SQLException e) {
             e.printStackTrace();
             mensagem.setDescricao(e.getMessage());
-            mensagem.setCodigo(-1);
+            mensagem.setCodigo(200);
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(e.codigo);
+            mensagem.setDescricao(e.getMessage());
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -171,16 +183,20 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             if (clienteDAO.validarCadastro(validaCadastro)) {
-                mensagem.setCodigo(0);
+                mensagem.setCodigo(100);
                 mensagem.setDescricao("Sua conta foi ativada");
             } else {
-                mensagem.setCodigo(-2);
+                mensagem.setCodigo(101);
                 mensagem.setDescricao("Houve um problema ao ativar a conta");
             } 
-        } catch (SQLException | DAOException | DAOIncorrectData e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             mensagem.setDescricao(e.getMessage());
-            mensagem.setCodigo(-1);
+            mensagem.setCodigo(200);
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(e.codigo);
+            mensagem.setDescricao(e.getMessage());
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -190,7 +206,7 @@ public class ClienteController {
     @RequestMapping("cliente/sem-autorizacao")
     public ResponseEntity<Mensagem> semAutorizacao() {
         Mensagem mensagem = new Mensagem();
-        mensagem.setCodigo(-2);
+        mensagem.setCodigo(401);
         mensagem.setDescricao("Sem autorização para acessar este recurso");
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -214,11 +230,10 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/info-item")
-    public ResponseEntity<Item> infoPrato(@RequestBody Item item) {
-        Item prato = null;
+    public ResponseEntity<Object> infoPrato(@RequestBody Item item) {        
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            prato = clienteDAO.getItem(item.getId());
+            clienteDAO.getItem(item);
         } catch (DAOException e) {
             e.printStackTrace();
         } catch (SQLException e) {
@@ -226,15 +241,14 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(prato, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>((Object)item, httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping(value = "cliente/pre-confirmar-pedido")
     public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            //Cliente cliente = (Cliente)sessao.getAttribute("cliente");
-            Cliente cliente = new Cliente(1);
+            Cliente cliente = (Cliente)sessao.getAttribute("usuario");            
             clienteDAO.inserirPrecos(confirmaPedido);
             List<Endereco> enderecos = clienteDAO.getEnderecos(cliente);
             List<FormaPagamento> formaPagamentos = clienteDAO.getFormasPagamento(cliente);

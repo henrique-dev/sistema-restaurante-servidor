@@ -47,31 +47,33 @@ public class ClienteDAO extends BasicDAO {
         super(conexao);
     }
 
-    public void cadastrar(Cliente cliente, boolean opcao, String token) throws DAOException, DAOExpectedException, DAOIncorrectData {
+    public void cadastrar(Cliente cliente, boolean opcao, String token) throws DAOException {
+        if (cliente == null)
+            throw new DAOIncorrectData(300);
         if (cliente.getNome() == null || cliente.getCpf() == null || cliente.getEmail() == null
                 || cliente.getTelefone() == null || cliente.getSenhaUsuario() == null) {
-            throw new DAOIncorrectData("Alguns dados estão incorretos");
+            throw new DAOIncorrectData(300);
         }
         if (cliente.getNome().trim().isEmpty() || cliente.getCpf().trim().isEmpty() || cliente.getEmail().trim().isEmpty()
                 || cliente.getTelefone().trim().isEmpty() || cliente.getSenhaUsuario().trim().isEmpty()) {
-            throw new DAOIncorrectData("Alguns dados estão incorretos");
+            throw new DAOIncorrectData(301);
         }
         for (char c : cliente.getNome().toCharArray()) {
             if (!(((int) c > 64 && (int) c < 91) || ((int) c > 96 && (int) c < 122)) && (int)c != 32) {
-                throw new DAOIncorrectData("Alguns dados estão incorretos");
+                throw new DAOIncorrectData(302);
             }
         }
         if (!cliente.getEmail().contains("@")) {
-            throw new DAOIncorrectData("Alguns dados estão incorretos");
+            throw new DAOIncorrectData(303);
         }
         for (char c : cliente.getCpf().toCharArray()) {
             if (!((int) c > 47 && (int) c < 58)) {
-                throw new DAOIncorrectData("Alguns dados estão incorretos");
+                throw new DAOIncorrectData(304);
             }
         }
         for (char c : cliente.getTelefone().toCharArray()) {
             if (!((int) c > 47 && (int) c < 58)) {
-                throw new DAOIncorrectData("Alguns dados estão incorretos");
+                throw new DAOIncorrectData(305);
             }
         }
         
@@ -99,7 +101,7 @@ public class ClienteDAO extends BasicDAO {
             ultimosDigitos.append((resto - 11));
         
         if (!cliente.getCpf().endsWith(ultimosDigitos.toString()))
-            throw new DAOIncorrectData("Alguns dados estão incorretos");
+            throw new DAOIncorrectData(306);
 
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL cadastrar_cliente(?,?,?,?,?,?,?)")) {
             stmt.setString(1, cliente.getNome());
@@ -112,17 +114,19 @@ public class ClienteDAO extends BasicDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 if (rs.getString("erro") != null) {
-                    throw new DAOExpectedException(rs.getString("erro"));
+                    throw new DAOExpectedException(rs.getString("erro"), 400);
                 }
             }
         } catch (SQLException e) {
-            throw new DAOException(e);
+            throw new DAOException("Falha ao tentar autenticar o usuário", e, 200);
         }
     }
 
-    public boolean validarCadastro(ValidaCadastro validaCadastro) throws DAOException, DAOIncorrectData {
+    public boolean validarCadastro(ValidaCadastro validaCadastro) throws DAOException {
+        if (validaCadastro == null)
+            throw new DAOIncorrectData(300);
         if (validaCadastro.getUsuario() == null || validaCadastro.getToken() == null) {
-            throw new DAOIncorrectData("Alguns dados estão incorretos");
+            throw new DAOIncorrectData(300);
         }
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL validar_cadastro(?,?)")) {
             stmt.setString(1, validaCadastro.getUsuario());
@@ -136,17 +140,19 @@ public class ClienteDAO extends BasicDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DAOException(e);
+            throw new DAOException("Falha ao tentar validar o cadastro", e, 200);
         }
         return false;
     }
 
-    public Cliente autenticar(Usuario usuario) throws DAOException, DAOIncorrectData {
+    public Cliente autenticar(Usuario usuario) throws DAOException {
+        if (usuario == null)
+            throw new DAOIncorrectData(300);
         if (usuario.getNomeUsuario() == null || usuario.getSenhaUsuario() == null) {
-            throw new DAOIncorrectData("Alguns dados estão incorretos");
+            throw new DAOIncorrectData(300);
         }
         if (usuario.getNomeUsuario().isEmpty() || usuario.getSenhaUsuario().isEmpty()) {
-            throw new DAOIncorrectData("Alguns dados estão incorretos");
+            throw new DAOIncorrectData(301);
         }
         Cliente cliente = null;
         try {
@@ -171,7 +177,7 @@ public class ClienteDAO extends BasicDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DAOException("Erro ao recuperar informações", e);
+            throw new DAOException("Erro ao recuperar informações", e, 200);
         }
         return cliente;
     }
@@ -183,17 +189,21 @@ public class ClienteDAO extends BasicDAO {
             stmt.setString(2, token);
             stmt.execute();
         } catch (SQLException e) {
-            throw new DAOException(e);
+            throw new DAOException(e, 200);
         }
     }
 
     public void sairSessao(Usuario usuario, String token) throws DAOException {
+        if (usuario == null)
+            throw new DAOIncorrectData(300);
+        if (usuario.getIdUsuario() == 0)
+            throw new DAOIncorrectData(301);
         String sql = "CALL sessao_desvalidar(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setLong(1, usuario.getIdUsuario());
             stmt.execute();
         } catch (SQLException e) {
-            throw new DAOException(e);
+            throw new DAOException(e, 200);
         }
     }
 
@@ -265,29 +275,30 @@ public class ClienteDAO extends BasicDAO {
                 listaItens.setItens(itens);
             }
         } catch (SQLException e) {
-            throw new DAOException("Erro ao recuperar informações", e);
+            throw new DAOException("Erro ao recuperar informações", e, 200);
         }
         return listaItens;
     }
 
-    public Item getItem(long idItem) throws DAOException {
-        Item item = null;
+    public Item getItem(Item item) throws DAOException {
+        if (item == null)
+            throw new DAOIncorrectData(300);
+        if (item.getId() == 0)
+            throw new DAOIncorrectData(301);
         String sql = "call info_item(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
-            stmt.setLong(1, idItem);
+            stmt.setLong(1, item.getId());
             ResultSet rs = stmt.executeQuery();
             Set<Tipo> tipos = new HashSet<>();
             Set<Foto> fotos = new HashSet<>();
-            Set<Complemento> complementos = new HashSet<>();
-            item = new Item();
+            Set<Complemento> complementos = new HashSet<>();            
             long itemAtual = -1;
             while (rs.next()) {
                 long idItemRecuperado = rs.getLong("id_item");
                 if (idItemRecuperado != itemAtual) {
                     itemAtual = idItemRecuperado;
                     tipos = new HashSet<>();
-                    fotos = new HashSet<>();
-                    item.setId(rs.getLong("id_item"));
+                    fotos = new HashSet<>();                    
                     item.setNome(rs.getString("nome"));
                     item.setPreco(rs.getDouble("preco"));
                     item.setDescricao(rs.getString("descricao"));
@@ -330,12 +341,16 @@ public class ClienteDAO extends BasicDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DAOException("Erro ao recuperar informações", e);
+            throw new DAOException("Erro ao recuperar informações", e, 200);
         }
         return item;
     }
 
     public List<Endereco> getEnderecos(Cliente cliente) throws DAOException {
+        if (cliente == null)
+            throw new DAOIncorrectData(300);
+        if (cliente.getId() == 0)
+            throw new DAOIncorrectData(301);
         List<Endereco> enderecos = null;
         String sql = "call listar_enderecos(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
@@ -354,12 +369,16 @@ public class ClienteDAO extends BasicDAO {
                 enderecos.add(endereco);
             }
         } catch (SQLException e) {
-            throw new DAOException("Erro ao recuperar informações", e);
+            throw new DAOException("Erro ao recuperar informações", e, 200);
         }
         return enderecos;
     }
 
     public List<FormaPagamento> getFormasPagamento(Cliente cliente) throws DAOException {
+        if (cliente == null)
+            throw new DAOIncorrectData(300);
+        if (cliente.getId() == 0)
+            throw new DAOIncorrectData(301);
         List<FormaPagamento> formaPagamentos = null;
         String sql = "call listar_formaspagamento(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
@@ -373,12 +392,14 @@ public class ClienteDAO extends BasicDAO {
                 formaPagamentos.add(formaPagamento);
             }
         } catch (SQLException e) {
-            throw new DAOException("Erro ao recuperar informações", e);
+            throw new DAOException("Erro ao recuperar informações", e, 200);
         }
         return formaPagamentos;
     }
 
     public Foto getPublicFile(int idArquivo) throws DAOException {
+        if (idArquivo == 0)
+            throw new DAOIncorrectData(301);
         Foto foto = null;
         String sql = "call get_foto(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
@@ -389,12 +410,16 @@ public class ClienteDAO extends BasicDAO {
                 foto.setId(idArquivo);
             }
         } catch (SQLException e) {
-            throw new DAOException("Falha ao adquirir informações do arquivo", e);
+            throw new DAOException("Falha ao adquirir informações do arquivo", e, 200);
         }
         return foto;
     }
 
-    public ConfirmaPedido inserirPrecos(ConfirmaPedido confirmaPedido) throws DAOException {
+    public ConfirmaPedido inserirPrecos(ConfirmaPedido confirmaPedido) throws DAOException, DAOIncorrectData {
+        if (confirmaPedido.getItens() == null)
+            throw new DAOIncorrectData(300);
+        if (confirmaPedido.getItens().isEmpty())
+            throw new DAOIncorrectData(301);
         String sql = "call get_preco_item(?)";
         try {
             PreparedStatement stmt = super.conexao.prepareStatement(sql);
@@ -448,12 +473,14 @@ public class ClienteDAO extends BasicDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DAOException("Falha ao adquirir informações do arquivo", e);
+            throw new DAOException("Falha ao adquirir informações do pedido", e, 200);
         }
         return confirmaPedido;
     }
 
     public void inserirPedido(Pedido pedido, Cliente cliente) throws DAOException {
+        if (pedido == null || cliente == null)
+            throw new DAOIncorrectData(300);        
         String sql = "call inserir_pedido(?,?,?,?,?,?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setObject(1, pedido.getData());
@@ -466,9 +493,9 @@ public class ClienteDAO extends BasicDAO {
             stmt.setString(5, json);
             stmt.execute();
         } catch (SQLException e) {
-            throw new DAOException("Falha ao adquirir informações do arquivo", e);
+            throw new DAOException("Falha ao adquirir informações do arquivo", e, 200);
         } catch (JsonProcessingException e) {
-            throw new DAOException("Falha ao adquirir informações do arquivo", e);
+            throw new DAOException("Falha ao adquirir informações do arquivo", e, 307);
         }
     }
 

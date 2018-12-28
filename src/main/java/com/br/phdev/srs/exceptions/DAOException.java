@@ -12,16 +12,21 @@ package com.br.phdev.srs.exceptions;
  */
 public class DAOException extends Exception{
     
-    public DAOException(Exception e) {
+    public final int codigo;
+    
+    public DAOException(Exception e, int codigo) {
         super(e);
+        this.codigo = codigo;
     }
     
-    public DAOException(String message) {
+    public DAOException(String message, int codigo) {
         super(message);
+        this.codigo = codigo;
     }
     
-    public DAOException(String message, Throwable throwable) {
-        super(message, throwable);
+    public DAOException(String message, Throwable throwable, int codigo) {
+        super(message, throwable);        
+        this.codigo = codigo;
     }
     
 }

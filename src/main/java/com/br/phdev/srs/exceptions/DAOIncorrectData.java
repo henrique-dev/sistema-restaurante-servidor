@@ -9,10 +9,14 @@ package com.br.phdev.srs.exceptions;
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
-public class DAOIncorrectData extends Exception {
+public class DAOIncorrectData extends DAOException {
     
-    public DAOIncorrectData(String msg) {
-        super(msg);
+    public DAOIncorrectData(int codigo) {
+        super("Alguns dados estão incorretos", codigo);
+    }
+    
+    public DAOIncorrectData(String message, int codigo) {
+        super(message, codigo);
     }
     
 }

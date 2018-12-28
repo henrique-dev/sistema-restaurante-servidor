@@ -58,7 +58,7 @@ public class BasicDAO {
             else          
                 return -1;
         } catch (SQLException e) {
-            throw new DAOException("Falha ao requisitar um novo id", e);
+            throw new DAOException("Falha ao requisitar um novo id", e, -1);
         }
     }
     
@@ -76,7 +76,7 @@ public class BasicDAO {
             stmt.setLong(2, id);
             stmt.execute();
         } catch (SQLException e) {
-            throw new DAOException("Falha ao liberar o id", e);
+            throw new DAOException("Falha ao liberar o id", e, -1);
         }
     }    
     

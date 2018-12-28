@@ -9,10 +9,10 @@ package com.br.phdev.srs.exceptions;
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
-public class DAOExpectedException extends Exception {        
+public class DAOExpectedException extends DAOException {        
     
-    public DAOExpectedException(String message) {
-        super(message);
+    public DAOExpectedException(String message, int codigo) {
+        super(message, codigo);
     }        
     
 }

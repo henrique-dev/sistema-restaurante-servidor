@@ -47,7 +47,7 @@ public class GerenciadorDAO extends BasicDAO {
                 generos.add(genero);
             }
         } catch (SQLException e) {
-            throw new DAOException(e);
+            throw new DAOException(e, 200);
         }
         return generos;
     }
@@ -59,7 +59,7 @@ public class GerenciadorDAO extends BasicDAO {
                 stmt.setString(1, genero.getNome());
                 stmt.execute();
             } catch (SQLException e) {
-                throw new DAOException(e);
+                throw new DAOException(e, 200);
             }
         }
     }
@@ -74,7 +74,7 @@ public class GerenciadorDAO extends BasicDAO {
                 if (e instanceof SQLIntegrityConstraintViolationException) {
                     throw new SQLIntegrityConstraintViolationException("Algum genero está sendo utilizado e não pode ser excluido.");
                 } else {
-                    throw new DAOException(e);
+                    throw new DAOException(e, 200);
                 }
             }
         }
@@ -93,7 +93,7 @@ public class GerenciadorDAO extends BasicDAO {
                 tipos.add(tipo);
             }
         } catch (SQLException e) {
-            throw new DAOException(e);
+            throw new DAOException(e, 200);
         }
         return tipos;
     }
@@ -105,7 +105,7 @@ public class GerenciadorDAO extends BasicDAO {
                 stmt.setString(1, tipo.getNome());
                 stmt.execute();
             } catch (SQLException e) {
-                throw new DAOException(e);
+                throw new DAOException(e, 200);
             }
         }
     }
@@ -120,7 +120,7 @@ public class GerenciadorDAO extends BasicDAO {
                 if (e instanceof SQLIntegrityConstraintViolationException) {
                     throw new SQLIntegrityConstraintViolationException("Algum tipo está sendo utilizado e não pode ser excluido.");
                 } else {
-                    throw new DAOException(e);
+                    throw new DAOException(e, 200);
                 }
             }
         }
@@ -143,7 +143,7 @@ public class GerenciadorDAO extends BasicDAO {
                 complementos.add(complemento);
             }
         } catch (SQLException e) {
-            throw new DAOException(e);
+            throw new DAOException(e, 200);
         }
         return complementos;
     }
@@ -156,7 +156,7 @@ public class GerenciadorDAO extends BasicDAO {
             stmt.setDouble(3, complemento.getFoto().getId());
             stmt.execute();
         } catch (SQLException e) {
-            throw new DAOException(e);
+            throw new DAOException(e, 200);
         }
     }
 
@@ -179,7 +179,7 @@ public class GerenciadorDAO extends BasicDAO {
                 if (e instanceof SQLIntegrityConstraintViolationException) {
                     //throw new SQLIntegrityConstraintViolationException("Algum complmento está sendo utilizado e não pode ser excluido.");
                 }
-                throw new DAOException(e);
+                throw new DAOException(e, 200);
             }
         }
         complementos.clear();
@@ -283,7 +283,7 @@ public class GerenciadorDAO extends BasicDAO {
                 itens.add(item);
             }
         } catch (SQLException e) {
-            throw new DAOException("Erro ao recuperar informações", e);
+            throw new DAOException("Erro ao recuperar informações", e, 200);
         }
         return itens;
     }
@@ -331,7 +331,7 @@ public class GerenciadorDAO extends BasicDAO {
                 stmt.close();
             }
         } catch (SQLException e) {
-            throw new DAOException(e);
+            throw new DAOException(e, 200);
         }
     }
 
@@ -344,7 +344,7 @@ public class GerenciadorDAO extends BasicDAO {
             }
             return -1;
         } catch (SQLException e) {
-            throw new DAOException(e);
+            throw new DAOException(e, 200);
         }
     }
 
@@ -354,7 +354,7 @@ public class GerenciadorDAO extends BasicDAO {
             stmt.setLong(1, foto.getId());
             stmt.execute();
         } catch (SQLException e) {
-            throw new DAOException(e);
+            throw new DAOException(e, 200);
         }
     }
 
