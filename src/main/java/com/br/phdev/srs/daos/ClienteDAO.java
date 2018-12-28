@@ -405,6 +405,7 @@ public class ClienteDAO extends BasicDAO {
                 endereco.setCidade(rs.getString("cidade"));
                 endereco.setComplemento(rs.getString("complemento"));
                 endereco.setCep(rs.getString("cep"));
+                endereco.setDescricao(rs.getString("descricao"));
                 enderecos.add(endereco);
             }
         } catch (SQLException e) {

@@ -19,11 +19,12 @@ public class Endereco {
     private String numero;
     private String cidade;
     private String cep;
+    private String descricao;
 
     public Endereco() {
     }        
 
-    public Endereco(long id, String logradouro, String bairro, String complemento, String numero, String cidade, String cep) {
+    public Endereco(long id, String logradouro, String bairro, String complemento, String numero, String cidade, String cep, String descricao) {
         this.id = id;
         this.logradouro = logradouro;
         this.bairro = bairro;
@@ -31,7 +32,8 @@ public class Endereco {
         this.numero = numero;
         this.cidade = cidade;
         this.cep = cep;
-    }
+        this.descricao = descricao;
+    }    
 
     public long getId() {
         return id;
@@ -88,6 +90,14 @@ public class Endereco {
     public void setCep(String cep) {
         this.cep = cep;
     }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }        
 
     @Override
     public String toString() {

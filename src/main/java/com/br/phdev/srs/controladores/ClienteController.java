@@ -147,9 +147,36 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
-    }
+    }        
 
-    @RequestMapping("cliente/cadastrar")
+    @RequestMapping("cliente/pre-cadastrar")
+    public ResponseEntity<Mensagem> preCadastrar(@RequestBody Cadastro cadastro) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            String token = clienteDAO.cadastrar(cadastro, true, this.chave);
+            try {
+                new ServicoValidacaoCliente().enviarMensagem(cadastro.getTelefone(), token);
+            } catch (ApiException e) {
+                e.printStackTrace();
+            }
+            mensagem.setDescricao("Pre cadastro realizado. Agora só falta ativar");
+            mensagem.setCodigo(100);
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException | SQLException e) {
+            e.printStackTrace();
+            mensagem.setDescricao(e.getMessage());
+            mensagem.setCodigo(200);
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(e.codigo);
+            mensagem.setDescricao(e.getMessage());
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+    
+    @RequestMapping("cliente/pre-cadastrar")
     public ResponseEntity<Mensagem> cadastrar(@RequestBody Cadastro cadastro) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
