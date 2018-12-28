@@ -24,6 +24,7 @@ import com.br.phdev.srs.utils.Arquivo;
 import com.br.phdev.srs.utils.Mensagem;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.br.phdev.srs.utils.ServicoPagamento;
+import com.br.phdev.srs.utils.ServicoValidacaoCliente;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.UnsupportedEncodingException;
@@ -31,6 +32,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Enumeration;
@@ -151,7 +153,8 @@ public class ClienteController {
                 token.append(String.format("%02X", 0xFF & textoDigerido[i]));
             }
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.cadastrar(cliente, true, token.toString());
+            clienteDAO.cadastrar(cliente, true, token.toString());            
+            new ServicoValidacaoCliente().enviarMensagem(cliente.getTelefone(), token.toString());
             mensagem.setDescricao("Pre cadastro realizado. Falta somente ativar");
             mensagem.setCodigo(0);
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
@@ -161,8 +164,13 @@ public class ClienteController {
             e.printStackTrace();
             mensagem.setCodigo(-1);
         } catch (DAOException e) {
-            e.printStackTrace();
-            mensagem.setCodigo(-1);
+            if (e.getCause() instanceof SQLIntegrityConstraintViolationException) {
+                mensagem.setDescricao("O numero de telefone já se encontra cadastrado");
+                mensagem.setCodigo(2);
+            } else {
+                e.printStackTrace();
+                mensagem.setCodigo(-1);
+            }            
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
