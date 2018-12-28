@@ -35,6 +35,8 @@ public class Teste {
                 }                
             }
         }*/
+        
+        /*
         String cpf = "01741053200";
         StringBuilder ultimosDigitos = new StringBuilder();
         int soma = 0;
@@ -59,6 +61,14 @@ public class Teste {
         else
             ultimosDigitos.append((resto - 11));
         System.out.println("Ultimos digitos: " + ultimosDigitos.toString());
+        */
+        String nome = "Paulo Henrique";
+        for (char c : nome.toCharArray()) {                        
+            if (!(((int) c > 64 && (int) c < 91) || ((int) c > 96 && (int) c < 122)) && (int)c != 32) {
+                System.out.println(c);
+                System.out.println("Nome errado");
+            }
+        }
     }
     
 }

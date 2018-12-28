@@ -57,7 +57,7 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOIncorrectData("Alguns dados estão incorretos");
         }
         for (char c : cliente.getNome().toCharArray()) {
-            if (!(((int) c > 64 && (int) c < 91) || ((int) c > 97 && (int) c < 122))) {
+            if (!(((int) c > 64 && (int) c < 91) || ((int) c > 96 && (int) c < 122)) && (int)c != 32) {
                 throw new DAOIncorrectData("Alguns dados estão incorretos");
             }
         }
