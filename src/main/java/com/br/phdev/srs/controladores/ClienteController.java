@@ -186,6 +186,9 @@ public class ClienteController {
             if (clienteDAO.validarNumero(codigo)) {
                 mensagem.setDescricao("Numero verificado com sucesso");
                 mensagem.setCodigo(100);
+            } else {
+                mensagem.setDescricao("Codigo inválido");
+                mensagem.setCodigo(101);
             }
         } catch (SQLException e) {            
             e.printStackTrace();
