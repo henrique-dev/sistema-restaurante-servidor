@@ -176,7 +176,7 @@ public class ClienteController {
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
     
-    @RequestMapping("cliente/pre-cadastrar")
+    @RequestMapping("cliente/cadastrar")
     public ResponseEntity<Mensagem> cadastrar(@RequestBody Cadastro cadastro) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
