@@ -252,6 +252,7 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             listaItens = clienteDAO.getItens();
+            listaItens.setFrete(3);
         } catch (DAOException e) {
             e.printStackTrace();
         } catch (SQLException e) {

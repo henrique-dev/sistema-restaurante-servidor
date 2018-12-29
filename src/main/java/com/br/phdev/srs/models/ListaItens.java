@@ -15,6 +15,7 @@ import java.util.Set;
  */
 public class ListaItens {
     
+    private double frete;
     private Set<Genero> generos;
     private List<Item> itens;
 
@@ -32,6 +33,14 @@ public class ListaItens {
 
     public void setItens(List<Item> itens) {
         this.itens = itens;
+    }        
+
+    public double getFrete() {
+        return frete;
+    }
+
+    public void setFrete(double frete) {
+        this.frete = frete;
     }        
     
 }
