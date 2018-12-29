@@ -17,7 +17,7 @@ public class ConfirmaPedido {
     private List<ItemPedido> itens;
     private List<FormaPagamento> formaPagamentos;
     private List<Endereco> enderecos;
-    private float precoTotal;
+    private double precoTotal;
 
     public ConfirmaPedido() {
     }
@@ -57,7 +57,7 @@ public class ConfirmaPedido {
         this.precoTotal += frete;
     }
 
-    public void setPrecoTotal(float precoTotal) {
+    public void setPrecoTotal(double precoTotal) {
         this.precoTotal = precoTotal;
     }        
 
