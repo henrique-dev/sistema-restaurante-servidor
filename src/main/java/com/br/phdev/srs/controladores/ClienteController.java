@@ -252,7 +252,8 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             listaItens = clienteDAO.getItens();
-            listaItens.setFrete(3);
+            if (listaItens != null)
+                listaItens.setFrete(RepositorioPrecos.getInstancia().frete);
         } catch (DAOException e) {
             e.printStackTrace();
         } catch (SQLException e) {
@@ -290,7 +291,7 @@ public class ClienteController {
             List<FormaPagamento> formaPagamentos = clienteDAO.getFormasPagamento(cliente);
             confirmaPedido.setFormaPagamentos(formaPagamentos);
             confirmaPedido.setEnderecos(enderecos);
-            confirmaPedido.calcularPrecoTotal(0);
+            confirmaPedido.calcularPrecoTotal(RepositorioPrecos.getInstancia().frete);
             sessao.setAttribute("pre-pedido-itens", confirmaPedido.getItens());
             sessao.setAttribute("pre-pedido-preco", confirmaPedido.getPrecoTotal());
         } catch (DAOException e) {

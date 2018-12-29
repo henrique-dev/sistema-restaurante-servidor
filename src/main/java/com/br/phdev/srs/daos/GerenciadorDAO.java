@@ -36,7 +36,7 @@ public class GerenciadorDAO extends BasicDAO {
 
     public List<Genero> getGeneros() throws DAOException {
         List<Genero> generos = null;
-        String sql = "CALL listar_generos";
+        String sql = "CALL get_lista_generos";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             generos = new ArrayList<>();
@@ -82,7 +82,7 @@ public class GerenciadorDAO extends BasicDAO {
 
     public List<Tipo> getTipos() throws DAOException {
         List<Tipo> tipos = null;
-        String sql = "CALL listar_tipos";
+        String sql = "CALL get_lista_tipos";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             tipos = new ArrayList<>();
@@ -128,7 +128,7 @@ public class GerenciadorDAO extends BasicDAO {
 
     public List<Complemento> getComplementos() throws DAOException {
         List<Complemento> complementos = null;
-        String sql = "CALL listar_complementos";
+        String sql = "CALL get_lista_complementos";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             complementos = new ArrayList<>();
@@ -188,7 +188,7 @@ public class GerenciadorDAO extends BasicDAO {
 
     public List<Item> getItens() throws DAOException {
         List<Item> itens = null;
-        String sql = "call listar_itens";
+        String sql = "call get_lista_itens";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             itens = new ArrayList<>();
@@ -203,7 +203,7 @@ public class GerenciadorDAO extends BasicDAO {
                     if (pratoAtual != -1) {
                         item.setTipos(tipos);
 
-                        try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
+                        try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_lista_arquivos(?)")) {
                             stmt2.setLong(1, pratoAtual);
                             ResultSet rs2 = stmt2.executeQuery();
                             fotos = new HashSet<>();
@@ -216,7 +216,7 @@ public class GerenciadorDAO extends BasicDAO {
                             e.printStackTrace();
                         }
 
-                        try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_complementos_item(?)")) {
+                        try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_lista_complementos_item(?)")) {
                             stmt2.setLong(1, idPrato);
                             ResultSet rs2 = stmt2.executeQuery();
                             complementos = new HashSet<>();
@@ -251,7 +251,7 @@ public class GerenciadorDAO extends BasicDAO {
             if (pratoAtual != -1) {
                 item.setTipos(tipos);
 
-                try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_arquivos(?)")) {
+                try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_lista_arquivos(?)")) {
                     stmt2.setLong(1, pratoAtual);
                     ResultSet rs2 = stmt2.executeQuery();
                     fotos = new HashSet<>();
@@ -263,7 +263,7 @@ public class GerenciadorDAO extends BasicDAO {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_complementos_item(?)")) {
+                try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_lista_complementos_item(?)")) {
                     stmt2.setLong(1, item.getId());
                     ResultSet rs2 = stmt2.executeQuery();
                     complementos = new HashSet<>();

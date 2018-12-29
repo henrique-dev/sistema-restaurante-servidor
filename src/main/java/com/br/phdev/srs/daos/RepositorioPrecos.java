@@ -22,18 +22,23 @@ import java.util.HashMap;
  */
 public class RepositorioPrecos {
 
-    private static RepositorioPrecos instancia;
+    private static RepositorioPrecos instancia = new RepositorioPrecos();
 
     private final HashMap<Long, Double> itens;
     private final HashMap<Long, Double> complementos;
     private Timestamp dataUltimoModificacao;
+    
+    public double frete;
 
     private RepositorioPrecos() {
+        System.out.println("REPOSITORIO DE PREÇOS CRIADO");
         this.itens = new HashMap<>();
         this.complementos = new HashMap<>();
+        this.frete = 3;
     }
 
     public static RepositorioPrecos getInstancia() {
+        System.out.println("HERE");
         if (instancia == null) {
             instancia = new RepositorioPrecos();
         }
@@ -49,7 +54,7 @@ public class RepositorioPrecos {
     }
 
     public void carregar(Connection conexao) throws DAOException {
-        try (PreparedStatement stmt = conexao.prepareStatement("CALL get_data_ultima_alteracao(?)")) {
+        try (PreparedStatement stmt = conexao.prepareStatement("CALL get_data_ultima_alteracao_base(?)")) {
             stmt.setLong(1, 1);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -74,13 +79,13 @@ public class RepositorioPrecos {
     private void carregarDados(Connection conexao) throws SQLException {
         this.itens.clear();
         this.complementos.clear();
-        try (PreparedStatement stmt2 = conexao.prepareStatement("CALL listar_somente_itens")) {
+        try (PreparedStatement stmt2 = conexao.prepareStatement("CALL get_lista_itens_basico")) {
             ResultSet rs = stmt2.executeQuery();
             while (rs.next()) {
                 this.itens.put(rs.getLong("id_item"), rs.getDouble("preco"));
             }
         }
-        try (PreparedStatement stmt2 = conexao.prepareStatement("CALL listar_somente_complementos")) {
+        try (PreparedStatement stmt2 = conexao.prepareStatement("CALL get_lista_complementos_basic")) {
             ResultSet rs = stmt2.executeQuery();
             while (rs.next()) {
                 this.complementos.put(rs.getLong("id_complemento"), rs.getDouble("preco"));
