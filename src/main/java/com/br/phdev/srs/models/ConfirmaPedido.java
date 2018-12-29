@@ -54,14 +54,7 @@ public class ConfirmaPedido {
     }
     
     public void calcularPrecoTotal(double frete) {
-        this.precoTotal = frete;
-        for (Item item : itens) {
-            this.precoTotal += item.getPreco();            
-            if (item.getComplementos() != null)
-                for (Complemento complemento : item.getComplementos()) {
-                    this.precoTotal += complemento.getPreco();
-                }
-        }        
+        this.precoTotal += frete;        
     }
 
     public void setPrecoTotal(double precoTotal) {
