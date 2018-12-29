@@ -513,9 +513,9 @@ public class ClienteDAO extends BasicDAO {
         }
         RepositorioPrecos repositorioPrecos = RepositorioPrecos.getInstancia();
         repositorioPrecos.carregar(super.conexao);
-        double valorTotal = 0;
+        float valorTotal = 0;
         for (ItemPedido ip : confirmaPedido.getItens()) {
-            double valorItem = 0;
+            float valorItem = 0;
             if (ip.getComplementos() != null) {
                 for (Complemento c : ip.getComplementos()) {
                     repositorioPrecos.inserirPrecoNoComplemento(c);
