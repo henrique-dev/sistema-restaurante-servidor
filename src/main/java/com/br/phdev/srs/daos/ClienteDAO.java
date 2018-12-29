@@ -30,6 +30,7 @@ import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -513,20 +514,20 @@ public class ClienteDAO extends BasicDAO {
         }
         RepositorioPrecos repositorioPrecos = RepositorioPrecos.getInstancia();
         repositorioPrecos.carregar(super.conexao);
-        float valorTotal = 0;
+        BigDecimal valorTotal = new BigDecimal(0);
         for (ItemPedido ip : confirmaPedido.getItens()) {
-            float valorItem = 0;
+            BigDecimal valorItem = new BigDecimal(0);
             if (ip.getComplementos() != null) {
                 for (Complemento c : ip.getComplementos()) {
                     repositorioPrecos.inserirPrecoNoComplemento(c);
-                    valorItem += c.getPreco();
+                    valorItem.add(new BigDecimal(String.valueOf(c.getPreco())));
                 }
             }
             repositorioPrecos.inserirPrecoNoItem(ip);
-            valorItem += ip.getPreco();
-            valorTotal += valorItem * ip.getQuantidade();
+            valorItem.add(new BigDecimal(String.valueOf(ip.getPreco())));
+            valorTotal.add(valorItem.multiply(new BigDecimal(ip.getQuantidade())));            
         }
-        confirmaPedido.setPrecoTotal(valorTotal);
+        confirmaPedido.setPrecoTotal(valorTotal.floatValue());
         return confirmaPedido;
     }
     
