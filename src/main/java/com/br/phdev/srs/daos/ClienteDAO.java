@@ -520,14 +520,14 @@ public class ClienteDAO extends BasicDAO {
             if (ip.getComplementos() != null) {
                 for (Complemento c : ip.getComplementos()) {
                     repositorioPrecos.inserirPrecoNoComplemento(c);
-                    valorItem.add(new BigDecimal(String.valueOf(c.getPreco())));
+                    valorItem = valorItem.add(new BigDecimal(String.valueOf(c.getPreco())));
                 }
             }
             repositorioPrecos.inserirPrecoNoItem(ip);
-            valorItem.add(new BigDecimal(String.valueOf(ip.getPreco())));
-            valorTotal.add(valorItem.multiply(new BigDecimal(ip.getQuantidade())));            
+            valorItem = valorItem.add(new BigDecimal(String.valueOf(ip.getPreco())));
+            valorTotal = valorTotal.add(valorItem.multiply(new BigDecimal(ip.getQuantidade())));
         }
-        confirmaPedido.setPrecoTotal(100);
+        confirmaPedido.setPrecoTotal(valorTotal.doubleValue());
         return confirmaPedido;
     }
     
