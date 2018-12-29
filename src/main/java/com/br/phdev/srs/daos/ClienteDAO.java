@@ -412,7 +412,7 @@ public class ClienteDAO extends BasicDAO {
                         complementos.add(new Complemento(
                                 rs2.getLong("id_complemento"),
                                 rs2.getString("nome"),
-                                0,
+                                rs2.getDouble("preco"),
                                 new Foto(rs2.getLong("id_arquivo"), null, 0)));
                     }
                 } catch (SQLException e) {
