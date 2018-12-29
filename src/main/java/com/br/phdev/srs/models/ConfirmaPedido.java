@@ -6,7 +6,6 @@
  */
 package com.br.phdev.srs.models;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -55,7 +54,7 @@ public class ConfirmaPedido {
     }
     
     public void calcularPrecoTotal(double frete) {
-        this.precoTotal = new BigDecimal(String.valueOf(this.precoTotal)).add(new BigDecimal(String.valueOf(frete))).floatValue();
+        this.precoTotal += frete;
     }
 
     public void setPrecoTotal(float precoTotal) {
