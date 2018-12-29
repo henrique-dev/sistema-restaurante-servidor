@@ -21,6 +21,7 @@ import com.br.phdev.srs.models.FormaPagamento;
 import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.ListaItens;
 import com.br.phdev.srs.models.Item;
+import com.br.phdev.srs.models.ItemPedido;
 import com.br.phdev.srs.models.Pedido;
 import com.br.phdev.srs.models.Teste;
 import com.br.phdev.srs.models.Usuario;
@@ -200,7 +201,7 @@ public class ClienteController {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.cadastrar(cadastro);            
+            clienteDAO.cadastrarCliente(cadastro);            
             mensagem.setDescricao("Cadastro realizado com sucesso");
             mensagem.setCodigo(100);
         } catch (SQLException e) {
@@ -315,7 +316,7 @@ public class ClienteController {
                 pedido.setData(new Timestamp(Calendar.getInstance().getTimeInMillis()));
                 pedido.setEndereco(confirmaPedido.getEnderecos().get(0));
                 pedido.setFormaPagamento(confirmaPedido.getFormaPagamentos().get(0));
-                pedido.convertItemParaItemFacil((List<Item>) sessao.getAttribute("pre-pedido-itens"));
+                pedido.convertItemParaItemFacil((List<ItemPedido>) sessao.getAttribute("pre-pedido-itens"));
                 pedido.setPrecoTotal((Double) sessao.getAttribute("pre-pedido-preco"));
                 pedido.setStatus("Pagamento aprovado");
                 clienteDAO.inserirPedido(pedido, cliente);
@@ -348,6 +349,28 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(enderecos, httpHeaders, HttpStatus.OK);
+    }
+    
+    @PostMapping("cliente/cadastrar-endereco")
+    public ResponseEntity<Mensagem> cadastrarEndereco(Endereco endereco, HttpSession sessao) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+            clienteDAO.cadastrarEndereco(cliente, endereco);
+            mensagem.setCodigo(100);
+            mensagem.setDescricao("Endereço cadastrado com sucesso");
+        } catch (DAOException e) {
+            mensagem.setCodigo(e.codigo);
+            mensagem.setDescricao(e.getMessage());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(200);
+            mensagem.setDescricao(e.getMessage());
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping(value = "cliente/listar-formas-pagamento")

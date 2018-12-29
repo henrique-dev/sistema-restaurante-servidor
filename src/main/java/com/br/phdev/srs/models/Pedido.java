@@ -20,7 +20,7 @@ public class Pedido {
     private long id;
     private double precoTotal;
     private Timestamp data;    
-    private List<ItemFacil> itens;
+    private List<ItemPedidoFacil> itens;
     private FormaPagamento formaPagamento;    
     private Endereco endereco;
     private String status;
@@ -28,7 +28,7 @@ public class Pedido {
     public Pedido() {
     }
 
-    public Pedido(long id, double precoTotal, Timestamp data, List<ItemFacil> itens, FormaPagamento formaPagamento, Endereco endereco, String status) {
+    public Pedido(long id, double precoTotal, Timestamp data, List<ItemPedidoFacil> itens, FormaPagamento formaPagamento, Endereco endereco, String status) {
         this.id = id;
         this.precoTotal = precoTotal;
         this.data = data;
@@ -54,18 +54,18 @@ public class Pedido {
         this.data = data;
     }
 
-    public List<ItemFacil> getItens() {
+    public List<ItemPedidoFacil> getItens() {
         return itens;
     }
 
-    public void setItens(List<ItemFacil> itens) {
+    public void setItens(List<ItemPedidoFacil> itens) {
         this.itens = itens;
     }        
 
-    public void convertItemParaItemFacil(List<Item> itens) {
+    public void convertItemParaItemFacil(List<ItemPedido> itens) {
         this.itens = new ArrayList<>();
-        for (Item item : itens) {
-            this.itens.add(new ItemFacil(item));
+        for (ItemPedido item : itens) {
+            this.itens.add(new ItemPedidoFacil(item));
         }
     }
 

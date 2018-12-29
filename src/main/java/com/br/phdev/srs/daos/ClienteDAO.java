@@ -54,7 +54,7 @@ public class ClienteDAO extends BasicDAO {
         super(conexao);
     }
 
-    public String cadastrar(Cadastro cadastro) throws DAOException {
+    public String cadastrarCliente(Cadastro cadastro) throws DAOException {
         if (cadastro == null) {
             throw new DAOIncorrectData(300);
         }
@@ -529,72 +529,7 @@ public class ClienteDAO extends BasicDAO {
         confirmaPedido.setPrecoTotal(valorTotal);
         return confirmaPedido;
     }
-
-    /*
-    public ConfirmaPedido inserirPrecos(ConfirmaPedido confirmaPedido) throws DAOException, DAOIncorrectData {
-        if (confirmaPedido.getItens() == null) {
-            throw new DAOIncorrectData(300);
-        }
-        if (confirmaPedido.getItens().isEmpty()) {
-            throw new DAOIncorrectData(301);
-        }
-        String sql = "call get_preco_item(?)";
-        try {
-            PreparedStatement stmt = super.conexao.prepareStatement(sql);
-            Set<Item> setItem = new HashSet<>();
-            for (Item item : confirmaPedido.getItens()) {
-                setItem.add(item);
-            }
-            StringBuilder itensList = new StringBuilder();
-            for (Item item : setItem) {
-                itensList.append(item.getId());
-                itensList.append(',');
-            }
-            itensList.deleteCharAt((setItem.size() * 2) - 1);
-            stmt.setString(1, itensList.toString());
-            ResultSet rs = stmt.executeQuery();
-            Map<Long, Double> precoItens = new HashMap<>();
-            while (rs.next()) {
-                precoItens.put(rs.getLong("id_item"), rs.getDouble("preco"));
-            }
-            for (Item item : confirmaPedido.getItens()) {
-                item.setPreco(precoItens.get(item.getId()));
-            }
-            stmt.close();
-            sql = "call get_preco_complemento(?)";
-            stmt = super.conexao.prepareStatement(sql);
-            Set<Complemento> setComplemento = new HashSet<>();
-            for (Item item : confirmaPedido.getItens()) {
-                if (item.getComplementos() != null) {
-                    for (Complemento complemento : item.getComplementos()) {
-                        setComplemento.add(complemento);
-                    }
-                }
-            }
-            StringBuilder listaComplementos = new StringBuilder();
-            for (Complemento complemento : setComplemento) {
-                listaComplementos.append(complemento.getId());
-                listaComplementos.append(',');
-            }
-            listaComplementos.deleteCharAt((setComplemento.size() * 2) - 1);
-            stmt.setString(1, listaComplementos.toString());
-            rs = stmt.executeQuery();
-            Map<Long, Double> precoComplementos = new HashMap<>();
-            while (rs.next()) {
-                precoComplementos.put(rs.getLong("id_complemento"), rs.getDouble("preco"));
-            }
-            for (Item item : confirmaPedido.getItens()) {
-                if (item.getComplementos() != null) {
-                    for (Complemento complemento : item.getComplementos()) {
-                        complemento.setPreco(precoComplementos.get(complemento.getId()));
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new DAOException("Falha ao adquirir informações do pedido", e, 200);
-        }
-        return confirmaPedido;
-    }*/
+    
     public void inserirPedido(Pedido pedido, Cliente cliente) throws DAOException {
         if (pedido == null || cliente == null) {
             throw new DAOIncorrectData(300);
@@ -602,18 +537,43 @@ public class ClienteDAO extends BasicDAO {
         String sql = "call inserir_pedido(?,?,?,?,?,?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setObject(1, pedido.getData());
-            stmt.setDouble(1, pedido.getPrecoTotal());
-            stmt.setLong(2, pedido.getFormaPagamento().getId());
-            stmt.setLong(3, cliente.getId());
-            stmt.setLong(4, pedido.getEndereco().getId());
+            stmt.setDouble(2, pedido.getPrecoTotal());
+            stmt.setLong(3, pedido.getFormaPagamento().getId());
+            stmt.setLong(4, cliente.getId());
+            stmt.setLong(5, pedido.getEndereco().getId());            
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(pedido.getItens());
-            stmt.setString(5, json);
+            stmt.setString(6, json);
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException("Falha ao adquirir informações do arquivo", e, 200);
         } catch (JsonProcessingException e) {
             throw new DAOException("Falha ao adquirir informações do arquivo", e, 307);
+        }
+    }
+    
+    public void cadastrarEndereco(Cliente cliente, Endereco endereco) throws DAOException {
+        if (cliente == null || endereco == null)
+            throw new DAOIncorrectData(300);
+        if (endereco.getLogradouro() == null || endereco.getBairro() == null || endereco.getCep() == null ||
+                endereco.getCidade() == null || endereco.getComplemento() == null || endereco.getDescricao() == null
+                || endereco.getNumero() == null)
+            throw new DAOIncorrectData(300);
+        if (endereco.getLogradouro().isEmpty() || endereco.getBairro().isEmpty() || endereco.getDescricao().isEmpty() ||
+                endereco.getNumero().isEmpty() || endereco.getCep().isEmpty() || endereco.getCidade().isEmpty())
+            throw new DAOIncorrectData(301);
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL cadastrar_endereco(?,?,?,?,?,?,?,?)")) {
+            stmt.setLong(1, cliente.getId());
+            stmt.setString(2, endereco.getLogradouro());
+            stmt.setString(3, endereco.getBairro());
+            stmt.setString(4, endereco.getComplemento());
+            stmt.setString(5, endereco.getNumero());
+            stmt.setString(6, endereco.getCidade());
+            stmt.setString(7, endereco.getCep());
+            stmt.setString(8, endereco.getDescricao());            
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
         }
     }
 
