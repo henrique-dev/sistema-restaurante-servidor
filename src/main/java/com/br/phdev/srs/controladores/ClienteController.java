@@ -28,6 +28,7 @@ import com.br.phdev.srs.utils.ServicoPagamento;
 import com.br.phdev.srs.utils.ServicoValidacaoCliente;
 import com.google.gson.JsonObject;
 import com.twilio.exception.ApiException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -311,7 +312,7 @@ public class ClienteController {
             pedido.setPrecoTotal((Double) sessao.getAttribute("pre-pedido-preco"));            
             clienteDAO.inserirPedido(pedido, cliente);
             mensagem.setCodigo(100);
-            mensagem.setDescricao("Pre-pedido realizado. Falta só confirmar o pagamento");
+            mensagem.setDescricao("Pedido realizado com sucesso");
         } catch (DAOException e) {
             mensagem.setCodigo(101);
             mensagem.setDescricao(e.getMessage());
@@ -325,9 +326,49 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
+    
+    @PostMapping("cliente/listar-pedidos")
+    public ResponseEntity<List<Pedido>> listarPedidos(HttpSession sessao) {
+        List<Pedido> pedidos = null;
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+            pedidos = clienteDAO.getPedidos(cliente);
+        } catch (DAOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(pedidos, httpHeaders, HttpStatus.OK);
+    }
+    
+    @PostMapping("cliente/info-pedido")
+    public ResponseEntity<Pedido> listarPedidos(@RequestBody Pedido pedido, HttpSession sessao) {        
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+            clienteDAO.getPedido(pedido, cliente);
+        } catch (DAOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(pedido, httpHeaders, HttpStatus.OK);
+    }
+    
+    @PostMapping("cliente/info-entrega")
+    public ResponseEntity<List<Pedido>> infoEntrega() {
+        return null;
+    }
 
     @PostMapping("cliente/listar-enderecos")
-    public ResponseEntity<List<Endereco>> infoEndereco(HttpSession sessao) {
+    public ResponseEntity<List<Endereco>> listarEnderecos(HttpSession sessao) {
         List<Endereco> enderecos = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);

@@ -21,6 +21,7 @@ import com.br.phdev.srs.models.Genero;
 import com.br.phdev.srs.models.ListaItens;
 import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.ItemPedido;
+import com.br.phdev.srs.models.ItemPedidoFacil;
 import com.br.phdev.srs.models.Pedido;
 import com.br.phdev.srs.models.Tipo;
 import com.br.phdev.srs.models.Usuario;
@@ -28,7 +29,9 @@ import com.br.phdev.srs.models.ValidaCadastro;
 import com.br.phdev.srs.utils.Arquivo;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.security.MessageDigest;
@@ -37,6 +40,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -560,6 +564,52 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException("Falha ao adquirir informações do arquivo", e, 200);
         } catch (JsonProcessingException e) {
             throw new DAOException("Falha ao adquirir informações do arquivo", e, 307);
+        }
+    }
+    
+    public List<Pedido> getPedidos(Cliente cliente) throws DAOException {
+        List<Pedido> pedidos = null;
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL get_lista_pedidos(?)")) {
+            stmt.setLong(1, cliente.getId());
+            ResultSet rs = stmt.executeQuery();
+            pedidos = new ArrayList<>();
+            while (rs.next()) {
+                Pedido pedido = new Pedido();
+                pedido.setId(rs.getLong("id_pedido"));
+                pedido.setData(rs.getObject("datapedido", Timestamp.class));
+                pedido.setPrecoTotal(rs.getDouble("precototal"));
+                pedido.setFormaPagamento(new FormaPagamento(0, rs.getString("formapagamento_descricao")));
+                Endereco endereco = new Endereco();
+                endereco.setId(-1);
+                endereco.setDescricao(rs.getString("endereco_descricao"));
+                pedido.setEndereco(endereco);
+            }
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
+        }
+        return pedidos;
+    }
+    
+    public void getPedido(Pedido pedido, Cliente cliente) throws DAOException, IOException {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL get__pedido(?,?)")) {
+            stmt.setLong(1, cliente.getId());
+            ResultSet rs = stmt.executeQuery();            
+            if (rs.next()) {                
+                pedido.setId(rs.getLong("id_pedido"));
+                pedido.setData(rs.getObject("datapedido", Timestamp.class));
+                pedido.setPrecoTotal(rs.getDouble("precototal"));
+                pedido.setFormaPagamento(new FormaPagamento(0, rs.getString("formapagamento_descricao")));
+                Endereco endereco = new Endereco();
+                endereco.setId(-1);
+                endereco.setDescricao(rs.getString("endereco_descricao"));
+                pedido.setEndereco(endereco);
+                
+                ObjectMapper mapeador = new ObjectMapper();
+                List<ItemPedidoFacil> itens = mapeador.readValue(rs.getString("itens"), new TypeReference<List<ItemPedidoFacil>>(){});
+                pedido.setItens(itens);
+            }
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
         }
     }
 
