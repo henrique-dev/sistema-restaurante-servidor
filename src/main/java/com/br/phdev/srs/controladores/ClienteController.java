@@ -76,7 +76,7 @@ public class ClienteController {
                 }
                 clienteDAO.gerarSessao(usuario, tokenHex.toString());
                 mensagem.setCodigo(100);
-                mensagem.setDescricao(tokenHex.toString());
+                mensagem.setDescricao(tokenHex.toString());                
                 sessao.setAttribute("usuario", usuario);
                 sessao.setAttribute("cliente", cliente);
                 sessao.setAttribute("token", tokenHex.toString());
