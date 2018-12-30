@@ -49,7 +49,7 @@ import java.util.Set;
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
-public class ClienteDAO extends BasicDAO {        
+public class ClienteDAO extends BasicDAO {
 
     public ClienteDAO(Connection conexao) {
         super(conexao);
@@ -121,7 +121,7 @@ public class ClienteDAO extends BasicDAO {
             stmt.setString(3, cadastro.getTelefone());
             stmt.setString(4, cadastro.getEmail());
             stmt.setString(5, cadastro.getSenhaUsuario());
-            stmt.setString(6, cadastro.getCodigo());           
+            stmt.setString(6, cadastro.getCodigo());
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 if (rs.getString("erro") != null) {
@@ -185,7 +185,7 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException(e, 200);
         }
         return false;
-    }    
+    }
 
     public Cliente autenticar(Usuario usuario) throws DAOException {
         if (usuario == null) {
@@ -489,7 +489,7 @@ public class ClienteDAO extends BasicDAO {
         }
         RepositorioPrecos repositorioPrecos = RepositorioPrecos.getInstancia();
         repositorioPrecos.carregar(super.conexao);
-        BigDecimal valorTotal = new BigDecimal("0.00");        
+        BigDecimal valorTotal = new BigDecimal("0.00");
         for (ItemPedido ip : confirmaPedido.getItens()) {
             BigDecimal valorItem = new BigDecimal("0.00");
             if (ip.getComplementos() != null) {
@@ -505,7 +505,7 @@ public class ClienteDAO extends BasicDAO {
         confirmaPedido.setPrecoTotal(valorTotal.doubleValue());
         return confirmaPedido;
     }
-    
+
     synchronized public void inserirPedido(Pedido pedido, Cliente cliente) throws DAOException {
         if (pedido == null || cliente == null) {
             throw new DAOIncorrectData(300);
@@ -516,7 +516,7 @@ public class ClienteDAO extends BasicDAO {
             stmt.setDouble(2, pedido.getPrecoTotal());
             stmt.setLong(3, pedido.getFormaPagamento().getId());
             stmt.setLong(4, cliente.getId());
-            stmt.setLong(5, pedido.getEndereco().getId());            
+            stmt.setLong(5, pedido.getEndereco().getId());
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(pedido.getItens());
             stmt.setString(6, json);
@@ -527,17 +527,21 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException("Falha ao adquirir informações do arquivo", e, 307);
         }
     }
-    
+
     synchronized public void cadastrarEndereco(Cliente cliente, Endereco endereco) throws DAOException {
-        if (cliente == null || endereco == null)
+        if (cliente == null || endereco == null) {
             throw new DAOIncorrectData(300);
-        if (endereco.getLogradouro() == null || endereco.getBairro() == null || endereco.getCep() == null ||
-                endereco.getCidade() == null || endereco.getComplemento() == null || endereco.getDescricao() == null
-                || endereco.getNumero() == null)
+        }
+        if (endereco.getLogradouro() == null || endereco.getBairro() == null || endereco.getCep() == null
+                || endereco.getCidade() == null || endereco.getComplemento() == null || endereco.getDescricao() == null
+                || endereco.getNumero() == null) {
+            System.out.println(endereco);
             throw new DAOIncorrectData(300);
-        if (endereco.getLogradouro().isEmpty() || endereco.getBairro().isEmpty() || endereco.getDescricao().isEmpty() ||
-                endereco.getNumero().isEmpty() || endereco.getCep().isEmpty() || endereco.getCidade().isEmpty())
+        }
+        if (endereco.getLogradouro().isEmpty() || endereco.getBairro().isEmpty() || endereco.getDescricao().isEmpty()
+                || endereco.getNumero().isEmpty() || endereco.getCep().isEmpty() || endereco.getCidade().isEmpty()) {
             throw new DAOIncorrectData(301);
+        }
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL inserir_endereco(?,?,?,?,?,?,?,?)")) {
             stmt.setLong(1, cliente.getId());
             stmt.setString(2, endereco.getLogradouro());
@@ -546,7 +550,7 @@ public class ClienteDAO extends BasicDAO {
             stmt.setString(5, endereco.getNumero());
             stmt.setString(6, endereco.getCidade());
             stmt.setString(7, endereco.getCep());
-            stmt.setString(8, endereco.getDescricao());            
+            stmt.setString(8, endereco.getDescricao());
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(e, 200);

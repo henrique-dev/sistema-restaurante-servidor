@@ -21,13 +21,12 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
         System.out.println(uri);        
         //response.setHeader("Access-Control-Allow-Origin", "*");
         //response.setHeader("Access-Control-Allow-Headers", "*"); 
-        if (request.getSession().getAttribute("usuario") != null) {
-            
+        if (request.getSession().getAttribute("usuario") != null) {            
             return true;
         } else {
-            if (uri.contains("cliente/autenticar") || uri.contains("cliente/sem-autorizacao") || uri.contains("cliente/teste")
-                    || uri.contains("cliente/imagens") || uri.contains("validar-cadastro") || uri.contains("cadastrar") || uri.contains("sair")
-                    || uri.contains("verificar-numero") || uri.contains("validar-numero")) {
+            if (uri.endsWith("cliente/autenticar") || uri.endsWith("cliente/sem-autorizacao") || uri.contains("cliente/teste")
+                    || uri.contains("cliente/imagens") || uri.contains("validar-cadastro") || uri.endsWith("cliente/cadastrar") 
+                    || uri.endsWith("cliente/sair") || uri.endsWith("cliente/verificar-numero") || uri.endsWith("cliente/validar-numero")) {
                 return true;
             } else {                                
                 response.sendRedirect("sem-autorizacao");                

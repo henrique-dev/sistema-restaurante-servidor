@@ -176,7 +176,7 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             if (clienteDAO.validarNumero(codigo)) {
-                mensagem.setDescricao("Numero verificado com sucesso");
+                mensagem.setDescricao("Numero verificado com sucesso. Agora falta apenas finalizar se ucadastro.");
                 mensagem.setCodigo(100);
             } else {
                 mensagem.setDescricao("Codigo inválido");
@@ -354,11 +354,12 @@ public class ClienteController {
     }
     
     @PostMapping("cliente/cadastrar-endereco")
-    public ResponseEntity<Mensagem> cadastrarEndereco(Endereco endereco, HttpSession sessao) {
+    public ResponseEntity<Mensagem> cadastrarEndereco(@RequestBody Endereco endereco, HttpSession sessao) {        
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+            System.out.println(cliente);
             clienteDAO.cadastrarEndereco(cliente, endereco);
             mensagem.setCodigo(100);
             mensagem.setDescricao("Endereço cadastrado com sucesso");
