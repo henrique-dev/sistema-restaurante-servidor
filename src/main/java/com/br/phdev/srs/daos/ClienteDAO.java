@@ -596,8 +596,7 @@ public class ClienteDAO extends BasicDAO {
             stmt.setLong(1, cliente.getId());
             stmt.setLong(2, pedido.getId());
             ResultSet rs = stmt.executeQuery();            
-            if (rs.next()) {                
-                pedido.setId(rs.getLong("id_pedido"));
+            if (rs.next()) {                                
                 pedido.setData(rs.getObject("datapedido", Timestamp.class));
                 pedido.setPrecoTotal(rs.getDouble("precototal"));
                 pedido.setFormaPagamento(new FormaPagamento(0, rs.getString("formapagamento_descricao")));
