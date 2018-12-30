@@ -592,7 +592,7 @@ public class ClienteDAO extends BasicDAO {
     }
     
     public void getPedido(Pedido pedido, Cliente cliente) throws DAOException, IOException {
-        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL get__pedido(?,?)")) {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL get_pedido(?,?)")) {
             stmt.setLong(1, cliente.getId());
             stmt.setLong(2, pedido.getId());
             ResultSet rs = stmt.executeQuery();            
