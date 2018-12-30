@@ -583,6 +583,7 @@ public class ClienteDAO extends BasicDAO {
                 endereco.setId(-1);
                 endereco.setDescricao(rs.getString("endereco_descricao"));
                 pedido.setEndereco(endereco);
+                pedidos.add(pedido);
             }
         } catch (SQLException e) {
             throw new DAOException(e, 200);
@@ -593,6 +594,7 @@ public class ClienteDAO extends BasicDAO {
     public void getPedido(Pedido pedido, Cliente cliente) throws DAOException, IOException {
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL get__pedido(?,?)")) {
             stmt.setLong(1, cliente.getId());
+            stmt.setLong(2, pedido.getId());
             ResultSet rs = stmt.executeQuery();            
             if (rs.next()) {                
                 pedido.setId(rs.getLong("id_pedido"));
