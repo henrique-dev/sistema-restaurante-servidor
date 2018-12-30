@@ -506,6 +506,41 @@ public class ClienteDAO extends BasicDAO {
         return confirmaPedido;
     }
 
+    synchronized public void inserirPrePedido(Pedido pedido, Cliente cliente, String chave) throws DAOException {
+        if (pedido == null || cliente == null) {
+            throw new DAOIncorrectData(300);
+        }
+        String sql = "call inserir_pre_pedido(?,?,?,?,?,?)";
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+            stmt.setObject(1, pedido.getData());
+            stmt.setDouble(2, pedido.getPrecoTotal());
+            stmt.setLong(3, pedido.getFormaPagamento().getId());
+            stmt.setLong(4, cliente.getId());
+            stmt.setLong(5, pedido.getEndereco().getId());                        
+            
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(pedido.getItens());
+            stmt.setString(6, json);
+            
+            StringBuilder token = new StringBuilder();
+            String textoParaHash = cliente.getId()
+                    + Calendar.getInstance().getTime().toString() + chave;
+            MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
+            byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));
+            for (int i = 0; i < textoDigerido.length; i = i + 14) {
+                token.append(String.format("%02X", 0xFF & textoDigerido[i]));
+            }            
+            stmt.setString(7, token.toString());
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException("Falha ao adquirir informações do arquivo", e, 200);
+        } catch (JsonProcessingException e) {
+            throw new DAOException("Falha ao adquirir informações do arquivo", e, 307);
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+    
     synchronized public void inserirPedido(Pedido pedido, Cliente cliente) throws DAOException {
         if (pedido == null || cliente == null) {
             throw new DAOIncorrectData(300);
@@ -534,8 +569,7 @@ public class ClienteDAO extends BasicDAO {
         }
         if (endereco.getLogradouro() == null || endereco.getBairro() == null || endereco.getCep() == null
                 || endereco.getCidade() == null || endereco.getComplemento() == null || endereco.getDescricao() == null
-                || endereco.getNumero() == null) {
-            System.out.println(endereco);
+                || endereco.getNumero() == null) {            
             throw new DAOIncorrectData(300);
         }
         if (endereco.getLogradouro().isEmpty() || endereco.getBairro().isEmpty() || endereco.getDescricao().isEmpty()

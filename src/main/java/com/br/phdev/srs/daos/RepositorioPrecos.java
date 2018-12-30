@@ -30,15 +30,13 @@ public class RepositorioPrecos {
     
     public double frete;
 
-    private RepositorioPrecos() {
-        System.out.println("REPOSITORIO DE PREÇOS CRIADO");
+    private RepositorioPrecos() {        
         this.itens = new HashMap<>();
         this.complementos = new HashMap<>();
         this.frete = 3;
     }
 
-    public static RepositorioPrecos getInstancia() {
-        System.out.println("HERE");
+    public static RepositorioPrecos getInstancia() {        
         if (instancia == null) {
             instancia = new RepositorioPrecos();
         }
