@@ -417,6 +417,28 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
+    
+    @PostMapping("cliente/remover-endereco")
+    public ResponseEntity<Mensagem> removerEndereco(@RequestBody Endereco endereco, HttpSession sessao) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+            clienteDAO.removerEndereco(cliente, endereco);
+            mensagem.setCodigo(100);
+            mensagem.setDescricao("Endereço removido com sucesso");
+        } catch (DAOException e) {
+            mensagem.setCodigo(e.codigo);
+            mensagem.setDescricao(e.getMessage());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(200);
+            mensagem.setDescricao(e.getMessage());
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
 
     @PostMapping(value = "cliente/listar-formas-pagamento")
     public ResponseEntity<List<FormaPagamento>> listarFormasPagamento(HttpSession sessao) {

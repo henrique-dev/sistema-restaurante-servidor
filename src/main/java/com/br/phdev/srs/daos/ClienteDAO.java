@@ -534,25 +534,16 @@ public class ClienteDAO extends BasicDAO {
         }
     }
     
-    synchronized public void inserirPedido(Pedido pedido, Cliente cliente) throws DAOException {
-        if (pedido == null || cliente == null) {
+    synchronized public void inserirPedido(String idPagamento) throws DAOException {
+        if (idPagamento == null) {
             throw new DAOIncorrectData(300);
         }
-        String sql = "call inserir_pedido(?,?,?,?,?,?)";
+        String sql = "call inserir_pedido(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
-            stmt.setObject(1, pedido.getData());
-            stmt.setDouble(2, pedido.getPrecoTotal());
-            stmt.setLong(3, pedido.getFormaPagamento().getId());
-            stmt.setLong(4, cliente.getId());
-            stmt.setLong(5, pedido.getEndereco().getId());
-            ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(pedido.getItens());
-            stmt.setString(6, json);
+            stmt.setString(1, idPagamento);
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException("Falha ao adquirir informações do arquivo", e, 200);
-        } catch (JsonProcessingException e) {
-            throw new DAOException("Falha ao adquirir informações do arquivo", e, 307);
         }
     }
     
@@ -625,6 +616,22 @@ public class ClienteDAO extends BasicDAO {
             stmt.setString(6, endereco.getCidade());
             stmt.setString(7, endereco.getCep());
             stmt.setString(8, endereco.getDescricao());
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
+        }
+    }
+    
+    synchronized public void removerEndereco(Cliente cliente, Endereco endereco) throws DAOException {
+        if (cliente == null || endereco == null) {
+            throw new DAOIncorrectData(300);
+        }
+        if (endereco.getId() >= 0) {            
+            throw new DAOIncorrectData(300);
+        }        
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL remover_endereco(?,?)")) {
+            stmt.setLong(1, cliente.getId());
+            stmt.setLong(2, endereco.getId());
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(e, 200);
