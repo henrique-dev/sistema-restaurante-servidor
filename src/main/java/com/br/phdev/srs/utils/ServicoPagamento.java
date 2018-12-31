@@ -34,7 +34,7 @@ public class ServicoPagamento {
     private final String clientId = "AQRyK3MPSQHRz7VR0M0-TrsY67UFDltY90PogemFDlTFgMqNf21NlBLOCmiMxCLIOJIzQlK6FElahJa-";
     private final String secret = "ED_LIsYNSGmfrTCXegWKAqK0VJkJ5YF0BUX60d8hc2aJL6QCxoEFZXtZv4TXrIKuq5VRtzr_L_Sk2r5Q";
 
-    public String criarPagamento(String valorTotal) throws PaymentException {
+    public Payment criarPagamento(String valorTotal) throws PaymentException {
 
         Amount amount = new Amount();
         amount.setCurrency("BRL");
@@ -54,15 +54,15 @@ public class ServicoPagamento {
         payment.setTransactions(transactions);
 
         RedirectUrls redirectUrls = new RedirectUrls();
-        redirectUrls.setCancelUrl("http://35.202.51.59/mrfood/cliente/cancelar-pagamento");
-        redirectUrls.setReturnUrl("http://35.202.51.59/mrfood/cliente/retorno-pagamento");        
+        redirectUrls.setCancelUrl("http://35.202.51.59/mrfood/pagamentos/cancelar-pagamento");
+        redirectUrls.setReturnUrl("http://35.202.51.59/mrfood/pagamentos/retorno-pagamento");        
         payment.setRedirectUrls(redirectUrls);
 
         try {
             APIContext apiContext = new APIContext(clientId, secret, "sandbox");
             Payment createdPayment = payment.create(apiContext);
             System.out.println(createdPayment.toString());
-            return createdPayment.getId();
+            return createdPayment;
         } catch (PayPalRESTException e) {            
             throw new PaymentException(e);
         }        

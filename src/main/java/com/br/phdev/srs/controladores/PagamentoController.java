@@ -8,6 +8,7 @@ package com.br.phdev.srs.controladores;
 import com.br.phdev.srs.exceptions.PaymentException;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.google.gson.JsonObject;
+import com.paypal.api.payments.Payment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,19 +25,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class PagamentoController {
 
     @PostMapping("pagamentos/criar-pagamento")
-    public ResponseEntity<String> criarPagamento() {
+    public ResponseEntity<Payment> criarPagamento() {
         JsonObject jsonObject = new JsonObject();
+        Payment pagamentoCriado = null;
         try {
             ServicoPagamento servicoPagamento = new ServicoPagamento();
-            String id = servicoPagamento.criarPagamento("50");            
-            jsonObject.addProperty("id", id);
+            pagamentoCriado = servicoPagamento.criarPagamento("50");                        
             System.out.println(jsonObject.toString());
         } catch (PaymentException e) {
             e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(jsonObject.toString(), httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(pagamentoCriado, httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping("pagamentos/executar-pagamento")
