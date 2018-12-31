@@ -25,19 +25,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class PagamentoController {
 
     @PostMapping("pagamentos/criar-pagamento")
-    public ResponseEntity<Payment> criarPagamento() {
-        JsonObject jsonObject = new JsonObject();
-        Payment pagamentoCriado = null;
+    public ResponseEntity<String> criarPagamento() {        
+        Payment pagamentoCriado = new Payment();
         try {
             ServicoPagamento servicoPagamento = new ServicoPagamento();
-            pagamentoCriado = servicoPagamento.criarPagamento("50");                        
-            System.out.println(jsonObject.toString());
+            pagamentoCriado = servicoPagamento.criarPagamento("50");                                    
         } catch (PaymentException e) {
             e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(pagamentoCriado, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(pagamentoCriado.toJSON(), httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping("pagamentos/executar-pagamento")
