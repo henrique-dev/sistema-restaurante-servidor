@@ -43,47 +43,18 @@ public class PagamentoController {
     }
 
     @GetMapping("pagamentos/executar-pagamento")
-    public ResponseEntity<String> executarPagamento(HttpServletRequest req, HttpServletResponse res) {
-        try {
-            
-            Enumeration<String> headersEnum = req.getHeaderNames();
-            while (headersEnum.hasMoreElements()) {
-                String headerName = headersEnum.nextElement();
-                System.out.println(headerName + ": ");
-                Enumeration<String> valuesEnum = req.getHeaders(headerName);
-                while (valuesEnum.hasMoreElements()) {
-                    String value = valuesEnum.nextElement();
-                    System.out.print(value + "; ");
-                }
-                System.out.println("");
-            }
-            
-            
-            Enumeration<String> attributesEnum = req.getAttributeNames();
-            while (attributesEnum.hasMoreElements()) {
-                String attributeName = attributesEnum.nextElement();
-                System.out.println(attributeName + ": ");
-                System.out.print(req.getAttribute(attributeName));                
-                System.out.println("");
-            }
-            
-            Enumeration<String> paramsName = req.getParameterNames();
-            while (paramsName.hasMoreElements()) {
-                String paramName = paramsName.nextElement();
-                System.out.println(paramName + ": ");
-                System.out.print(req.getParameter(paramName));                
-                System.out.println("");
-            }
-            
-            /*
-            System.out.println("ID do pagador: " + paymentid);
-            System.out.println("ID do comprador: " + payerID);
+    public String executarPagamento(HttpServletRequest req, HttpServletResponse res) {
+        try {                        
+            String paymentId = req.getParameter("paymentId");
+            String payerId = req.getParameter("PayerID");            
+            System.out.println("ID do pagador: " + paymentId);
+            System.out.println("ID do comprador: " + payerId);
             ServicoPagamento servicoPagamento = new ServicoPagamento();
-            servicoPagamento.executarPagamento(paymentid, payerID);*/
+            servicoPagamento.executarPagamento(paymentId, payerId);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return "pagamento-efetuado";
     }
 
     /*
