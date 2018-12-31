@@ -92,7 +92,11 @@ public class ClienteController {
 
                 sessao.setAttribute("usuario", usuario);
                 sessao.setAttribute("cliente", cliente);
-                sessao.setAttribute("token", tokenHex.toString());
+                //sessao.setAttribute("token", tokenHex.toString());
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+                httpHeaders.add("stk", "JSESSIONID=" + sessao.getId());
+                return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
             } else {
                 mensagem.setCodigo(101);
                 mensagem.setDescricao("Usuário ou senha inválidos");
@@ -106,9 +110,7 @@ public class ClienteController {
             mensagem.setCodigo(e.codigo);
             mensagem.setDescricao(e.getMessage());
         }
-        System.out.println(sessao.getId());
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("set-cookie", "123456789");
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
@@ -323,7 +325,7 @@ public class ClienteController {
             pedido.setEndereco(confirmaPedido.getEnderecos().get(0));
             pedido.setFormaPagamento(confirmaPedido.getFormaPagamentos().get(0));
             pedido.convertItemParaItemFacil((List<ItemPedido>) sessao.getAttribute("pre-pedido-itens"));
-            pedido.setPrecoTotal((Double) sessao.getAttribute("pre-pedido-preco"));            
+            pedido.setPrecoTotal((Double) sessao.getAttribute("pre-pedido-preco"));
             ServicoPagamento servicoPagamento = new ServicoPagamento();
             pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
             clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());
@@ -417,7 +419,7 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("cliente/remover-endereco")
     public ResponseEntity<Mensagem> removerEndereco(@RequestBody Endereco endereco, HttpSession sessao) {
         Mensagem mensagem = new Mensagem();
