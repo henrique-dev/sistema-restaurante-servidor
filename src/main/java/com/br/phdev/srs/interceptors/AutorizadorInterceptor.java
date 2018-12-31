@@ -27,13 +27,8 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
             if (uri.endsWith("cliente/autenticar") || uri.endsWith("cliente/sem-autorizacao") || uri.contains("cliente/teste")
                     || uri.contains("cliente/imagens") || uri.contains("validar-cadastro") || uri.endsWith("cliente/cadastrar")
                     || uri.endsWith("cliente/sair") || uri.endsWith("cliente/verificar-numero") || uri.endsWith("cliente/validar-numero")
-                    || uri.endsWith("cliente/criar-pagamento") || uri.endsWith("cliente/executar-pagamento")) {
-                if (uri.endsWith("cliente/autenticar")) {
-                    request.getSession(true);
-                    return true;
-                } else {
-                    return true;
-                }
+                    || uri.endsWith("pagamentos/criar-pagamento") || uri.endsWith("pagamentos/executar-pagamento")) {
+                return true;
             } else {
                 response.sendRedirect("sem-autorizacao");
                 return false;

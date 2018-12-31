@@ -5,6 +5,7 @@
  */
 package com.br.phdev.srs.controladores;
 
+import com.br.phdev.srs.exceptions.PaymentException;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.google.gson.JsonObject;
 import org.springframework.http.HttpHeaders;
@@ -21,44 +22,50 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class PagamentoController {
-    /*
-    @PostMapping("cliente/criar-pagamento")
+
+    @PostMapping("pagamentos/criar-pagamento")
     public ResponseEntity<String> criarPagamento() {
-        ServicoPagamento servicoPagamento = new ServicoPagamento();
-        String id = servicoPagamento.criarPagamento();
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("id", id);
-        System.out.println(jsonObject.toString());
+        try {
+            ServicoPagamento servicoPagamento = new ServicoPagamento();
+            String id = servicoPagamento.criarPagamento("50");            
+            jsonObject.addProperty("id", id);
+            System.out.println(jsonObject.toString());
+        } catch (PaymentException e) {
+            e.printStackTrace();
+        }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(jsonObject.toString(), httpHeaders, HttpStatus.OK);
     }
 
-    @PostMapping("cliente/executar-pagamento")
+    @PostMapping("pagamentos/executar-pagamento")
     public ResponseEntity<Object> executarPagamento(String paymentID, String payerID) {
-        ServicoPagamento servicoPagamento = new ServicoPagamento();
-        servicoPagamento.executarPagamento(paymentID, payerID);
+        try {
+            ServicoPagamento servicoPagamento = new ServicoPagamento();
+            servicoPagamento.executarPagamento(paymentID, payerID);
+        } catch (PaymentException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
-    @PostMapping("cliente/retorno-pagamento")
+    @PostMapping("pagamentos/retorno-pagamento")
     public ResponseEntity<Object> retornoPagamento(String paymentID, String payerID) {
-        ServicoPagamento servicoPagamento = new ServicoPagamento();
-        servicoPagamento.executarPagamento(paymentID, payerID);
+        System.out.println("RETORNO PAGAMENTO");
         return null;
     }
 
-    @PostMapping("cliente/cancelar-pagamento")
+    @PostMapping("pagamentos/cancelar-pagamento")
     public ResponseEntity<Object> cancelarPagamento(String paymentID, String payerID) {
-        ServicoPagamento servicoPagamento = new ServicoPagamento();
-        servicoPagamento.executarPagamento(paymentID, payerID);
+        System.out.println("CANCELAR PAGAMENTO");
         return null;
     }
-    
+
     @PostMapping("pagamentos/notificar")
     public ResponseEntity<String> notificar() {
         System.out.println("NOTIFICAÇÃO DE PAGAMENTO");
         return null;
-    }*/
-    
+    }
+
 }

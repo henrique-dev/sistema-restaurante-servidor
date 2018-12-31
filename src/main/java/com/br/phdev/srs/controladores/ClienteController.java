@@ -37,7 +37,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -61,7 +63,7 @@ public class ClienteController {
     private final String chave = "ZXDas7966mby@";
 
     @PostMapping("cliente/autenticar")
-    public ResponseEntity<Mensagem> autenticar(@RequestBody Usuario usuario, HttpSession sessao) {
+    public ResponseEntity<Mensagem> autenticar(@RequestBody Usuario usuario, HttpServletRequest req, HttpServletResponse res, HttpSession sessao) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
@@ -78,6 +80,7 @@ public class ClienteController {
                 clienteDAO.gerarSessao(usuario, tokenHex.toString());
                 mensagem.setCodigo(100);
                 mensagem.setDescricao(tokenHex.toString());                
+                                
                 sessao.setAttribute("usuario", usuario);
                 sessao.setAttribute("cliente", cliente);
                 sessao.setAttribute("token", tokenHex.toString());
@@ -93,8 +96,10 @@ public class ClienteController {
             e.printStackTrace();
             mensagem.setCodigo(e.codigo);
             mensagem.setDescricao(e.getMessage());
-        }
-        HttpHeaders httpHeaders = new HttpHeaders();
+        }                         
+        System.out.println(sessao.getId());        
+        HttpHeaders httpHeaders = new HttpHeaders();           
+        httpHeaders.add("set-cookie", "123456789");
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
