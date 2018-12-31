@@ -55,7 +55,7 @@ public class ServicoPagamento {
 
         RedirectUrls redirectUrls = new RedirectUrls();
         redirectUrls.setCancelUrl("http://35.202.51.59/mrfood/pagamentos/cancelar-pagamento");
-        redirectUrls.setReturnUrl("http://35.202.51.59/mrfood/pagamentos/retorno-pagamento");        
+        redirectUrls.setReturnUrl("http://35.202.51.59/mrfood/pagamentos/executar-pagamento");        
         payment.setRedirectUrls(redirectUrls);
 
         try {

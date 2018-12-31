@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -38,7 +39,7 @@ public class PagamentoController {
         return new ResponseEntity<>(pagamentoCriado.toJSON(), httpHeaders, HttpStatus.OK);
     }
 
-    @PostMapping("pagamentos/executar-pagamento")
+    @GetMapping("pagamentos/executar-pagamento")
     public ResponseEntity<Object> executarPagamento(String paymentID, String payerID) {
         try {
             ServicoPagamento servicoPagamento = new ServicoPagamento();
@@ -49,11 +50,12 @@ public class PagamentoController {
         return null;
     }
 
-    @PostMapping("pagamentos/retorno-pagamento")
+    /*
+    @GetMapping("pagamentos/executar-pagamento")
     public ResponseEntity<Object> retornoPagamento(String paymentID, String payerID) {
         System.out.println("RETORNO PAGAMENTO");
         return null;
-    }
+    }*/
 
     @PostMapping("pagamentos/cancelar-pagamento")
     public ResponseEntity<Object> cancelarPagamento(String paymentID, String payerID) {
