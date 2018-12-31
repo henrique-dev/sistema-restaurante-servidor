@@ -19,7 +19,7 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String uri = request.getRequestURI();
+        String uri = request.getRequestURI();        
         System.out.println(uri);        
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Headers", "*");
@@ -30,7 +30,7 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
                     || uri.contains("cliente/imagens") || uri.contains("validar-cadastro") || uri.endsWith("cliente/cadastrar")
                     || uri.endsWith("cliente/sair") || uri.endsWith("cliente/verificar-numero") || uri.endsWith("cliente/validar-numero")
                     || uri.endsWith("pagamentos/criar-pagamento") || uri.endsWith("pagamentos/executar-pagamento") || uri.contains("pagamento-efetuado")
-                    || uri.contains("chat")) {
+                    || uri.contains("chat") || uri.contains("notificar")) {
                 return true;
             } else {
                 response.sendRedirect("sem-autorizacao");
