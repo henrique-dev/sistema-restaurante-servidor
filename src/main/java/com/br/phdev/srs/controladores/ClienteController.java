@@ -94,8 +94,8 @@ public class ClienteController {
                 sessao.setAttribute("cliente", cliente);
                 //sessao.setAttribute("token", tokenHex.toString());
                 HttpHeaders httpHeaders = new HttpHeaders();
-                httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-                httpHeaders.add("stk", "JSESSIONID=" + sessao.getId());
+                httpHeaders.setContentType(MediaType.APPLICATION_JSON);                
+                //httpHeaders.add("stk", "JSESSIONID=" + sessao.getId());
                 return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
             } else {
                 mensagem.setCodigo(101);
