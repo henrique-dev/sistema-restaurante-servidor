@@ -93,10 +93,10 @@ public class ClienteController {
                 sessao.setAttribute("usuario", usuario);
                 sessao.setAttribute("cliente", cliente);
                 //sessao.setAttribute("token", tokenHex.toString());
-                //HttpHeaders httpHeaders = new HttpHeaders();
-                //httpHeaders.setContentType(MediaType.APPLICATION_JSON);                
-                //httpHeaders.add("stk", "JSESSIONID=" + sessao.getId());
-                //return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.setContentType(MediaType.APPLICATION_JSON);                
+                httpHeaders.add("stk", "JSESSIONID=" + sessao.getId());
+                return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
             } else {
                 mensagem.setCodigo(101);
                 mensagem.setDescricao("Usuário ou senha inválidos");
