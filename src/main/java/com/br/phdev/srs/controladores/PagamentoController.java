@@ -40,11 +40,11 @@ public class PagamentoController {
     }
 
     @GetMapping("pagamentos/executar-pagamento")
-    public ResponseEntity<Object> executarPagamento(String paymentID, String payerID) {
+    public ResponseEntity<String> executarPagamento(String paymentID, String payerID) {
         try {
             ServicoPagamento servicoPagamento = new ServicoPagamento();
             servicoPagamento.executarPagamento(paymentID, payerID);
-        } catch (PaymentException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;

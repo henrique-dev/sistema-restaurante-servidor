@@ -75,8 +75,10 @@ public class ServicoPagamento {
             payment.setId(paymentID);
             PaymentExecution paymentExecution = new PaymentExecution();
             paymentExecution.setPayerId(payerID);           
-            payment.execute(apiContext, paymentExecution);                                                            
+            payment.execute(apiContext, paymentExecution);
+            System.out.println(payment);
         } catch (PayPalRESTException e) {
+            e.printStackTrace();
             throw new PaymentException(e);
         }
     }
