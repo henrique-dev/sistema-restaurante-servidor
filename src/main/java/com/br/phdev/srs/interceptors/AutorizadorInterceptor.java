@@ -5,6 +5,8 @@
  */
 package com.br.phdev.srs.interceptors;
 
+import java.io.IOException;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -18,7 +20,7 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String uri = request.getRequestURI();
-        System.out.println(uri);
+        System.out.println(uri);        
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Headers", "*");
         if (request.getSession().getAttribute("usuario") != null) {
@@ -27,7 +29,8 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
             if (uri.endsWith("cliente/autenticar") || uri.endsWith("cliente/sem-autorizacao") || uri.contains("cliente/teste")
                     || uri.contains("cliente/imagens") || uri.contains("validar-cadastro") || uri.endsWith("cliente/cadastrar")
                     || uri.endsWith("cliente/sair") || uri.endsWith("cliente/verificar-numero") || uri.endsWith("cliente/validar-numero")
-                    || uri.endsWith("pagamentos/criar-pagamento") || uri.endsWith("pagamentos/executar-pagamento") || uri.contains("pagamento-efetuado")) {
+                    || uri.endsWith("pagamentos/criar-pagamento") || uri.endsWith("pagamentos/executar-pagamento") || uri.contains("pagamento-efetuado")
+                    || uri.contains("chat")) {
                 return true;
             } else {
                 response.sendRedirect("sem-autorizacao");

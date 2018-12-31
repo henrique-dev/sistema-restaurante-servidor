@@ -6,9 +6,12 @@
  */
 package com.br.phdev.srs.controladores;
 
+import com.br.phdev.srs.configuracoes.Message;
+import com.br.phdev.srs.configuracoes.OutputMessage;
 import com.br.phdev.srs.daos.ClienteDAO;
 import com.br.phdev.srs.daos.RepositorioPrecos;
 import com.br.phdev.srs.exceptions.DAOException;
+import com.br.phdev.srs.exceptions.PaymentException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
 import com.br.phdev.srs.models.Cadastro;
 import com.br.phdev.srs.models.Cliente;
@@ -27,6 +30,7 @@ import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.br.phdev.srs.utils.ServicoValidacaoCliente;
 import com.google.gson.JsonObject;
+import com.paypal.api.payments.Payment;
 import com.twilio.exception.ApiException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -35,7 +39,9 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +51,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,6 +60,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.socket.client.WebSocketClient;
 
 /**
  *
@@ -79,8 +88,8 @@ public class ClienteController {
                 }
                 clienteDAO.gerarSessao(usuario, tokenHex.toString());
                 mensagem.setCodigo(100);
-                mensagem.setDescricao(tokenHex.toString());                
-                                
+                mensagem.setDescricao(tokenHex.toString());
+
                 sessao.setAttribute("usuario", usuario);
                 sessao.setAttribute("cliente", cliente);
                 sessao.setAttribute("token", tokenHex.toString());
@@ -96,9 +105,9 @@ public class ClienteController {
             e.printStackTrace();
             mensagem.setCodigo(e.codigo);
             mensagem.setDescricao(e.getMessage());
-        }                         
-        System.out.println(sessao.getId());        
-        HttpHeaders httpHeaders = new HttpHeaders();           
+        }
+        System.out.println(sessao.getId());
+        HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("set-cookie", "123456789");
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
@@ -303,35 +312,33 @@ public class ClienteController {
     }
 
     @PostMapping("cliente/confirmar-pedido")
-    public ResponseEntity<Mensagem> confirmarPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
-        Mensagem mensagem = new Mensagem();
+    public ResponseEntity<String> confirmarPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
+        Payment pagamentoCriado = new Payment();
         Pedido pedido = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            Cliente cliente = (Cliente) sessao.getAttribute("cliente");                                   
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             pedido = new Pedido();
             pedido.setData(new Timestamp(Calendar.getInstance().getTimeInMillis()));
             pedido.setEndereco(confirmaPedido.getEnderecos().get(0));
             pedido.setFormaPagamento(confirmaPedido.getFormaPagamentos().get(0));
             pedido.convertItemParaItemFacil((List<ItemPedido>) sessao.getAttribute("pre-pedido-itens"));
             pedido.setPrecoTotal((Double) sessao.getAttribute("pre-pedido-preco"));            
-            clienteDAO.inserirPedido(pedido, cliente);
-            mensagem.setCodigo(100);
-            mensagem.setDescricao("Pedido realizado com sucesso");
+            ServicoPagamento servicoPagamento = new ServicoPagamento();
+            pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
+            clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());
         } catch (DAOException e) {
-            mensagem.setCodigo(101);
-            mensagem.setDescricao(e.getMessage());
             e.printStackTrace();
         } catch (SQLException e) {
-            mensagem.setCodigo(200);
-            mensagem.setDescricao(e.getMessage());
+            e.printStackTrace();
+        } catch (PaymentException e) {
             e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(pagamentoCriado.toJSON(), httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("cliente/listar-pedidos")
     public ResponseEntity<List<Pedido>> listarPedidos(HttpSession sessao) {
         List<Pedido> pedidos = null;
@@ -348,9 +355,9 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(pedidos, httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("cliente/info-pedido")
-    public ResponseEntity<Pedido> listarPedidos(@RequestBody Pedido pedido, HttpSession sessao) {        
+    public ResponseEntity<Pedido> listarPedidos(@RequestBody Pedido pedido, HttpSession sessao) {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             Cliente cliente = (Cliente) sessao.getAttribute("cliente");
@@ -366,7 +373,7 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(pedido, httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("cliente/info-entrega")
     public ResponseEntity<List<Pedido>> infoEntrega() {
         return null;
@@ -394,7 +401,7 @@ public class ClienteController {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            Cliente cliente = (Cliente) sessao.getAttribute("cliente");            
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             clienteDAO.cadastrarEndereco(cliente, endereco);
             mensagem.setCodigo(100);
             mensagem.setDescricao("Endereço cadastrado com sucesso");
@@ -426,7 +433,7 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(formaPagamentos, httpHeaders, HttpStatus.OK);
-    }   
+    }
 
     @GetMapping("cliente/imagens/{idArquivo}")
     @ResponseBody

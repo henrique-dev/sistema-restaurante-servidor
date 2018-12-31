@@ -1,7 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) Paulo Henrique Goncalves Bacelar, Inc - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Paulo Henrique Gonacalves Bacelar <henrique.phgb@gmail.com>, Dezembro 2018
  */
 package com.br.phdev.srs.controladores;
 
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -26,21 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
 @Controller
-public class PagamentoController {
-
-    @PostMapping("pagamentos/criar-pagamento")
-    public ResponseEntity<String> criarPagamento() {        
-        Payment pagamentoCriado = new Payment();
-        try {
-            ServicoPagamento servicoPagamento = new ServicoPagamento();
-            pagamentoCriado = servicoPagamento.criarPagamento("50");                                    
-        } catch (PaymentException e) {
-            e.printStackTrace();
-        }
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(pagamentoCriado.toJSON(), httpHeaders, HttpStatus.OK);
-    }
+public class PagamentoController {    
 
     @GetMapping("pagamentos/executar-pagamento")
     public String executarPagamento(HttpServletRequest req, HttpServletResponse res) {
@@ -55,14 +43,7 @@ public class PagamentoController {
             e.printStackTrace();
         }
         return "pagamento-efetuado";
-    }
-
-    /*
-    @GetMapping("pagamentos/executar-pagamento")
-    public ResponseEntity<Object> retornoPagamento(String paymentID, String payerID) {
-        System.out.println("RETORNO PAGAMENTO");
-        return null;
-    }*/
+    }    
 
     @PostMapping("pagamentos/cancelar-pagamento")
     public ResponseEntity<Object> cancelarPagamento(String paymentID, String payerID) {
@@ -71,8 +52,9 @@ public class PagamentoController {
     }
 
     @PostMapping("pagamentos/notificar")
-    public ResponseEntity<String> notificar() {
-        System.out.println("NOTIFICAÇÃO DE PAGAMENTO");
+    public ResponseEntity<String> notificar(@RequestBody Payment payment) {
+        System.out.println("Notificação de pagamento");
+        System.out.println(payment.toJSON());
         return null;
     }
 

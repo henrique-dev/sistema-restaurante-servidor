@@ -510,7 +510,7 @@ public class ClienteDAO extends BasicDAO {
         return confirmaPedido;
     }
 
-    synchronized public void inserirPrePedido(Pedido pedido, Cliente cliente, String chave) throws DAOException {
+    synchronized public void inserirPrePedido(Pedido pedido, Cliente cliente, String token) throws DAOException {
         if (pedido == null || cliente == null) {
             throw new DAOIncorrectData(300);
         }
@@ -524,24 +524,13 @@ public class ClienteDAO extends BasicDAO {
             
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(pedido.getItens());
-            stmt.setString(6, json);
-            
-            StringBuilder token = new StringBuilder();
-            String textoParaHash = cliente.getId()
-                    + Calendar.getInstance().getTime().toString() + chave;
-            MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
-            byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));
-            for (int i = 0; i < textoDigerido.length; i = i + 14) {
-                token.append(String.format("%02X", 0xFF & textoDigerido[i]));
-            }            
-            stmt.setString(7, token.toString());
+            stmt.setString(6, json);                        
+            stmt.setString(7, token);
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException("Falha ao adquirir informações do arquivo", e, 200);
         } catch (JsonProcessingException e) {
             throw new DAOException("Falha ao adquirir informações do arquivo", e, 307);
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            e.printStackTrace();
         }
     }
     
