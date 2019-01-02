@@ -626,7 +626,7 @@ public class ClienteDAO extends BasicDAO {
         if (cliente == null || endereco == null) {
             throw new DAOIncorrectData(300);
         }
-        if (endereco.getId() >= 0) {            
+        if (endereco.getId() <= 0) {            
             throw new DAOIncorrectData(300);
         }        
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL remover_endereco(?,?)")) {
