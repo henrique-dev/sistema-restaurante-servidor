@@ -514,7 +514,7 @@ public class ClienteDAO extends BasicDAO {
         if (pedido == null || cliente == null) {
             throw new DAOIncorrectData(300);
         }
-        String sql = "call inserir_pre_pedido(?,?,?,?,?,?)";
+        String sql = "call inserir_pre_pedido(?,?,?,?,?,?,?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setObject(1, pedido.getData());
             stmt.setDouble(2, pedido.getPrecoTotal());
@@ -528,9 +528,9 @@ public class ClienteDAO extends BasicDAO {
             stmt.setString(7, token);
             stmt.execute();
         } catch (SQLException e) {
-            throw new DAOException("Falha ao adquirir informações do arquivo", e, 200);
+            throw new DAOException(e, 200);
         } catch (JsonProcessingException e) {
-            throw new DAOException("Falha ao adquirir informações do arquivo", e, 307);
+            throw new DAOException(e, 307);
         }
     }
     

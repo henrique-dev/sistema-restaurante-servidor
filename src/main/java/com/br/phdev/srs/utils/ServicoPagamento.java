@@ -61,7 +61,7 @@ public class ServicoPagamento {
         try {
             APIContext apiContext = new APIContext(clientId, secret, "sandbox");
             Payment createdPayment = payment.create(apiContext);
-            System.out.println(createdPayment.toString());
+            //System.out.println(createdPayment.toString());
             return createdPayment;
         } catch (PayPalRESTException e) {            
             throw new PaymentException(e);
