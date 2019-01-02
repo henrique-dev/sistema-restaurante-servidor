@@ -20,14 +20,14 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String uri = request.getRequestURI();        
-        System.out.println(uri);        
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Headers", "*");
+        System.out.println(uri);                
+        //response.setHeader("Access-Control-Allow-Origin", "*");
+        //response.setHeader("Access-Control-Allow-Headers", "*");
         if (request.getSession().getAttribute("usuario") != null) {
             return true;
         } else {
             if (uri.endsWith("cliente/autenticar") || uri.endsWith("cliente/sem-autorizacao") || uri.contains("cliente/teste")
-                    || uri.contains("cliente/imagens") || uri.contains("validar-cadastro") || uri.endsWith("cliente/cadastrar")
+                    || uri.contains("imagens") || uri.contains("validar-cadastro") || uri.endsWith("cliente/cadastrar")
                     || uri.endsWith("cliente/sair") || uri.endsWith("cliente/verificar-numero") || uri.endsWith("cliente/validar-numero")
                     || uri.endsWith("pagamentos/criar-pagamento") || uri.endsWith("pagamentos/executar-pagamento") || uri.contains("pagamento-efetuado")
                     || uri.contains("chat") || uri.contains("notificar")) {
