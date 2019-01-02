@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.PostMapping;
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
 @Controller
-public class PagamentoController {    
+public class PagamentoController {            
 
     @GetMapping("pagamentos/executar-pagamento")
     public String executarPagamento(HttpServletRequest req, HttpServletResponse res) {

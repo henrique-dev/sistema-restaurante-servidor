@@ -17,6 +17,7 @@ import com.br.phdev.srs.models.Cadastro;
 import com.br.phdev.srs.models.Cliente;
 import com.br.phdev.srs.models.Codigo;
 import com.br.phdev.srs.models.ConfirmaPedido;
+import com.br.phdev.srs.models.ConfirmacaoPedido;
 import com.br.phdev.srs.models.Endereco;
 import com.br.phdev.srs.models.FormaPagamento;
 import com.br.phdev.srs.models.Foto;
@@ -94,7 +95,7 @@ public class ClienteController {
                 sessao.setAttribute("cliente", cliente);
                 //sessao.setAttribute("token", tokenHex.toString());
                 HttpHeaders httpHeaders = new HttpHeaders();
-                httpHeaders.setContentType(MediaType.APPLICATION_JSON);                
+                httpHeaders.setContentType(MediaType.APPLICATION_JSON);
                 httpHeaders.add("stk", "JSESSIONID=" + sessao.getId());
                 return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
             } else {
@@ -314,7 +315,8 @@ public class ClienteController {
     }
 
     @PostMapping("cliente/confirmar-pedido")
-    public ResponseEntity<String> confirmarPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
+    public ResponseEntity<ConfirmacaoPedido> confirmarPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
+        ConfirmacaoPedido confirmacaoPedido = new ConfirmacaoPedido();
         Payment pagamentoCriado = new Payment();
         Pedido pedido = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
@@ -326,9 +328,18 @@ public class ClienteController {
             pedido.setFormaPagamento(confirmaPedido.getFormaPagamentos().get(0));
             pedido.convertItemParaItemFacil((List<ItemPedido>) sessao.getAttribute("pre-pedido-itens"));
             pedido.setPrecoTotal((Double) sessao.getAttribute("pre-pedido-preco"));
-            ServicoPagamento servicoPagamento = new ServicoPagamento();
-            pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
-            clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());
+            if (confirmaPedido.getFormaPagamentos().get(0).getId() == 1) {
+                ServicoPagamento servicoPagamento = new ServicoPagamento();
+                pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
+                clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());
+                confirmacaoPedido.setStatus(1);
+                confirmacaoPedido.setLink(pagamentoCriado.getLinks().get(1).getHref());
+            } else if (confirmaPedido.getFormaPagamentos().get(0).getId() == 0) {                
+                clienteDAO.inserirPrePedido(pedido, cliente, cliente.getCpf() + cliente.getId());
+                clienteDAO.inserirPedido(cliente.getCpf()+ cliente.getId());
+                confirmacaoPedido.setStatus(0);
+            } else 
+                confirmacaoPedido.setStatus(-1);
         } catch (DAOException e) {
             e.printStackTrace();
         } catch (SQLException e) {
@@ -338,7 +349,7 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(pagamentoCriado.toJSON(), httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(confirmacaoPedido, httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping("cliente/listar-pedidos")
