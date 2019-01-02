@@ -30,7 +30,7 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
                     || uri.contains("imagens") || uri.contains("validar-cadastro") || uri.endsWith("cliente/cadastrar")
                     || uri.endsWith("cliente/sair") || uri.endsWith("cliente/verificar-numero") || uri.endsWith("cliente/validar-numero")
                     || uri.endsWith("pagamentos/criar-pagamento") || uri.endsWith("pagamentos/executar-pagamento") || uri.contains("pagamento-efetuado")
-                    || uri.contains("chat") || uri.contains("notificar")) {
+                    || uri.contains("chat") || uri.contains("notificar") || uri.contains("teste")) {
                 return true;
             } else {
                 response.sendRedirect("sem-autorizacao");
