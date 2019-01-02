@@ -520,8 +520,7 @@ public class ClienteDAO extends BasicDAO {
             stmt.setDouble(2, pedido.getPrecoTotal());
             stmt.setLong(3, pedido.getFormaPagamento().getId());
             stmt.setLong(4, cliente.getId());
-            stmt.setLong(5, pedido.getEndereco().getId());                        
-            
+            stmt.setLong(5, pedido.getEndereco().getId());                                    
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(pedido.getItens());
             stmt.setString(6, json);                        

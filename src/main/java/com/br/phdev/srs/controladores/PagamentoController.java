@@ -35,8 +35,9 @@ public class PagamentoController {
 
     @GetMapping("pagamentos/executar-pagamento")
     public String executarPagamento(HttpServletRequest req, HttpServletResponse res) {
-        try (Connection conexao = new FabricaConexao().conectar()){
+        try (Connection conexao = new FabricaConexao().conectar()){            
             String paymentId = req.getParameter("paymentId");
+            System.out.println("executarPagamento - paymentId: " + paymentId);
             String payerId = req.getParameter("PayerID");            
             System.out.println("ID do pagador: " + paymentId);
             System.out.println("ID do comprador: " + payerId);

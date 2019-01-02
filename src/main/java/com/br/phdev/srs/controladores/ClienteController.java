@@ -332,6 +332,7 @@ public class ClienteController {
                 ServicoPagamento servicoPagamento = new ServicoPagamento();
                 pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
                 clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());
+                System.out.println("confirmarPedido - paymentId: " + pagamentoCriado.getId());
                 confirmacaoPedido.setStatus(1);
                 confirmacaoPedido.setLink(pagamentoCriado.getLinks().get(1).getHref());
             } else if (confirmaPedido.getFormaPagamentos().get(0).getId() == 0) {                
