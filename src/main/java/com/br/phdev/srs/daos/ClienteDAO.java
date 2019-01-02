@@ -236,7 +236,7 @@ public class ClienteDAO extends BasicDAO {
 
     public void sairSessao(Usuario usuario, String token) throws DAOException {
         if (usuario == null) {
-            throw new DAOIncorrectData(300);
+            return;
         }
         if (usuario.getIdUsuario() == 0) {
             throw new DAOIncorrectData(301);
