@@ -48,6 +48,8 @@ public class RepositorioPrecos {
     }
     
     public void inserirPrecoNoComplemento(Complemento complemento) {
+        System.out.println("id do complemento: " + complemento.getId());
+        System.out.println("complemento: " + this.complementos.get(complemento.getId()));
         complemento.setPreco(this.complementos.get(complemento.getId()).getPreco());
     }
 
