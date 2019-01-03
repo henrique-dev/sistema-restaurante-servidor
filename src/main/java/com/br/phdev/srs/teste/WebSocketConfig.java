@@ -72,7 +72,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 System.out.println("usuario GERADO: " + user);
                 return new StompPrincipal(user);
             }
-        }).setAllowedOrigins("*").withSockJS();
+        }).withSockJS();
     }
 
     @Override

@@ -42,7 +42,7 @@ public class PagamentoController {
             ServicoPagamento servicoPagamento = new ServicoPagamento();
             servicoPagamento.executarPagamento(paymentId, payerId);            
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.inserirPedido(paymentId);
+            clienteDAO.inserirPedidoDePrePedido(paymentId);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (DAOException e) {

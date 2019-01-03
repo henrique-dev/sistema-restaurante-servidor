@@ -512,6 +512,10 @@ public class ClienteDAO extends BasicDAO {
         confirmaPedido.setPrecoTotal(valorTotal.doubleValue());
         return confirmaPedido;
     }
+    
+    public boolean possuiPedidoEmAcao(Cliente cliente) {
+        return true;
+    }
 
     synchronized public void inserirPrePedido(Pedido pedido, Cliente cliente, String token) throws DAOException {
         if (pedido == null || cliente == null) {
@@ -536,7 +540,29 @@ public class ClienteDAO extends BasicDAO {
         }
     }
     
-    synchronized public void inserirPedido(String idPagamento) throws DAOException {
+    synchronized public void inserirPedido(Pedido pedido, Cliente cliente) throws DAOException {
+        if (pedido == null || cliente == null) {
+            throw new DAOIncorrectData(300);
+        }
+        String sql = "call inserir_pedido(?,?,?,?,?,?)";
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+            stmt.setObject(1, pedido.getData());
+            stmt.setDouble(2, pedido.getPrecoTotal());
+            stmt.setLong(3, pedido.getFormaPagamento().getId());
+            stmt.setLong(4, cliente.getId());
+            stmt.setLong(5, pedido.getEndereco().getId());                                    
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(pedido.getItens());
+            stmt.setString(6, json);                                    
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
+        } catch (JsonProcessingException e) {
+            throw new DAOException(e, 307);
+        }
+    }
+    
+    synchronized public void inserirPedidoDePrePedido(String idPagamento) throws DAOException {
         if (idPagamento == null) {
             throw new DAOIncorrectData(300);
         }
