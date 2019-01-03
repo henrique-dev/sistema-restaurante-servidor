@@ -16,6 +16,7 @@ import java.util.Set;
 public class ItemFacil {
     
     private long id;
+    private String nome;
     private double preco;
     private Set<ComplementoFacil> complementos;
 
@@ -24,11 +25,12 @@ public class ItemFacil {
 
     public ItemFacil(Item item) {
         this.id = item.getId();
+        this.nome = item.getNome();
         this.preco = item.getPreco();
         this.complementos = new HashSet<>();
         if (item.getComplementos() != null)
             for (Complemento c : item.getComplementos()) {
-                this.complementos.add(new ComplementoFacil(c.getId(), c.getPreco()));
+                this.complementos.add(new ComplementoFacil(c.getId(), c.getPreco(), c.getNome()));
             }
     }    
 
@@ -55,5 +57,13 @@ public class ItemFacil {
     public void setComplementos(Set<ComplementoFacil> complementos) {
         this.complementos = complementos;
     }            
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }        
     
 }

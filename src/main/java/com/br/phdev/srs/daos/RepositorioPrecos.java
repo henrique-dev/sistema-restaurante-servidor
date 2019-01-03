@@ -24,8 +24,8 @@ public class RepositorioPrecos {
 
     private static RepositorioPrecos instancia = new RepositorioPrecos();
 
-    private final HashMap<Long, Double> itens;
-    private final HashMap<Long, Double> complementos;
+    private final HashMap<Long, Item> itens;
+    private final HashMap<Long, Complemento> complementos;
     private Timestamp dataUltimoModificacao;
     
     public double frete;
@@ -44,11 +44,11 @@ public class RepositorioPrecos {
     }
     
     public void inserirPrecoNoItem(Item item) {
-        item.setPreco(this.itens.get(item.getId()));
+        item.setPreco(this.itens.get(item.getId()).getPreco());
     }
     
     public void inserirPrecoNoComplemento(Complemento complemento) {
-        complemento.setPreco(this.complementos.get(complemento.getId()));
+        complemento.setPreco(this.complementos.get(complemento.getId()).getPreco());
     }
 
     public void carregar(Connection conexao) throws DAOException {
@@ -80,13 +80,21 @@ public class RepositorioPrecos {
         try (PreparedStatement stmt2 = conexao.prepareStatement("CALL get_lista_itens_basico")) {
             ResultSet rs = stmt2.executeQuery();
             while (rs.next()) {
-                this.itens.put(rs.getLong("id_item"), rs.getDouble("preco"));
+                Item item = new Item();
+                item.setId(rs.getLong("id_item"));
+                item.setNome(rs.getString("nome"));
+                item.setPreco(rs.getDouble("preco"));
+                this.itens.put(rs.getLong("id_item"), item);
             }
         }
-        try (PreparedStatement stmt2 = conexao.prepareStatement("CALL get_lista_complementos_basic")) {
+        try (PreparedStatement stmt2 = conexao.prepareStatement("CALL get_lista_complementos_basico")) {
             ResultSet rs = stmt2.executeQuery();
             while (rs.next()) {
-                this.complementos.put(rs.getLong("id_complemento"), rs.getDouble("preco"));
+                Complemento complemento = new Complemento();
+                complemento.setId(rs.getLong("id_complemento"));
+                complemento.setNome(rs.getString("nome"));
+                complemento.setPreco(rs.getDouble("preco"));
+                this.complementos.put(rs.getLong("id_complemento"), complemento);
             }
         }
     }

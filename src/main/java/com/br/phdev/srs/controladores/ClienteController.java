@@ -107,15 +107,6 @@ public class ClienteController {
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
 
-    @GetMapping("cliente/teste")
-    public ResponseEntity<Mensagem> testeRequisicao(HttpSession sessao, HttpServletRequest request) {
-        Mensagem mensagem = new Mensagem();
-
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
-    }
-
     @PostMapping("cliente/sair")
     public ResponseEntity<Mensagem> sair(HttpSession sessao, HttpServletRequest request) {
         Mensagem mensagem = new Mensagem();
@@ -307,8 +298,7 @@ public class ClienteController {
 
     @PostMapping("cliente/confirmar-pedido")
     public ResponseEntity<ConfirmacaoPedido> confirmarPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
-        ConfirmacaoPedido confirmacaoPedido = new ConfirmacaoPedido();
-        Payment pagamentoCriado = new Payment();
+        ConfirmacaoPedido confirmacaoPedido = new ConfirmacaoPedido();         
         Pedido pedido = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
@@ -319,19 +309,23 @@ public class ClienteController {
             pedido.setFormaPagamento(confirmaPedido.getFormaPagamentos().get(0));
             pedido.convertItemParaItemFacil((List<ItemPedido>) sessao.getAttribute("pre-pedido-itens"));
             pedido.setPrecoTotal((Double) sessao.getAttribute("pre-pedido-preco"));
-            if (confirmaPedido.getFormaPagamentos().get(0).getId() == 1) {
-                ServicoPagamento servicoPagamento = new ServicoPagamento();
-                pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
-                clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());
-                System.out.println("confirmarPedido - paymentId: " + pagamentoCriado.getId());
-                confirmacaoPedido.setStatus(1);
-                confirmacaoPedido.setLink(pagamentoCriado.getLinks().get(1).getHref());
-            } else if (confirmaPedido.getFormaPagamentos().get(0).getId() == 0) {                
-                clienteDAO.inserirPrePedido(pedido, cliente, cliente.getCpf() + cliente.getId());
-                clienteDAO.inserirPedido(cliente.getCpf()+ cliente.getId());
-                confirmacaoPedido.setStatus(0);
-            } else 
-                confirmacaoPedido.setStatus(-1);
+            switch ((int) confirmaPedido.getFormaPagamentos().get(0).getId()) {
+                case 0:
+                    clienteDAO.inserirPrePedido(pedido, cliente, cliente.getCpf() + cliente.getId());
+                    clienteDAO.inserirPedido(cliente.getCpf() + cliente.getId());
+                    confirmacaoPedido.setStatus(0);
+                    break;
+                case 1:
+                    ServicoPagamento servicoPagamento = new ServicoPagamento();
+                    Payment pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
+                    clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());                    
+                    confirmacaoPedido.setStatus(1);
+                    confirmacaoPedido.setLink(pagamentoCriado.getLinks().get(1).getHref());
+                    break;
+                default:
+                    confirmacaoPedido.setStatus(-1);
+                    break;
+            }            
         } catch (DAOException e) {
             e.printStackTrace();
         } catch (SQLException e) {

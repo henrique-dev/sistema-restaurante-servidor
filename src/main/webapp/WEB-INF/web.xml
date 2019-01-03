@@ -16,6 +16,16 @@
         <servlet-name>springmvc</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>      
+    
+    
+    <filter>
+        <display-name>springSecurityFilterChain</display-name>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <async-supported>true</async-supported>
+    </filter>
+
+    
     <!--welcome-file-list>
         <welcome-file>
             redirect.jsp

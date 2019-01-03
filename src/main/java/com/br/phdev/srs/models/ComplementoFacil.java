@@ -14,13 +14,15 @@ public class ComplementoFacil {
     
     private long id;   
     private double preco;
+    private String nome;
 
     public ComplementoFacil() {
     }        
 
-    public ComplementoFacil(long id, double preco) {
+    public ComplementoFacil(long id, double preco, String nome) {
         this.id = id;
         this.preco = preco;
+        this.nome = nome;
     }
 
     public long getId() {
@@ -37,6 +39,14 @@ public class ComplementoFacil {
 
     public void setPreco(double preco) {
         this.preco = preco;
+    }        
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
     }        
     
 }
