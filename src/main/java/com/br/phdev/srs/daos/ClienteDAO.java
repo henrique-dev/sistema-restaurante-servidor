@@ -23,6 +23,7 @@ import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.ItemPedido;
 import com.br.phdev.srs.models.ItemPedidoFacil;
 import com.br.phdev.srs.models.Pedido;
+import com.br.phdev.srs.models.Pedido2;
 import com.br.phdev.srs.models.Tipo;
 import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.models.ValidaCadastro;
@@ -41,8 +42,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -546,16 +549,17 @@ public class ClienteDAO extends BasicDAO {
         }
     }
     
-    public List<Pedido> getPedidos(Cliente cliente) throws DAOException {
-        List<Pedido> pedidos = null;
+    public List<Pedido2> getPedidos(Cliente cliente) throws DAOException {
+        List<Pedido2> pedidos = null;
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL get_lista_pedidos(?)")) {
             stmt.setLong(1, cliente.getId());
             ResultSet rs = stmt.executeQuery();
             pedidos = new ArrayList<>();
             while (rs.next()) {
-                Pedido pedido = new Pedido();
+                Pedido2 pedido = new Pedido2();
                 pedido.setId(rs.getLong("id_pedido"));
-                pedido.setData(rs.getObject("datapedido", Timestamp.class));
+                String time = new SimpleDateFormat("dd/MM/YYYY").format(new Date(((Timestamp)rs.getObject("datapedido", Timestamp.class)).getTime()));        
+                pedido.setData(time);
                 pedido.setPrecoTotal(rs.getDouble("precototal"));
                 pedido.setFormaPagamento(new FormaPagamento(0, rs.getString("formapagamento_descricao")));
                 Endereco endereco = new Endereco();

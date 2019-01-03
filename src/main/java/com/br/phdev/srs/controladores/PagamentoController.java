@@ -16,6 +16,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,6 +65,16 @@ public class PagamentoController {
         if (pagamento != null)
             System.out.println(pagamento.toJSON());
         return null;
+    }
+    
+    @RequestMapping("pagamentos/notificar2")
+    public ResponseEntity<String> notificar2(@RequestBody Payment pagamento) {
+        System.out.println("Notificação de pagamento");
+        if (pagamento != null)
+            System.out.println(pagamento.toJSON());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>("", httpHeaders, HttpStatus.OK);
     }
 
 }

@@ -19,7 +19,7 @@ public class Pedido {
     
     private long id;
     private double precoTotal;
-    private Timestamp data;    
+    private Timestamp data;
     private List<ItemPedidoFacil> itens;
     private FormaPagamento formaPagamento;    
     private Endereco endereco;

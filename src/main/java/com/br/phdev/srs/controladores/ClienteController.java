@@ -23,6 +23,7 @@ import com.br.phdev.srs.models.ListaItens;
 import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.ItemPedido;
 import com.br.phdev.srs.models.Pedido;
+import com.br.phdev.srs.models.Pedido2;
 import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.utils.Mensagem;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
@@ -340,8 +341,8 @@ public class ClienteController {
     }
 
     @PostMapping("cliente/listar-pedidos")
-    public ResponseEntity<List<Pedido>> listarPedidos(HttpSession sessao) {
-        List<Pedido> pedidos = null;
+    public ResponseEntity<List<Pedido2>> listarPedidos(HttpSession sessao) {
+        List<Pedido2> pedidos = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             Cliente cliente = (Cliente) sessao.getAttribute("cliente");
