@@ -21,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  *
@@ -55,7 +56,7 @@ public class PagamentoController {
         return null;
     }
 
-    @PostMapping("pagamentos/notificar")
+    @RequestMapping("pagamentos/notificar")
     public ResponseEntity<String> notificar(@RequestBody Payment pagamento) {
         System.out.println("Notificação de pagamento");
         if (pagamento != null)
