@@ -22,7 +22,7 @@ public class FabricaConexao {
             String url = "jdbc:mysql://localhost:3306/restaurante?useTimezone=true&serverTimezone=UTC&useSSL=false";
             String usuario = "root";
             String senha = "root";    
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(url, usuario, senha);
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
