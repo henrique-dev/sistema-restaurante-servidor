@@ -566,7 +566,8 @@ public class ClienteDAO extends BasicDAO {
                 endereco.setId(-1);
                 endereco.setDescricao(rs.getString("endereco_descricao"));
                 pedido.setEndereco(endereco);
-                pedidos.add(pedido);
+                pedido.setStatus(rs.getInt("entregue") == 0 ? "Entrega em andamento" : "Entregue");
+                pedidos.add(pedido);                
             }
         } catch (SQLException e) {
             throw new DAOException(e, 200);
