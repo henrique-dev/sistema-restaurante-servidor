@@ -11,6 +11,7 @@ import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.PaymentException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
 import com.br.phdev.srs.utils.ServicoPagamento;
+import com.paypal.api.payments.Payment;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  *
@@ -54,8 +56,10 @@ public class PagamentoController {
     }
 
     @PostMapping("pagamentos/notificar")
-    public ResponseEntity<String> notificar() {
-        System.out.println("Notificação de pagamento");        
+    public ResponseEntity<String> notificar(@RequestBody Payment pagamento) {
+        System.out.println("Notificação de pagamento");
+        if (pagamento != null)
+            System.out.println(pagamento.toJSON());
         return null;
     }
 
