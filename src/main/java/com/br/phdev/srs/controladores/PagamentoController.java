@@ -11,16 +11,10 @@ import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.PaymentException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
 import com.br.phdev.srs.utils.ServicoPagamento;
-import com.google.gson.JsonObject;
-import com.paypal.api.payments.Payment;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,13 +28,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class PagamentoController {            
 
     @GetMapping("pagamentos/executar-pagamento")
-    public String executarPagamento(HttpServletRequest req, HttpServletResponse res) {
+    public String executarPagamento(HttpServletRequest req) {
         try (Connection conexao = new FabricaConexao().conectar()){            
-            String paymentId = req.getParameter("paymentId");
-            System.out.println("executarPagamento - paymentId: " + paymentId);
-            String payerId = req.getParameter("PayerID");            
-            System.out.println("ID do pagador: " + paymentId);
-            System.out.println("ID do comprador: " + payerId);
+            String paymentId = req.getParameter("paymentId");            
+            String payerId = req.getParameter("PayerID");                        
+            System.out.println("id pagamento 2: " + paymentId);
             ServicoPagamento servicoPagamento = new ServicoPagamento();
             servicoPagamento.executarPagamento(paymentId, payerId);            
             ClienteDAO clienteDAO = new ClienteDAO(conexao);

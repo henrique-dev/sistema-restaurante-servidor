@@ -44,13 +44,15 @@ public class RepositorioPrecos {
     }
     
     public void inserirPrecoNoItem(Item item) {
-        item.setPreco(this.itens.get(item.getId()).getPreco());
+        Item item2 = this.itens.get(item.getId());
+        item.setPreco(item2.getPreco());
+        item.setNome(item2.getNome());
     }
     
-    public void inserirPrecoNoComplemento(Complemento complemento) {
-        System.out.println("id do complemento: " + complemento.getId());
-        System.out.println("complemento: " + this.complementos.get(complemento.getId()));
-        complemento.setPreco(this.complementos.get(complemento.getId()).getPreco());
+    public void inserirPrecoNoComplemento(Complemento complemento) {        
+        Complemento complemento2 = this.complementos.get(complemento.getId());
+        complemento.setPreco(complemento2.getPreco());
+        complemento.setNome(complemento2.getNome());
     }
 
     public void carregar(Connection conexao) throws DAOException {
@@ -79,8 +81,8 @@ public class RepositorioPrecos {
     private void carregarDados(Connection conexao) throws SQLException {
         this.itens.clear();
         this.complementos.clear();
-        try (PreparedStatement stmt2 = conexao.prepareStatement("CALL get_lista_itens_basico")) {
-            ResultSet rs = stmt2.executeQuery();
+        try (PreparedStatement stmt = conexao.prepareStatement("CALL get_lista_itens_basico")) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Item item = new Item();
                 item.setId(rs.getLong("id_item"));
@@ -89,8 +91,8 @@ public class RepositorioPrecos {
                 this.itens.put(rs.getLong("id_item"), item);
             }
         }
-        try (PreparedStatement stmt2 = conexao.prepareStatement("CALL get_lista_complementos_basico")) {
-            ResultSet rs = stmt2.executeQuery();
+        try (PreparedStatement stmt = conexao.prepareStatement("CALL get_lista_complementos_basico")) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Complemento complemento = new Complemento();
                 complemento.setId(rs.getLong("id_complemento"));

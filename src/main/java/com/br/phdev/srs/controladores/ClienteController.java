@@ -317,7 +317,8 @@ public class ClienteController {
                     break;
                 case 1:
                     ServicoPagamento servicoPagamento = new ServicoPagamento();
-                    Payment pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
+                    Payment pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));                    
+                    System.out.println("id pagamento 1: " + pagamentoCriado.getId());
                     clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());                    
                     confirmacaoPedido.setStatus(1);
                     confirmacaoPedido.setLink(pagamentoCriado.getLinks().get(1).getHref());
