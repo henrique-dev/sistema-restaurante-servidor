@@ -20,6 +20,7 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String uri = request.getRequestURI();
+        System.out.println(uri);
         //if (request.getHeader("Access-Control-Allow-Origin") != null) {
             //response.setHeader("Access-Control-Allow-Origin", "*");
         //}
