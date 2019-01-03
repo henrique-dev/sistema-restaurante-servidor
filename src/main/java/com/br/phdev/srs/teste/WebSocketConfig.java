@@ -52,7 +52,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     ServletServerHttpRequest serverHttpRequest = (ServletServerHttpRequest) req;
                     HttpSession sessao = serverHttpRequest.getServletRequest().getSession();
                     attributes.put("sessionId", sessao.getId());
-                    sessoes.add(sessao.getId());
+                    sessoes.add(0, sessao.getId());
                     System.out.println(sessao.getId());
                 }
                 return true;
