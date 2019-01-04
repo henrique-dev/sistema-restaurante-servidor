@@ -76,6 +76,7 @@ public class PagamentoController {
         Map<String,String> configMap = new HashMap<String,String>();        
         configMap.put("mode", "sandbox");
         IPNMessage ipnListener = new IPNMessage(req, configMap);
+        ipnListener.validate();
     }
 
 }
