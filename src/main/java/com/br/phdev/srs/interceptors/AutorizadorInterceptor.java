@@ -20,21 +20,23 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String uri = request.getRequestURI();        
+        String uri = request.getRequestURI();
         System.out.println("Usuario: " + request.getSession().getId() + " > " + uri);
-        if (uri.contains("chat/info")) {
-            Enumeration<String> headersNames = request.getHeaderNames();
-            while (headersNames.hasMoreElements()) {
-                String headerName = headersNames.nextElement();
-                System.out.println(request.getHeader(headerName));
-            }
+        Enumeration<String> headersNames = request.getHeaderNames();
+        while (headersNames.hasMoreElements()) {
+            String headerName = headersNames.nextElement();
+            System.out.print(headerName + ": ");
+            System.out.print(request.getHeader(headerName));
+            System.out.println("");
         }
+        System.out.println("");
+        System.out.println("");
         //System.out.println(uri);
         //if (request.getHeader("Access-Control-Allow-Origin") != null) {
-            //response.setHeader("Access-Control-Allow-Origin", "*");
+        //response.setHeader("Access-Control-Allow-Origin", "*");
         //}
         //if (request.getHeader("Access-Control-Allow-Headers") != null) {
-            //response.setHeader("Access-Control-Allow-Headers", "*");
+        //response.setHeader("Access-Control-Allow-Headers", "*");
         //}
         if (request.getSession().getAttribute("usuario") != null) {
             return true;
