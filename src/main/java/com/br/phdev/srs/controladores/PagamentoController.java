@@ -94,14 +94,13 @@ public class PagamentoController {
             Map<String, String> m = ipnListener.getIpnMap();
             String idComprador = m.get("payer_id");
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.recuperarSessaoClienteParaConfirmarCompra(idComprador);
+            String sessaoUsuario = clienteDAO.recuperarSessaoClienteParaConfirmarCompra(idComprador);
             Mensagem mensagem = new Mensagem();
             mensagem.setCodigo(100);
             mensagem.setDescricao("O pagamento foi confirmado");
             ObjectMapper mapeador = new ObjectMapper();
             String msg = mapeador.writeValueAsString(mensagem);
-            this.template.convertAndSendToUser(WebSocketConfig.sessoes.get(0),
-                    "/queue/reply", msg);
+            this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);
         } catch (DAOException | SQLException | JsonProcessingException e) {
             e.printStackTrace();
         }
