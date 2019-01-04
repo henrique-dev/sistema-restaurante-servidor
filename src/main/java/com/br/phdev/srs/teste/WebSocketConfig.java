@@ -64,7 +64,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             protected Principal determineUser(ServerHttpRequest req,
                     WebSocketHandler wsHandler,
                     Map<String, Object> attributes) {
-                HttpHeaders headers = req.getHeaders();
+                HttpHeaders headers = req.getHeaders();                
                 System.out.println(headers);
                 String user = "";
                 if (req instanceof ServletServerHttpRequest) {
