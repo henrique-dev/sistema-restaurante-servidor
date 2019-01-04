@@ -513,8 +513,8 @@ public class ClienteDAO extends BasicDAO {
         confirmaPedido.setPrecoTotal(valorTotal.doubleValue());
         return confirmaPedido;
     }
-    
-    public List<ItemPedido> recuperarPrePredido(Cliente cliente) throws DAOException {         
+
+    public List<ItemPedido> recuperarPrePredido(Cliente cliente) throws DAOException {
         List<ItemPedido> itens = null;
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL recuperar_pre_pedido(?)")) {
             stmt.setLong(1, cliente.getId());
@@ -522,18 +522,18 @@ public class ClienteDAO extends BasicDAO {
             List<ItemPedidoFacil> itemPedidos = new ArrayList<>();
             if (rs.next()) {
                 ObjectMapper mapeador = new ObjectMapper();
-                itemPedidos = mapeador.readValue(rs.getString("itens"), 
-                        new TypeReference<List<ItemPedidoFacil>>(){});
+                itemPedidos = mapeador.readValue(rs.getString("itens"),
+                        new TypeReference<List<ItemPedidoFacil>>() {
+                });
             }
             if (!itemPedidos.isEmpty()) {
                 RepositorioProdutos.getInstancia().carregar(super.conexao);
-                itens = new ArrayList<>();                
+                itens = new ArrayList<>();
                 for (ItemPedidoFacil ipf : itemPedidos) {
                     ItemPedido ip = new ItemPedido();
                     ip.setId(ipf.getId());
                     ip.setQuantidade(ipf.getQuantidade());
-                    ip.setPreco(ipf.getPreco());
-                    
+                    ip.setPreco(ipf.getPreco());                    
                     Set<Complemento> complementos = new HashSet<>();
                     for (ComplementoFacil cf : ipf.getComplementos()) {
                         Complemento complemento = new Complemento();
@@ -541,8 +541,9 @@ public class ClienteDAO extends BasicDAO {
                         complemento.setNome(cf.getNome());
                         complemento.setPreco(cf.getPreco());
                         complemento.setCheck(true);
-                        complementos.add(complemento);                       
+                        complementos.add(complemento);
                     }
+                    ip.setModificavel(!complementos.isEmpty());
                     ip.setComplementos(complementos);
                     RepositorioProdutos.getInstancia().preencherItem(ip);
                     itens.add(ip);
@@ -553,11 +554,11 @@ public class ClienteDAO extends BasicDAO {
         }
         return itens;
     }
-    
-    public boolean possuiPrePredido(Cliente cliente) throws DAOException {        
+
+    public boolean possuiPrePredido(Cliente cliente) throws DAOException {
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL existe_pre_pedido(?)")) {
             stmt.setLong(1, cliente.getId());
-            ResultSet rs = stmt.executeQuery();            
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return true;
             }
@@ -566,7 +567,7 @@ public class ClienteDAO extends BasicDAO {
         }
         return false;
     }
-    
+
     public void removerPrepedido(Cliente cliente) throws DAOException {
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL invalidar_pre_pedido(?)")) {
             stmt.setLong(1, cliente.getId());
@@ -586,10 +587,10 @@ public class ClienteDAO extends BasicDAO {
             stmt.setDouble(2, pedido.getPrecoTotal());
             stmt.setLong(3, pedido.getFormaPagamento().getId());
             stmt.setLong(4, cliente.getId());
-            stmt.setLong(5, pedido.getEndereco().getId());                                    
+            stmt.setLong(5, pedido.getEndereco().getId());
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(pedido.getItens());
-            stmt.setString(6, json);                        
+            stmt.setString(6, json);
             stmt.setString(7, token);
             stmt.execute();
         } catch (SQLException e) {
@@ -598,7 +599,7 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException(e, 307);
         }
     }
-    
+
     synchronized public void inserirPedido(Pedido pedido, Cliente cliente) throws DAOException {
         if (pedido == null || cliente == null) {
             throw new DAOIncorrectData(300);
@@ -609,10 +610,10 @@ public class ClienteDAO extends BasicDAO {
             stmt.setDouble(2, pedido.getPrecoTotal());
             stmt.setLong(3, pedido.getFormaPagamento().getId());
             stmt.setLong(4, cliente.getId());
-            stmt.setLong(5, pedido.getEndereco().getId());                                    
+            stmt.setLong(5, pedido.getEndereco().getId());
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(pedido.getItens());
-            stmt.setString(6, json);                                    
+            stmt.setString(6, json);
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(e, 200);
@@ -620,26 +621,39 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException(e, 307);
         }
     }
-    
+
     synchronized public boolean atualizarTokenPrePedido(String idPagamento, String idComprador) throws DAOException {
         if (idPagamento == null) {
             throw new DAOIncorrectData(300);
         }
-        String sql = "call atualizar_tokem_pre_pedido(?,?)";
-        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("call atualizar_tokem_pre_pedido(?,?)")) {
             stmt.setString(1, idPagamento);
             stmt.setString(2, idComprador);
-            ResultSet rs = stmt.executeQuery();     
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                if (rs.getObject("erro") == null)
+                if (rs.getObject("erro") == null) {
                     return true;
+                }
             }
         } catch (SQLException e) {
             throw new DAOException(e, 200);
         }
         return false;
     }
-    
+
+    public String recuperarSessaoClienteParaConfirmarCompra(String idComprador) throws DAOException {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("call utils_recuperar_sessao_cliente_pra_pagamento(?)")) {
+            stmt.setString(1, idComprador);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("token_sessao");
+            }
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
+        }
+        return null;
+    }
+
     synchronized public void inserirPedidoDePrePedido(String idPagamento) throws DAOException {
         if (idPagamento == null) {
             throw new DAOIncorrectData(300);
@@ -652,7 +666,7 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException(e, 200);
         }
     }
-    
+
     public List<Pedido2> getPedidos(Cliente cliente) throws DAOException {
         List<Pedido2> pedidos = null;
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL get_lista_pedidos(?)")) {
@@ -662,7 +676,7 @@ public class ClienteDAO extends BasicDAO {
             while (rs.next()) {
                 Pedido2 pedido = new Pedido2();
                 pedido.setId(rs.getLong("id_pedido"));
-                String time = new SimpleDateFormat("dd/MM/YYYY").format(new Date(((Timestamp)rs.getObject("datapedido", Timestamp.class)).getTime()));        
+                String time = new SimpleDateFormat("dd/MM/YYYY").format(new Date(((Timestamp) rs.getObject("datapedido", Timestamp.class)).getTime()));
                 pedido.setData(time);
                 pedido.setPrecoTotal(rs.getDouble("precototal"));
                 pedido.setFormaPagamento(new FormaPagamento(0, rs.getString("formapagamento_descricao")));
@@ -671,20 +685,20 @@ public class ClienteDAO extends BasicDAO {
                 endereco.setDescricao(rs.getString("endereco_descricao"));
                 pedido.setEndereco(endereco);
                 pedido.setStatus(!rs.getBoolean("entregue") ? "Entrega em andamento" : "Entregue");
-                pedidos.add(pedido);                
+                pedidos.add(pedido);
             }
         } catch (SQLException e) {
             throw new DAOException(e, 200);
         }
         return pedidos;
     }
-    
+
     public void getPedido(Pedido pedido, Cliente cliente) throws DAOException, IOException {
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL get_pedido(?,?)")) {
             stmt.setLong(1, cliente.getId());
             stmt.setLong(2, pedido.getId());
-            ResultSet rs = stmt.executeQuery();            
-            if (rs.next()) {                                
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
                 pedido.setData(rs.getObject("datapedido", Timestamp.class));
                 pedido.setPrecoTotal(rs.getDouble("precototal"));
                 pedido.setFormaPagamento(new FormaPagamento(0, rs.getString("formapagamento_descricao")));
@@ -692,9 +706,10 @@ public class ClienteDAO extends BasicDAO {
                 endereco.setId(-1);
                 endereco.setDescricao(rs.getString("endereco_descricao"));
                 pedido.setEndereco(endereco);
-                
+
                 ObjectMapper mapeador = new ObjectMapper();
-                List<ItemPedidoFacil> itens = mapeador.readValue(rs.getString("itens"), new TypeReference<List<ItemPedidoFacil>>(){});
+                List<ItemPedidoFacil> itens = mapeador.readValue(rs.getString("itens"), new TypeReference<List<ItemPedidoFacil>>() {
+                });
                 pedido.setItens(itens);
             }
         } catch (SQLException e) {
@@ -708,7 +723,7 @@ public class ClienteDAO extends BasicDAO {
         }
         if (endereco.getLogradouro() == null || endereco.getBairro() == null || endereco.getCep() == null
                 || endereco.getCidade() == null || endereco.getComplemento() == null || endereco.getDescricao() == null
-                || endereco.getNumero() == null) {            
+                || endereco.getNumero() == null) {
             throw new DAOIncorrectData(300);
         }
         if (endereco.getLogradouro().isEmpty() || endereco.getBairro().isEmpty() || endereco.getDescricao().isEmpty()
@@ -729,14 +744,14 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException(e, 200);
         }
     }
-    
+
     synchronized public void removerEndereco(Cliente cliente, Endereco endereco) throws DAOException {
         if (cliente == null || endereco == null) {
             throw new DAOIncorrectData(300);
         }
-        if (endereco.getId() <= 0) {            
+        if (endereco.getId() <= 0) {
             throw new DAOIncorrectData(300);
-        }        
+        }
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL remover_endereco(?,?)")) {
             stmt.setLong(1, cliente.getId());
             stmt.setLong(2, endereco.getId());

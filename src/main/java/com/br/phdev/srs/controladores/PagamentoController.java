@@ -12,7 +12,11 @@ import com.br.phdev.srs.exceptions.PaymentException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
 import com.br.phdev.srs.models.Pedido2;
 import com.br.phdev.srs.teste.IPNMessage;
+import com.br.phdev.srs.teste.WebSocketConfig;
+import com.br.phdev.srs.utils.Mensagem;
 import com.br.phdev.srs.utils.ServicoPagamento;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paypal.api.payments.Payment;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -39,20 +43,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 public class PagamentoController {
-    
+
     @Autowired
     private SimpMessagingTemplate template;
 
     @GetMapping("pagamentos/executar-pagamento")
     public String executarPagamento(HttpServletRequest req) {
-        try (Connection conexao = new FabricaConexao().conectar()){            
-            String paymentId = req.getParameter("paymentId");            
-            String payerId = req.getParameter("PayerID");                                    
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            String paymentId = req.getParameter("paymentId");
+            String payerId = req.getParameter("PayerID");
             ServicoPagamento servicoPagamento = new ServicoPagamento();
-            servicoPagamento.executarPagamento(paymentId, payerId);            
+            servicoPagamento.executarPagamento(paymentId, payerId);
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (clienteDAO.atualizarTokenPrePedido(paymentId, payerId))
+            if (clienteDAO.atualizarTokenPrePedido(paymentId, payerId)) {
                 return "pagamento-efetuado";
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (PaymentException e) {
@@ -61,7 +66,7 @@ public class PagamentoController {
             e.printStackTrace();
         }
         return "pagamento-erro";
-    }    
+    }
 
     @PostMapping("pagamentos/cancelar-pagamento")
     public ResponseEntity<Object> cancelarPagamento(String paymentID, String payerID) {
@@ -72,22 +77,34 @@ public class PagamentoController {
     @RequestMapping("pagamentos/notificar")
     public ResponseEntity<String> notificar(@RequestBody Payment pagamento) {
         System.out.println("Notificação de pagamento");
-        if (pagamento != null)
+        if (pagamento != null) {
             System.out.println(pagamento.toJSON());
+        }
         return null;
     }
-    
+
     @RequestMapping("pagamentos/notificar2")
     public ResponseEntity<String> notificar2(HttpServletRequest req) {
-        System.out.println("notificar2");
-        Map<String,String> configMap = new HashMap<String,String>();        
-        configMap.put("mode", "sandbox");
-        IPNMessage ipnListener = new IPNMessage(req, configMap);
-        ipnListener.validate();
-        
-        Map<String, String> m = ipnListener.getIpnMap();
-        System.out.println(m.get("payer_id"));
-                
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            System.out.println("notificar2");
+            Map<String, String> configMap = new HashMap<String, String>();
+            configMap.put("mode", "sandbox");
+            IPNMessage ipnListener = new IPNMessage(req, configMap);
+            ipnListener.validate();
+            Map<String, String> m = ipnListener.getIpnMap();
+            String idComprador = m.get("payer_id");
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            clienteDAO.recuperarSessaoClienteParaConfirmarCompra(idComprador);
+            Mensagem mensagem = new Mensagem();
+            mensagem.setCodigo(100);
+            mensagem.setDescricao("O pagamento foi confirmado");
+            ObjectMapper mapeador = new ObjectMapper();
+            String msg = mapeador.writeValueAsString(mensagem);
+            this.template.convertAndSendToUser(WebSocketConfig.sessoes.get(0),
+                    "/queue/reply", msg);
+        } catch (DAOException | SQLException | JsonProcessingException e) {
+            e.printStackTrace();
+        }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.TEXT_HTML);
         return new ResponseEntity<>("", httpHeaders, HttpStatus.OK);
