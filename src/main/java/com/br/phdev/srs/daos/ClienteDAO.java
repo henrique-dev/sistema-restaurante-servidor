@@ -513,8 +513,29 @@ public class ClienteDAO extends BasicDAO {
         return confirmaPedido;
     }
     
-    public boolean possuiPedidoEmAcao(Cliente cliente) {
-        return true;
+    public List<ItemPedido> possuiPrePredido(Cliente cliente) throws DAOException {
+        List<ItemPedido> itemPedidos = null;
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL existe_pre_pedido(?)")) {
+            stmt.setLong(1, cliente.getId());
+            ResultSet rs = stmt.executeQuery();
+            itemPedidos = new ArrayList<>();
+            if (rs.next()) {
+                ObjectMapper mapeador = new ObjectMapper();
+                itemPedidos = mapeador.readValue(rs.getString("itens"), new TypeReference<ItemPedido>(){});                
+            }
+        } catch (SQLException | IOException e) {
+            throw new DAOException(e, 200);
+        }
+        return itemPedidos;
+    }
+    
+    public void removerPrepedido(Cliente cliente) throws DAOException {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL invalidar_pre_pedido(?)")) {
+            stmt.setLong(1, cliente.getId());
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
+        }
     }
 
     synchronized public void inserirPrePedido(Pedido pedido, Cliente cliente, String token) throws DAOException {

@@ -272,6 +272,50 @@ public class ClienteController {
         return new ResponseEntity<>(item, httpHeaders, HttpStatus.OK);
     }
 
+    @PostMapping(value = "cliente/existe-prepedido")
+    public ResponseEntity<ConfirmaPedido> existePrepedido(HttpSession sessao) {
+        ConfirmaPedido confirmaPedido = new ConfirmaPedido();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            List<ItemPedido> itemPedidos = clienteDAO.possuiPrePredido(cliente);
+            confirmaPedido.setItens(itemPedidos);
+        } catch (DAOException e) {
+            e.printStackTrace();
+            confirmaPedido = null;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            confirmaPedido = null;
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(confirmaPedido, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "cliente/remover-prepedido")
+    public ResponseEntity<Mensagem> removerPrepedido(HttpSession sessao) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            clienteDAO.removerPrepedido(cliente);
+            sessao.removeAttribute("pre-pedido-itens");
+            sessao.removeAttribute("pre-pedido-preco");
+            mensagem.setCodigo(100);
+        } catch (DAOException e) {
+            mensagem.setCodigo(101);
+            mensagem.setDescricao(e.getMessage());
+            e.printStackTrace();
+        } catch (SQLException e) {
+            mensagem.setCodigo(101);
+            e.printStackTrace();
+            mensagem.setDescricao(e.getMessage());
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+
     @PostMapping(value = "cliente/pre-confirmar-pedido")
     public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
         try (Connection conexao = new FabricaConexao().conectar()) {
