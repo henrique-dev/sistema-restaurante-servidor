@@ -13,6 +13,7 @@ import com.br.phdev.srs.models.Cadastro;
 import com.br.phdev.srs.models.Cliente;
 import com.br.phdev.srs.models.Codigo;
 import com.br.phdev.srs.models.Complemento;
+import com.br.phdev.srs.models.ComplementoFacil;
 import com.br.phdev.srs.models.ConfirmaPedido;
 import com.br.phdev.srs.models.Endereco;
 import com.br.phdev.srs.models.FormaPagamento;
@@ -532,6 +533,16 @@ public class ClienteDAO extends BasicDAO {
                     ip.setId(ipf.getId());
                     ip.setQuantidade(ipf.getQuantidade());
                     ip.setPreco(ipf.getPreco());
+                    
+                    Set<Complemento> complementos = new HashSet<>();
+                    for (ComplementoFacil cf : ipf.getComplementos()) {
+                        Complemento complemento = new Complemento();
+                        complemento.setId(cf.getId());
+                        complemento.setNome(cf.getNome());
+                        complemento.setPreco(cf.getPreco());
+                        complementos.add(complemento);
+                    }
+                    ip.setComplementos(complementos);
                     RepositorioProdutos.getInstancia().preencherItem(ip);
                     itens.add(ip);
                 }
