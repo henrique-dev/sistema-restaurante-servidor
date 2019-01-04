@@ -587,7 +587,7 @@ public class ClienteDAO extends BasicDAO {
         if (idPagamento == null) {
             throw new DAOIncorrectData(300);
         }
-        String sql = "call inserir_pedido(?)";
+        String sql = "call inserir_pedido_de_pre_pedido(?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setString(1, idPagamento);
             stmt.execute();
