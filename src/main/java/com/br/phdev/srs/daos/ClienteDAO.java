@@ -533,6 +533,7 @@ public class ClienteDAO extends BasicDAO {
                     ip.setQuantidade(ipf.getQuantidade());
                     ip.setPreco(ipf.getPreco());
                     RepositorioProdutos.getInstancia().preencherItem(ip);
+                    itens.add(ip);
                 }
             }
         } catch (SQLException | IOException e) {
