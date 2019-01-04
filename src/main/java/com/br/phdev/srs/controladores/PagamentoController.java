@@ -15,6 +15,8 @@ import com.br.phdev.srs.utils.ServicoPagamento;
 import com.paypal.api.payments.Payment;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
@@ -71,8 +73,9 @@ public class PagamentoController {
     @RequestMapping("pagamentos/notificar2")
     public void notificar2(HttpServletRequest req) {
         System.out.println("notificar2");
-        IPNMessage iPNMessage = new IPNMessage(req);
-        iPNMessage.validate();        
+        Map<String,String> configMap = new HashMap<String,String>();        
+        configMap.put("mode", "sandbox");
+        IPNMessage ipnListener = new IPNMessage(req, configMap);
     }
 
 }
