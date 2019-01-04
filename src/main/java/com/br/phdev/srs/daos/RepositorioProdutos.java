@@ -8,6 +8,7 @@ package com.br.phdev.srs.daos;
 import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
 import com.br.phdev.srs.models.Complemento;
+import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.Item;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,14 +16,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
-public class RepositorioPrecos {
+public class RepositorioProdutos {
 
-    private static RepositorioPrecos instancia = new RepositorioPrecos();
+    private static RepositorioProdutos instancia = new RepositorioProdutos();
 
     private final HashMap<Long, Item> itens;
     private final HashMap<Long, Complemento> complementos;
@@ -30,26 +33,27 @@ public class RepositorioPrecos {
     
     public double frete;
 
-    private RepositorioPrecos() {        
+    private RepositorioProdutos() {        
         this.itens = new HashMap<>();
         this.complementos = new HashMap<>();
         this.frete = 3;
     }
 
-    public static RepositorioPrecos getInstancia() {        
+    public static RepositorioProdutos getInstancia() {        
         if (instancia == null) {
-            instancia = new RepositorioPrecos();
+            instancia = new RepositorioProdutos();
         }
         return instancia;
     }
     
-    public void inserirPrecoNoItem(Item item) {
+    public void preencherItem(Item item) {
         Item item2 = this.itens.get(item.getId());
         item.setPreco(item2.getPreco());
         item.setNome(item2.getNome());
+        item.setFotos(item2.getFotos());
     }
     
-    public void inserirPrecoNoComplemento(Complemento complemento) {        
+    public void preencherComplemento(Complemento complemento) {        
         Complemento complemento2 = this.complementos.get(complemento.getId());
         complemento.setPreco(complemento2.getPreco());
         complemento.setNome(complemento2.getNome());
@@ -88,6 +92,9 @@ public class RepositorioPrecos {
                 item.setId(rs.getLong("id_item"));
                 item.setNome(rs.getString("nome"));
                 item.setPreco(rs.getDouble("preco"));
+                HashSet<Foto> fotos = new HashSet<>();
+                fotos.add(new Foto(rs.getLong("id_arquivo"), null, 0));
+                item.setFotos(fotos);
                 this.itens.put(rs.getLong("id_item"), item);
             }
         }

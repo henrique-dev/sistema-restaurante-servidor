@@ -494,18 +494,18 @@ public class ClienteDAO extends BasicDAO {
         if (confirmaPedido.getItens().isEmpty()) {
             throw new DAOIncorrectData(301);
         }
-        RepositorioPrecos repositorioPrecos = RepositorioPrecos.getInstancia();
+        RepositorioProdutos repositorioPrecos = RepositorioProdutos.getInstancia();
         repositorioPrecos.carregar(super.conexao);
         BigDecimal valorTotal = new BigDecimal("0.00");
         for (ItemPedido ip : confirmaPedido.getItens()) {
             BigDecimal valorItem = new BigDecimal("0.00");
             if (ip.getComplementos() != null) {
                 for (Complemento c : ip.getComplementos()) {
-                    repositorioPrecos.inserirPrecoNoComplemento(c);
+                    repositorioPrecos.preencherComplemento(c);
                     valorItem = valorItem.add(new BigDecimal(String.valueOf(c.getPreco())));
                 }
             }
-            repositorioPrecos.inserirPrecoNoItem(ip);
+            repositorioPrecos.preencherItem(ip);
             valorItem = valorItem.add(new BigDecimal(String.valueOf(ip.getPreco())));
             valorTotal = valorTotal.add(valorItem.multiply(new BigDecimal(ip.getQuantidade())));
         }
@@ -513,21 +513,31 @@ public class ClienteDAO extends BasicDAO {
         return confirmaPedido;
     }
     
-    public List<ItemPedidoFacil> recuperarPrePredido(Cliente cliente) throws DAOException {
-        List<ItemPedidoFacil> itemPedidos = null;
+    public List<ItemPedido> recuperarPrePredido(Cliente cliente) throws DAOException {         
+        List<ItemPedido> itens = null;
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL recuperar_pre_pedido(?)")) {
             stmt.setLong(1, cliente.getId());
             ResultSet rs = stmt.executeQuery();
-            itemPedidos = new ArrayList<>();
+            List<ItemPedidoFacil> itemPedidos = new ArrayList<>();
             if (rs.next()) {
                 ObjectMapper mapeador = new ObjectMapper();
                 itemPedidos = mapeador.readValue(rs.getString("itens"), 
                         new TypeReference<List<ItemPedido>>(){});
             }
+            if (!itemPedidos.isEmpty()) {
+                itens = new ArrayList<>();                
+                for (ItemPedidoFacil ipf : itemPedidos) {
+                    ItemPedido ip = new ItemPedido();
+                    ip.setId(ipf.getId());
+                    ip.setQuantidade(ipf.getQuantidade());
+                    ip.setPreco(ipf.getPreco());
+                    RepositorioProdutos.getInstancia().preencherItem(ip);
+                }
+            }
         } catch (SQLException | IOException e) {
             throw new DAOException(e, 200);
         }
-        return itemPedidos;
+        return itens;
     }
     
     public boolean possuiPrePredido(Cliente cliente) throws DAOException {        

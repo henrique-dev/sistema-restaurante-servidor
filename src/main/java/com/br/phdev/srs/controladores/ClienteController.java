@@ -7,7 +7,7 @@
 package com.br.phdev.srs.controladores;
 
 import com.br.phdev.srs.daos.ClienteDAO;
-import com.br.phdev.srs.daos.RepositorioPrecos;
+import com.br.phdev.srs.daos.RepositorioProdutos;
 import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.PaymentException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
@@ -244,7 +244,7 @@ public class ClienteController {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             listaItens = clienteDAO.getItens();
             if (listaItens != null) {
-                listaItens.setFrete(RepositorioPrecos.getInstancia().frete);
+                listaItens.setFrete(RepositorioProdutos.getInstancia().frete);
             }
         } catch (DAOException e) {
             e.printStackTrace();
@@ -301,8 +301,8 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/recuperar-prepedido")
-    public ResponseEntity<List<ItemPedidoFacil>> recuperarPrepedido(HttpSession sessao) {
-        List<ItemPedidoFacil> itens = null;
+    public ResponseEntity<List<ItemPedido>> recuperarPrepedido(HttpSession sessao) {
+        List<ItemPedido> itens = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
@@ -351,7 +351,7 @@ public class ClienteController {
             List<FormaPagamento> formaPagamentos = clienteDAO.getFormasPagamento(cliente);
             confirmaPedido.setFormaPagamentos(formaPagamentos);
             confirmaPedido.setEnderecos(enderecos);
-            confirmaPedido.calcularPrecoTotal(RepositorioPrecos.getInstancia().frete);
+            confirmaPedido.calcularPrecoTotal(RepositorioProdutos.getInstancia().frete);
             sessao.setAttribute("pre-pedido-itens", confirmaPedido.getItens());
             sessao.setAttribute("pre-pedido-preco", confirmaPedido.getPrecoTotal());
         } catch (DAOException e) {
