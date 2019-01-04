@@ -111,7 +111,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry mbr) {
         mbr.enableSimpleBroker("/queue", "/user");
-        mbr.setApplicationDestinationPrefixes("/app");
+        mbr.setApplicationDestinationPrefixes("/app");        
         //mbr.setUserDestinationPrefix("/user");
     }
     

@@ -6,6 +6,7 @@
 package com.br.phdev.srs.interceptors;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,8 +20,14 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String uri = request.getRequestURI();
+        String uri = request.getRequestURI();        
         System.out.println("Usuario: " + request.getSession().getId() + " > " + uri);
+        if (uri.contains("chat/info")) {
+            Enumeration<String> headersNames = request.getHeaderNames();
+            while (headersNames.hasMoreElements()) {
+                System.out.println(headersNames.nextElement());
+            }
+        }
         //System.out.println(uri);
         //if (request.getHeader("Access-Control-Allow-Origin") != null) {
             //response.setHeader("Access-Control-Allow-Origin", "*");
