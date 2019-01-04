@@ -10,6 +10,7 @@ import com.br.phdev.srs.daos.ClienteDAO;
 import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.PaymentException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
+import com.br.phdev.srs.teste.IPNMessage;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.paypal.api.payments.Payment;
 import java.sql.Connection;
@@ -68,13 +69,10 @@ public class PagamentoController {
     }
     
     @RequestMapping("pagamentos/notificar2")
-    public ResponseEntity<String> notificar2(@RequestBody Payment pagamento) {
-        System.out.println("Notificação de pagamento");
-        if (pagamento != null)
-            System.out.println(pagamento.toJSON());
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>("", httpHeaders, HttpStatus.OK);
+    public void notificar2(HttpServletRequest req) {
+        System.out.println("notificar2");
+        IPNMessage iPNMessage = new IPNMessage(req);
+        iPNMessage.validate();        
     }
 
 }

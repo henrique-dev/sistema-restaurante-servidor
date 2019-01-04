@@ -59,7 +59,7 @@ public class ServicoPagamento {
         payment.setRedirectUrls(redirectUrls);
 
         try {
-            APIContext apiContext = new APIContext(clientId, secret, "sandbox");
+            APIContext apiContext = new APIContext(clientId, secret, "sandbox");            
             Payment createdPayment = payment.create(apiContext);
             
             //System.out.println(createdPayment.toString());
