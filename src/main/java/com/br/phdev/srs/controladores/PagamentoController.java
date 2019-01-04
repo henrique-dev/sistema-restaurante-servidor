@@ -101,7 +101,8 @@ public class PagamentoController {
             mensagem.setDescricao("O pagamento foi confirmado");
             ObjectMapper mapeador = new ObjectMapper();
             String msg = mapeador.writeValueAsString(mensagem);
-            this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);
+            clienteDAO.inserirPedidoDePrePedido(idComprador);
+            this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);            
         } catch (DAOException | SQLException | JsonProcessingException e) {
             e.printStackTrace();
         }
