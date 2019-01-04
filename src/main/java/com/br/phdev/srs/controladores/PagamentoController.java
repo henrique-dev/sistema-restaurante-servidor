@@ -68,7 +68,7 @@ public class PagamentoController {
         return "pagamento-erro";
     }
 
-    @PostMapping("pagamentos/cancelar-pagamento")
+    @GetMapping("pagamentos/cancelar-pagamento")
     public ResponseEntity<Object> cancelarPagamento(String paymentID, String payerID) {
         System.out.println("CANCELAR PAGAMENTO");
         return null;

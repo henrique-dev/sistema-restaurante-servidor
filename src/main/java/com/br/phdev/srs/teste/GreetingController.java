@@ -47,11 +47,11 @@ public class GreetingController {
         ObjectMapper mapeador = new ObjectMapper();
         String json = mapeador.writeValueAsString(out);
         //this.template.convertAndSend("/topic/messages", json);
-        if (!WebSocketConfig.sessoes.isEmpty()) {
+        /*if (!WebSocketConfig.sessoes.isEmpty()) {
             System.out.println("Enviando msg para: " + WebSocketConfig.sessoes.get(0));
             this.template.convertAndSendToUser(WebSocketConfig.sessoes.get(0), 
                     "/queue/reply", json);
-        }
+        }*/
     }
     
 }
