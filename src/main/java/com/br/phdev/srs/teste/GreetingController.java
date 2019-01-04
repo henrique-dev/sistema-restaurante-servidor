@@ -23,7 +23,7 @@ import org.springframework.web.util.HtmlUtils;
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
-@EnableScheduling
+//@EnableScheduling
 @Controller
 public class GreetingController {
     
@@ -39,8 +39,8 @@ public class GreetingController {
         return new OutputMessage(message.getFrom(), message.getText(), time);
     }
     
-    @Scheduled(fixedRate = 5000)
-    public void ola() throws Exception {
+    //@Scheduled(fixedRate = 5000)
+    public void ola() throws Exception {        
         //System.out.println("HERE");
         String time = new SimpleDateFormat("HH:mm").format(new Date());        
         OutputMessage out = new OutputMessage("Servidor", "Mensagem agendada", time);
