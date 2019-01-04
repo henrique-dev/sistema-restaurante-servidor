@@ -60,9 +60,7 @@ public class ServicoPagamento {
 
         try {
             APIContext apiContext = new APIContext(clientId, secret, "sandbox");            
-            Payment createdPayment = payment.create(apiContext);
-            
-            //System.out.println(createdPayment.toString());
+            Payment createdPayment = payment.create(apiContext);                        
             return createdPayment;
         } catch (PayPalRESTException e) {            
             throw new PaymentException(e);
@@ -77,7 +75,7 @@ public class ServicoPagamento {
             PaymentExecution paymentExecution = new PaymentExecution();
             paymentExecution.setPayerId(payerID);           
             payment.execute(apiContext, paymentExecution);
-            System.out.println(payment);
+            System.out.println("Id do comprador: " + payerID);
         } catch (PayPalRESTException e) {
             e.printStackTrace();
             throw new PaymentException(e);

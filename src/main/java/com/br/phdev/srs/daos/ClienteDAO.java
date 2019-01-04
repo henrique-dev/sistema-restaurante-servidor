@@ -636,7 +636,7 @@ public class ClienteDAO extends BasicDAO {
                 pedido.setPrecoTotal(rs.getDouble("precototal"));
                 pedido.setFormaPagamento(new FormaPagamento(0, rs.getString("formapagamento_descricao")));
                 Endereco endereco = new Endereco();
-                endereco.setId(-1);
+                endereco.setId(rs.getLong("id_endereco"));
                 endereco.setDescricao(rs.getString("endereco_descricao"));
                 pedido.setEndereco(endereco);
                 pedido.setStatus(!rs.getBoolean("entregue") ? "Entrega em andamento" : "Entregue");
