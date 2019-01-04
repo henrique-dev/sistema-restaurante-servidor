@@ -196,6 +196,8 @@ public class ClienteController {
             Cliente cliente = (Cliente)sessao.getAttribute("cliente");
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             clienteDAO.cadastrarTokenAlerta(cliente, token.getToken());
+            mensagem.setCodigo(100);
+            mensagem.setDescricao("WTF");
         } catch (SQLException e) {
             e.printStackTrace();
             mensagem.setDescricao(e.getMessage());
