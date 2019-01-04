@@ -690,7 +690,7 @@ public class ClienteDAO extends BasicDAO {
             while (rs.next()) {
                 Pedido2 pedido = new Pedido2();
                 pedido.setId(rs.getLong("id_pedido"));
-                String time = new SimpleDateFormat("dd/MM/YYYY").format(new Date(((Timestamp) rs.getObject("datapedido", Timestamp.class)).getTime()));
+                String time = new SimpleDateFormat("dd/MM/YYYY - HH:mm").format(new Date(((Timestamp) rs.getObject("datapedido", Timestamp.class)).getTime()));
                 pedido.setData(time);
                 pedido.setPrecoTotal(rs.getDouble("precototal"));
                 pedido.setFormaPagamento(new FormaPagamento(0, rs.getString("formapagamento_descricao")));
