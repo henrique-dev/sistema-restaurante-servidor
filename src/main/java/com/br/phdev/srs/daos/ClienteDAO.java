@@ -609,6 +609,25 @@ public class ClienteDAO extends BasicDAO {
         }
     }
     
+    synchronized public boolean atualizarTokenPrePedido(String idPagamento, String idComprador) throws DAOException {
+        if (idPagamento == null) {
+            throw new DAOIncorrectData(300);
+        }
+        String sql = "call atualizar_tokem_pre_pedido(?,?)";
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+            stmt.setString(1, idPagamento);
+            stmt.setString(2, idComprador);
+            ResultSet rs = stmt.executeQuery();     
+            if (rs.next()) {
+                if (rs.getObject("erro") == null)
+                    return true;
+            }
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
+        }
+        return false;
+    }
+    
     synchronized public void inserirPedidoDePrePedido(String idPagamento) throws DAOException {
         if (idPagamento == null) {
             throw new DAOIncorrectData(300);
@@ -618,7 +637,7 @@ public class ClienteDAO extends BasicDAO {
             stmt.setString(1, idPagamento);
             stmt.execute();
         } catch (SQLException e) {
-            throw new DAOException("Falha ao adquirir informações do arquivo", e, 200);
+            throw new DAOException(e, 200);
         }
     }
     

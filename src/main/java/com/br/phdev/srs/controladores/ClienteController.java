@@ -72,6 +72,7 @@ public class ClienteController {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             Cliente cliente = clienteDAO.autenticar(usuario);
             if (cliente != null) {
+                /*
                 String textoParaHash = usuario.getNomeUsuario() + usuario.getSenhaUsuario()
                         + Calendar.getInstance().getTime().toString();
                 MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
@@ -79,10 +80,10 @@ public class ClienteController {
                 StringBuilder tokenHex = new StringBuilder();
                 for (byte b : textoDigerido) {
                     tokenHex.append(String.format("%02X", 0xFF & b));
-                }
-                clienteDAO.gerarSessao(usuario, tokenHex.toString());
+                }*/
+                clienteDAO.gerarSessao(usuario, sessao.getId());
                 mensagem.setCodigo(100);
-                mensagem.setDescricao(tokenHex.toString());
+                //mensagem.setDescricao(tokenHex.toString());
 
                 sessao.setAttribute("usuario", usuario);
                 sessao.setAttribute("cliente", cliente);
@@ -95,7 +96,7 @@ public class ClienteController {
                 mensagem.setCodigo(101);
                 mensagem.setDescricao("Usuário ou senha inválidos");
             }
-        } catch (SQLException | NoSuchAlgorithmException | UnsupportedEncodingException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             mensagem.setCodigo(200);
             mensagem.setDescricao(e.getMessage());

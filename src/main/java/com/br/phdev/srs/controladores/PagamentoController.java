@@ -21,10 +21,12 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +39,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 public class PagamentoController {
+    
+    @Autowired
+    private SimpMessagingTemplate template;
 
     @GetMapping("pagamentos/executar-pagamento")
     public String executarPagamento(HttpServletRequest req) {
@@ -45,14 +50,17 @@ public class PagamentoController {
             String payerId = req.getParameter("PayerID");                                    
             ServicoPagamento servicoPagamento = new ServicoPagamento();
             servicoPagamento.executarPagamento(paymentId, payerId);            
-            //ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            //clienteDAO.inserirPedidoDePrePedido(paymentId);
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            if (clienteDAO.atualizarTokenPrePedido(paymentId, payerId))
+                return "pagamento-efetuado";
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (PaymentException e) {
             e.printStackTrace();
+        } catch (DAOException e) {
+            e.printStackTrace();
         }
-        return "pagamento-efetuado";
+        return "pagamento-erro";
     }    
 
     @PostMapping("pagamentos/cancelar-pagamento")
@@ -79,8 +87,7 @@ public class PagamentoController {
         
         Map<String, String> m = ipnListener.getIpnMap();
         System.out.println(m.get("payer_id"));
-        
-        
+                
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.TEXT_HTML);
         return new ResponseEntity<>("", httpHeaders, HttpStatus.OK);
