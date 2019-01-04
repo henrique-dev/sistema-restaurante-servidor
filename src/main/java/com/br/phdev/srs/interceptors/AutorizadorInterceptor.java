@@ -25,7 +25,11 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
         if (uri.contains("chat/info")) {
             Enumeration<String> headersNames = request.getHeaderNames();
             while (headersNames.hasMoreElements()) {
-                System.out.println(headersNames.nextElement());
+                String headerName = headersNames.nextElement();
+                Enumeration<String> values = request.getHeaders(headerName);
+                while (values.hasMoreElements()) {                    
+                    request.getHeader(values.nextElement());
+                }
             }
         }
         //System.out.println(uri);
