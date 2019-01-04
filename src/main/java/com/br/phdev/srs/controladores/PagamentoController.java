@@ -36,21 +36,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
 @Controller
-public class PagamentoController {            
+public class PagamentoController {
 
     @GetMapping("pagamentos/executar-pagamento")
     public String executarPagamento(HttpServletRequest req) {
         try (Connection conexao = new FabricaConexao().conectar()){            
             String paymentId = req.getParameter("paymentId");            
-            String payerId = req.getParameter("PayerID");                        
-            System.out.println("id pagamento 2: " + paymentId);
+            String payerId = req.getParameter("PayerID");                                    
             ServicoPagamento servicoPagamento = new ServicoPagamento();
             servicoPagamento.executarPagamento(paymentId, payerId);            
-            ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.inserirPedidoDePrePedido(paymentId);
+            //ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            //clienteDAO.inserirPedidoDePrePedido(paymentId);
         } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (DAOException e) {
             e.printStackTrace();
         } catch (PaymentException e) {
             e.printStackTrace();
@@ -81,7 +78,7 @@ public class PagamentoController {
         ipnListener.validate();
         
         Map<String, String> m = ipnListener.getIpnMap();
-        System.out.println(m);
+        System.out.println(m.get("payer_id"));
         
         
         HttpHeaders httpHeaders = new HttpHeaders();

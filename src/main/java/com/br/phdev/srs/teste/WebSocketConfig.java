@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -63,6 +64,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             protected Principal determineUser(ServerHttpRequest req,
                     WebSocketHandler wsHandler,
                     Map<String, Object> attributes) {
+                HttpHeaders headers = req.getHeaders();
+                System.out.println(headers);
                 String user = "";
                 if (req instanceof ServletServerHttpRequest) {
                     ServletServerHttpRequest serverHttpRequest = (ServletServerHttpRequest) req;

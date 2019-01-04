@@ -1,10 +1,8 @@
 <%-- 
     Document   : pagamento-efetuado.jsp
     Created on : 31/12/2018, 00:44:15
-    Author     : Paulo Henrique GonÃ§alves Bacelar <henrique.phgb@gmail.com>
+    Author     : Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
 --%>
-
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -15,8 +13,8 @@
         <div>
             <h4>Obrigado pela compra!</h4>
 
-            <p>Sua transaÃ§Ã£o foi concluÃ­da. Uma mensagem com detalhes desta transaÃ§Ã£o nÃ£o foi enviada para seu endereÃ§o de email.</p>
-            <p>Normalmente os pedidos sÃ£o processados e enviados em 900 dias Ãºteis apÃ³s o pagamento. Caso tenha alguma dÃºvida, nÃ£o entre em contato.</p>
+            <p>Sua transação foi concluída. Uma mensagem com detalhes desta transação não foi enviada para seu endereço de email.</p>
+            <p>Normalmente os pedidos são processados e enviados em 900 dias úteis após o pagamento. Caso tenha alguma dúvida, não entre em contato.</p>
             <p>Despresadamente,<br>Eu.</p>
 
         </div>
