@@ -349,8 +349,7 @@ public class ClienteController {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             pedido = new Pedido();              
-            pedido.setData(new Timestamp(Calendar.getInstance().getTimeInMillis()));
-            System.out.println("DATA DO PEDIDO: " + pedido.getData());
+            pedido.setData(new Timestamp(Calendar.getInstance().getTimeInMillis()));            
             pedido.setEndereco(confirmaPedido.getEnderecos().get(0));
             pedido.setFormaPagamento(confirmaPedido.getFormaPagamentos().get(0));
             pedido.convertItemParaItemFacil((List<ItemPedido>) sessao.getAttribute("pre-pedido-itens"));
