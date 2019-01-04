@@ -31,8 +31,8 @@ import java.util.logging.Logger;
  */
 public class ServicoPagamento {
 
-    private final String clientId = "AZXWJ2YRvFysD2U6K6ph6Yr5rnm-njk6wdGj4kDgVv4HVVO1rfLMTrJWQ0aPfqvrOT8NmQvMKOWxYZt1";
-    private final String secret = "EP3t4-QDGX7VVE57PxSVzNjCYF1xoshnnK5n3uZwtfUp4e1jYrJM4yFjygCTi_F1xfOXaUTnsiG6Wm8o";
+    private final String clientId = "ASzGEc_oF__CRXHexloOprXZUaIAQkpZx4t7KSs9Eqx14RLQR8rhUNUkq2OOob1HdcEQ0Pay_rP_Dz92";
+    private final String secret = "ECq12WJhFwanQJTN6jELYm2WGf2rLfZ89aVBIRz_Mbexzu-2HzI6TplLbZbDbfpGXoW5FPbXDdHM-GGl";
 
     public Payment criarPagamento(String valorTotal) throws PaymentException {
 
