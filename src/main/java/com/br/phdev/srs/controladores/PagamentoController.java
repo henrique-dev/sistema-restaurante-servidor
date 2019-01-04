@@ -79,7 +79,11 @@ public class PagamentoController {
         configMap.put("mode", "sandbox");
         IPNMessage ipnListener = new IPNMessage(req, configMap);
         ipnListener.validate();
-        System.out.println(ipnListener.getTransactionType());
+        
+        Map<String, String> m = ipnListener.getIpnMap();
+        System.out.println(m);
+        
+        
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.TEXT_HTML);
         return new ResponseEntity<>("", httpHeaders, HttpStatus.OK);
