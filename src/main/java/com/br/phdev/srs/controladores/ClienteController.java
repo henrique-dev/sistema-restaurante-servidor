@@ -25,6 +25,7 @@ import com.br.phdev.srs.models.ItemPedido;
 import com.br.phdev.srs.models.ItemPedidoFacil;
 import com.br.phdev.srs.models.Pedido;
 import com.br.phdev.srs.models.Pedido2;
+import com.br.phdev.srs.models.TokenAlerta;
 import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.utils.Mensagem;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
@@ -181,6 +182,27 @@ public class ClienteController {
         } catch (DAOException e) {
             e.printStackTrace();
             mensagem.setCodigo(200);
+            mensagem.setDescricao(e.getMessage());
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+    
+    @PostMapping("cliente/cadastrar-token-alerta")
+    public ResponseEntity<Mensagem> cadastrarTokenAlerta(@RequestBody TokenAlerta token, HttpSession sessao) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            Cliente cliente = (Cliente)sessao.getAttribute("cliente");
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            clienteDAO.cadastrarTokenAlerta(cliente, chave);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mensagem.setDescricao(e.getMessage());
+            mensagem.setCodigo(200);
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(e.codigo);
             mensagem.setDescricao(e.getMessage());
         }
         HttpHeaders httpHeaders = new HttpHeaders();
