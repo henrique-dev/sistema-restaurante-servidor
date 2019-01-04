@@ -26,10 +26,7 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
             Enumeration<String> headersNames = request.getHeaderNames();
             while (headersNames.hasMoreElements()) {
                 String headerName = headersNames.nextElement();
-                Enumeration<String> values = request.getHeaders(headerName);
-                while (values.hasMoreElements()) {                    
-                    request.getHeader(values.nextElement());
-                }
+                System.out.println(request.getHeader(headerName));
             }
         }
         //System.out.println(uri);
