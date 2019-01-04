@@ -31,7 +31,7 @@ public class IPNMessage {
 	private Map<String, String> ipnMap = new HashMap<String, String>();
 	private Map<String, String> configurationMap = null;
 	private HttpConfiguration httpConfiguration = null;
-	private String ipnEndpoint = Constants.EMPTY_STRING;
+	private String ipnEndpoint = "https://ipnpb.sandbox.paypal.com/cgi-bin/webscr";
 	private boolean isIpnVerified = false;
 	private StringBuffer payload;
 
