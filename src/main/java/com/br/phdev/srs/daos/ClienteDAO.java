@@ -522,7 +522,7 @@ public class ClienteDAO extends BasicDAO {
             if (rs.next()) {
                 ObjectMapper mapeador = new ObjectMapper();
                 itemPedidos = mapeador.readValue(rs.getString("itens"), 
-                        new TypeReference<List<ItemPedido>>(){});
+                        new TypeReference<List<ItemPedidoFacil>>(){});
             }
             if (!itemPedidos.isEmpty()) {
                 itens = new ArrayList<>();                
