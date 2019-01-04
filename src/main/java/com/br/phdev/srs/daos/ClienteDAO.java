@@ -513,8 +513,8 @@ public class ClienteDAO extends BasicDAO {
         return confirmaPedido;
     }
     
-    public List<ItemPedido> possuiPrePredido(Cliente cliente) throws DAOException {
-        List<ItemPedido> itemPedidos = null;
+    public List<ItemPedidoFacil> possuiPrePredido(Cliente cliente) throws DAOException {
+        List<ItemPedidoFacil> itemPedidos = null;
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL existe_pre_pedido(?)")) {
             stmt.setLong(1, cliente.getId());
             ResultSet rs = stmt.executeQuery();
@@ -522,7 +522,7 @@ public class ClienteDAO extends BasicDAO {
             if (rs.next()) {
                 ObjectMapper mapeador = new ObjectMapper();
                 itemPedidos = mapeador.readValue(rs.getString("itens"), 
-                        new TypeReference<List<ItemPedido>>(){});                
+                        new TypeReference<List<ItemPedido>>(){});
             }
         } catch (SQLException | IOException e) {
             throw new DAOException(e, 200);

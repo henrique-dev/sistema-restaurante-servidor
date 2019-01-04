@@ -22,6 +22,7 @@ import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.ListaItens;
 import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.ItemPedido;
+import com.br.phdev.srs.models.ItemPedidoFacil;
 import com.br.phdev.srs.models.Pedido;
 import com.br.phdev.srs.models.Pedido2;
 import com.br.phdev.srs.models.Usuario;
@@ -273,23 +274,20 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/existe-prepedido")
-    public ResponseEntity<ConfirmaPedido> existePrepedido(HttpSession sessao) {
-        ConfirmaPedido confirmaPedido = new ConfirmaPedido();
+    public ResponseEntity<List<ItemPedidoFacil>> existePrepedido(HttpSession sessao) {
+        List<ItemPedidoFacil> itens = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            List<ItemPedido> itemPedidos = clienteDAO.possuiPrePredido(cliente);
-            confirmaPedido.setItens(itemPedidos);
+            itens = clienteDAO.possuiPrePredido(cliente);            
         } catch (DAOException e) {
-            e.printStackTrace();
-            confirmaPedido = null;
+            e.printStackTrace();            
         } catch (SQLException e) {
-            e.printStackTrace();
-            confirmaPedido = null;
+            e.printStackTrace();            
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(confirmaPedido, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(itens, httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping(value = "cliente/remover-prepedido")
