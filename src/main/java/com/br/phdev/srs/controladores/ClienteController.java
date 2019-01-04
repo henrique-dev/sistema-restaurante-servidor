@@ -195,7 +195,7 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             Cliente cliente = (Cliente)sessao.getAttribute("cliente");
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.cadastrarTokenAlerta(cliente, chave);
+            clienteDAO.cadastrarTokenAlerta(cliente, token.getToken());
         } catch (SQLException e) {
             e.printStackTrace();
             mensagem.setDescricao(e.getMessage());
