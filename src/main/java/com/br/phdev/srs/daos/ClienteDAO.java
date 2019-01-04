@@ -525,6 +525,7 @@ public class ClienteDAO extends BasicDAO {
                         new TypeReference<List<ItemPedidoFacil>>(){});
             }
             if (!itemPedidos.isEmpty()) {
+                RepositorioProdutos.getInstancia().carregar(super.conexao);
                 itens = new ArrayList<>();                
                 for (ItemPedidoFacil ipf : itemPedidos) {
                     ItemPedido ip = new ItemPedido();
