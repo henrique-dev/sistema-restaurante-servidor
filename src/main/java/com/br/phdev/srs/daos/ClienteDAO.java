@@ -540,7 +540,8 @@ public class ClienteDAO extends BasicDAO {
                         complemento.setId(cf.getId());
                         complemento.setNome(cf.getNome());
                         complemento.setPreco(cf.getPreco());
-                        complementos.add(complemento);
+                        complemento.setCheck(true);
+                        complementos.add(complemento);                       
                     }
                     ip.setComplementos(complementos);
                     RepositorioProdutos.getInstancia().preencherItem(ip);

@@ -16,6 +16,7 @@ public class Complemento {
     private String nome;
     private double preco;
     private Foto foto;
+    private boolean check;
 
     public Complemento() {
     }        
@@ -58,6 +59,14 @@ public class Complemento {
     public void setFoto(Foto foto) {
         this.foto = foto;
     }      
+
+    public boolean isCheck() {
+        return check;
+    }
+
+    public void setCheck(boolean check) {
+        this.check = check;
+    }        
     
     @Override
     public boolean equals(Object obj) {
