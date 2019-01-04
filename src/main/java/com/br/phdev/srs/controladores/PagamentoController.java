@@ -10,12 +10,14 @@ import com.br.phdev.srs.daos.ClienteDAO;
 import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.PaymentException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
+import com.br.phdev.srs.models.Pedido2;
 import com.br.phdev.srs.teste.IPNMessage;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.paypal.api.payments.Payment;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -71,12 +73,16 @@ public class PagamentoController {
     }
     
     @RequestMapping("pagamentos/notificar2")
-    public void notificar2(HttpServletRequest req) {
+    public ResponseEntity<String> notificar2(HttpServletRequest req) {
         System.out.println("notificar2");
         Map<String,String> configMap = new HashMap<String,String>();        
         configMap.put("mode", "sandbox");
         IPNMessage ipnListener = new IPNMessage(req, configMap);
         ipnListener.validate();
+        System.out.println(ipnListener.getTransactionType());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.TEXT_HTML);
+        return new ResponseEntity<>("", httpHeaders, HttpStatus.OK);
     }
 
 }
