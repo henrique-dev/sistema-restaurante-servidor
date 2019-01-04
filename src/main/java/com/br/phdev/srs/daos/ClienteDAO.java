@@ -513,9 +513,9 @@ public class ClienteDAO extends BasicDAO {
         return confirmaPedido;
     }
     
-    public List<ItemPedidoFacil> possuiPrePredido(Cliente cliente) throws DAOException {
+    public List<ItemPedidoFacil> recuperarPrePredido(Cliente cliente) throws DAOException {
         List<ItemPedidoFacil> itemPedidos = null;
-        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL existe_pre_pedido(?)")) {
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL recuperar_pre_pedido(?)")) {
             stmt.setLong(1, cliente.getId());
             ResultSet rs = stmt.executeQuery();
             itemPedidos = new ArrayList<>();
@@ -528,6 +528,19 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException(e, 200);
         }
         return itemPedidos;
+    }
+    
+    public boolean possuiPrePredido(Cliente cliente) throws DAOException {        
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL existe_pre_pedido(?)")) {
+            stmt.setLong(1, cliente.getId());
+            ResultSet rs = stmt.executeQuery();            
+            if (rs.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
+        }
+        return false;
     }
     
     public void removerPrepedido(Cliente cliente) throws DAOException {

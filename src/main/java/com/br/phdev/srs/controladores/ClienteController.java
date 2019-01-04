@@ -274,16 +274,43 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/existe-prepedido")
-    public ResponseEntity<List<ItemPedidoFacil>> existePrepedido(HttpSession sessao) {
+    public ResponseEntity<Mensagem> existePrepedido(HttpSession sessao) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            if (clienteDAO.possuiPrePredido(cliente)) {
+                mensagem.setCodigo(100);
+                mensagem.setDescricao("Existe um pré pedido");
+            } else {
+                mensagem.setCodigo(101);
+                mensagem.setDescricao("Não existe um pré pedido");
+            }
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(200);
+            mensagem.setDescricao(e.getMessage());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(200);
+            mensagem.setDescricao(e.getMessage());
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "cliente/recuperar-prepedido")
+    public ResponseEntity<List<ItemPedidoFacil>> recuperarPrepedido(HttpSession sessao) {
         List<ItemPedidoFacil> itens = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            itens = clienteDAO.possuiPrePredido(cliente);            
+            itens = clienteDAO.recuperarPrePredido(cliente);
         } catch (DAOException e) {
-            e.printStackTrace();            
+            e.printStackTrace();
         } catch (SQLException e) {
-            e.printStackTrace();            
+            e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -346,8 +373,8 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             Cliente cliente = (Cliente) sessao.getAttribute("cliente");
-            pedido = new Pedido();              
-            pedido.setData(new Timestamp(Calendar.getInstance().getTimeInMillis()));            
+            pedido = new Pedido();
+            pedido.setData(new Timestamp(Calendar.getInstance().getTimeInMillis()));
             pedido.setEndereco(confirmaPedido.getEnderecos().get(0));
             pedido.setFormaPagamento(confirmaPedido.getFormaPagamentos().get(0));
             pedido.convertItemParaItemFacil((List<ItemPedido>) sessao.getAttribute("pre-pedido-itens"));
