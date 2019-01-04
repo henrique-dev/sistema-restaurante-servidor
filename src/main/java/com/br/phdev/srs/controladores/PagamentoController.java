@@ -92,6 +92,7 @@ public class PagamentoController {
             IPNMessage ipnListener = new IPNMessage(req, configMap);
             ipnListener.validate();
             Map<String, String> m = ipnListener.getIpnMap();
+            System.out.println(m);
             String idComprador = m.get("payer_id");
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             String sessaoUsuario = clienteDAO.recuperarSessaoClienteParaConfirmarCompra(idComprador);
