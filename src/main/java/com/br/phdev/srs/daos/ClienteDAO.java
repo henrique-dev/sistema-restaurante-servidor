@@ -227,11 +227,11 @@ public class ClienteDAO extends BasicDAO {
         return cliente;
     }
 
-    public void gerarSessao(Usuario usuario, String token) throws DAOException {
+    public void gerarSessao(Usuario usuario, String token1) throws DAOException {
         String sql = "CALL utils_validar_sessao(?,?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setLong(1, usuario.getIdUsuario());
-            stmt.setString(2, token);
+            stmt.setString(2, token1);            
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(e, 200);

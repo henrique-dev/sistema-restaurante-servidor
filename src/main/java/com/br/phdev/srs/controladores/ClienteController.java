@@ -28,7 +28,9 @@ import com.br.phdev.srs.models.Pedido2;
 import com.br.phdev.srs.models.TokenAlerta;
 import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.models.Mensagem;
+import com.br.phdev.srs.models.RecuperarSessao;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
+import com.br.phdev.srs.utils.ServicoAutenticacao;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.br.phdev.srs.utils.ServicoValidacaoCliente;
 import com.paypal.api.payments.Payment;
@@ -72,26 +74,14 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             Cliente cliente = clienteDAO.autenticar(usuario);
-            if (cliente != null) {
-                /*
-                String textoParaHash = usuario.getNomeUsuario() + usuario.getSenhaUsuario()
-                        + Calendar.getInstance().getTime().toString();
-                MessageDigest algoritmo = MessageDigest.getInstance("SHA-256");
-                byte textoDigerido[] = algoritmo.digest(textoParaHash.getBytes("UTF-8"));
-                StringBuilder tokenHex = new StringBuilder();
-                for (byte b : textoDigerido) {
-                    tokenHex.append(String.format("%02X", 0xFF & b));
-                }*/
+            if (cliente != null) {                                
                 clienteDAO.gerarSessao(usuario, sessao.getId());
                 mensagem.setCodigo(100);
-                //mensagem.setDescricao(tokenHex.toString());
-
                 sessao.setAttribute("usuario", usuario);
-                sessao.setAttribute("cliente", cliente);
-                //sessao.setAttribute("token", tokenHex.toString());
+                sessao.setAttribute("cliente", cliente);                
                 HttpHeaders httpHeaders = new HttpHeaders();
                 httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-                httpHeaders.add("stk", "JSESSIONID=" + sessao.getId());
+                httpHeaders.add("stk", "JSESSIONID=" + sessao.getId());                
                 return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
             } else {
                 mensagem.setCodigo(101);
@@ -109,7 +99,7 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
-    }        
+    }               
 
     @PostMapping("cliente/sair")
     public ResponseEntity<Mensagem> sair(HttpSession sessao, HttpServletRequest request) {
