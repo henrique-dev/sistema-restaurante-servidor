@@ -52,7 +52,7 @@ public class PagamentoController {
             servicoPagamento.executarPagamento(paymentId, payerId);
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             if (clienteDAO.atualizarTokenPrePedido(paymentId, payerId)) {
-                return "pagamento-efetuado";
+                return "processando-pagamento";
             }
         } catch (SQLException e) {
             e.printStackTrace();
