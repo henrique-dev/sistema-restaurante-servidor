@@ -257,15 +257,29 @@ public class ClienteDAO extends BasicDAO {
     public void cadastrarTokenAlerta(Cliente cliente, String token) throws DAOException {
         if (cliente == null) {
             throw new DAOException("Erro", 300);
-        }
-        String sql = "CALL utils_inserir_token_web_socket(?,?)";
-        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+        }        
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL utils_inserir_token_web_socket(?,?)")) {
             stmt.setLong(1, cliente.getId());
             stmt.setString(2, token);
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(e, 200);
         }
+    }
+    
+    public boolean verificarSessao(String sessaoId) throws DAOException {
+        if (sessaoId == null)
+            throw new DAOException("Erro", 300);
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL utils_verificar_sessao(?)")) {
+            stmt.setString(1, sessaoId);            
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
+        }
+        return false;
     }
 
     public void getCliente(Cliente cliente) throws DAOException {

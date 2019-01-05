@@ -7,7 +7,11 @@ import com.br.phdev.srs.utils.ServicoAutenticacao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Locale;
 import java.util.Scanner;
+import java.util.TimeZone;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -24,8 +28,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class Teste {    
 
     public static void main(String args[]) {
-        ServicoAutenticacao servicoAutenticacao = new ServicoAutenticacao();
-        System.out.println(servicoAutenticacao.gerarToken("96991100443+paulinhodorl11"));
+        System.out.println(new Timestamp(Calendar.getInstance(Locale.GERMAN).getTimeInMillis()));        
     }
 
 }

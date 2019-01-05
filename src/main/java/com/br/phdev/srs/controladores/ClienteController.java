@@ -22,27 +22,21 @@ import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.ListaItens;
 import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.ItemPedido;
-import com.br.phdev.srs.models.ItemPedidoFacil;
 import com.br.phdev.srs.models.Pedido;
 import com.br.phdev.srs.models.Pedido2;
 import com.br.phdev.srs.models.TokenAlerta;
 import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.models.Mensagem;
-import com.br.phdev.srs.models.RecuperarSessao;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
-import com.br.phdev.srs.utils.ServicoAutenticacao;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.br.phdev.srs.utils.ServicoValidacaoCliente;
 import com.paypal.api.payments.Payment;
 import com.twilio.exception.ApiException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Calendar;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -74,14 +68,14 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             Cliente cliente = clienteDAO.autenticar(usuario);
-            if (cliente != null) {                                
+            if (cliente != null) {
                 clienteDAO.gerarSessao(usuario, sessao.getId());
                 mensagem.setCodigo(100);
                 sessao.setAttribute("usuario", usuario);
-                sessao.setAttribute("cliente", cliente);                
+                sessao.setAttribute("cliente", cliente);
                 HttpHeaders httpHeaders = new HttpHeaders();
                 httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-                httpHeaders.add("stk", "JSESSIONID=" + sessao.getId());                
+                httpHeaders.add("stk", "JSESSIONID=" + sessao.getId());
                 return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
             } else {
                 mensagem.setCodigo(101);
@@ -99,7 +93,7 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
-    }               
+    }
 
     @PostMapping("cliente/sair")
     public ResponseEntity<Mensagem> sair(HttpSession sessao, HttpServletRequest request) {
@@ -187,7 +181,7 @@ public class ClienteController {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             clienteDAO.cadastrarTokenAlerta(cliente, token.getToken());
             mensagem.setCodigo(100);
-            mensagem.setDescricao("WTF");
+            mensagem.setDescricao("Token de alerta cadastrado");
         } catch (SQLException e) {
             e.printStackTrace();
             mensagem.setDescricao(e.getMessage());
@@ -224,6 +218,32 @@ public class ClienteController {
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
 
+    @PostMapping("cliente/verificar-sessao")
+    public ResponseEntity<Mensagem> verificarSessao(HttpSession sessao) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            if (clienteDAO.verificarSessao(sessao.getId())) {
+                mensagem.setDescricao("Pode autenticar");
+                mensagem.setCodigo(100);
+            } else {
+                mensagem.setDescricao("Sessão perdida, faça o login novamente");
+                mensagem.setCodigo(101);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mensagem.setDescricao(e.getMessage());
+            mensagem.setCodigo(200);
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(e.codigo);
+            mensagem.setDescricao(e.getMessage());
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+
     @RequestMapping("cliente/sem-autorizacao")
     public ResponseEntity<Mensagem> semAutorizacao() {
         Mensagem mensagem = new Mensagem();
@@ -236,10 +256,16 @@ public class ClienteController {
 
     @PostMapping("cliente/meu-perfil")
     public ResponseEntity<Cliente> meuPerfil(HttpSession sessao) {
-        Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+        HttpStatus httpStatus = HttpStatus.OK;
+        Cliente cliente = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.getCliente(cliente);
+            if (validarSessao(clienteDAO, sessao)) {
+                cliente = (Cliente) sessao.getAttribute("cliente");
+                clienteDAO.getCliente(cliente);
+            } else {
+                httpStatus = HttpStatus.UNAUTHORIZED;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             cliente = null;
@@ -249,17 +275,22 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(cliente, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(cliente, httpHeaders, httpStatus);
     }
 
     @PostMapping(value = "cliente/listar-itens")
-    public ResponseEntity<ListaItens> getPratos() {
+    public ResponseEntity<ListaItens> getPratos(HttpSession sessao) {
+        HttpStatus httpStatus = HttpStatus.OK;
         ListaItens listaItens = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            listaItens = clienteDAO.getItens();
-            if (listaItens != null) {
-                listaItens.setFrete(RepositorioProdutos.getInstancia().frete);
+            if (validarSessao(clienteDAO, sessao)) {
+                listaItens = clienteDAO.getItens();
+                if (listaItens != null) {
+                    listaItens.setFrete(RepositorioProdutos.getInstancia().frete);
+                }
+            } else {
+                httpStatus = HttpStatus.UNAUTHORIZED;
             }
         } catch (DAOException e) {
             e.printStackTrace();
@@ -268,7 +299,7 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(listaItens, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(listaItens, httpHeaders, httpStatus);
     }
 
     @PostMapping(value = "cliente/info-item")
@@ -291,15 +322,20 @@ public class ClienteController {
     @PostMapping(value = "cliente/existe-prepedido")
     public ResponseEntity<Mensagem> existePrepedido(HttpSession sessao) {
         Mensagem mensagem = new Mensagem();
+        HttpStatus httpStatus = HttpStatus.OK;
         try (Connection conexao = new FabricaConexao().conectar()) {
-            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (clienteDAO.possuiPrePredido(cliente)) {
-                mensagem.setCodigo(100);
-                mensagem.setDescricao("Existe um pré pedido");
+            if (validarSessao(clienteDAO, sessao)) {
+                Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+                if (clienteDAO.possuiPrePredido(cliente)) {
+                    mensagem.setCodigo(100);
+                    mensagem.setDescricao("Existe um pré pedido");
+                } else {
+                    mensagem.setCodigo(101);
+                    mensagem.setDescricao("Não existe um pré pedido");
+                }
             } else {
-                mensagem.setCodigo(101);
-                mensagem.setDescricao("Não existe um pré pedido");
+                httpStatus = HttpStatus.UNAUTHORIZED;
             }
         } catch (DAOException e) {
             e.printStackTrace();
@@ -312,16 +348,21 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(mensagem, httpHeaders, httpStatus);
     }
 
     @PostMapping(value = "cliente/recuperar-prepedido")
     public ResponseEntity<List<ItemPedido>> recuperarPrepedido(HttpSession sessao) {
+        HttpStatus httpStatus = HttpStatus.OK;
         List<ItemPedido> itens = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
-            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            itens = clienteDAO.recuperarPrePredido(cliente);
+            if (validarSessao(clienteDAO, sessao)) {
+                Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+                itens = clienteDAO.recuperarPrePredido(cliente);
+            } else {
+                httpStatus = HttpStatus.UNAUTHORIZED;
+            }
         } catch (DAOException e) {
             e.printStackTrace();
         } catch (SQLException e) {
@@ -329,19 +370,24 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(itens, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(itens, httpHeaders, httpStatus);
     }
 
     @PostMapping(value = "cliente/remover-prepedido")
     public ResponseEntity<Mensagem> removerPrepedido(HttpSession sessao) {
+        HttpStatus httpStatus = HttpStatus.OK;
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
-            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.removerPrepedido(cliente);
-            sessao.removeAttribute("pre-pedido-itens");
-            sessao.removeAttribute("pre-pedido-preco");
-            mensagem.setCodigo(100);
+            if (validarSessao(clienteDAO, sessao)) {
+                Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+                clienteDAO.removerPrepedido(cliente);
+                sessao.removeAttribute("pre-pedido-itens");
+                sessao.removeAttribute("pre-pedido-preco");
+                mensagem.setCodigo(100);
+            } else {
+                httpStatus = HttpStatus.UNAUTHORIZED;
+            }
         } catch (DAOException e) {
             mensagem.setCodigo(101);
             mensagem.setDescricao(e.getMessage());
@@ -353,22 +399,27 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(mensagem, httpHeaders, httpStatus);
     }
 
     @PostMapping(value = "cliente/pre-confirmar-pedido")
     public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
+        HttpStatus httpStatus = HttpStatus.OK;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
-            clienteDAO.inserirPrecos(confirmaPedido);
-            List<Endereco> enderecos = clienteDAO.getEnderecos(cliente);
-            List<FormaPagamento> formaPagamentos = clienteDAO.getFormasPagamento(cliente);
-            confirmaPedido.setFormaPagamentos(formaPagamentos);
-            confirmaPedido.setEnderecos(enderecos);
-            confirmaPedido.calcularPrecoTotal(RepositorioProdutos.getInstancia().frete);
-            sessao.setAttribute("pre-pedido-itens", confirmaPedido.getItens());
-            sessao.setAttribute("pre-pedido-preco", confirmaPedido.getPrecoTotal());
+            if (validarSessao(clienteDAO, sessao)) {
+                Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+                clienteDAO.inserirPrecos(confirmaPedido);
+                List<Endereco> enderecos = clienteDAO.getEnderecos(cliente);
+                List<FormaPagamento> formaPagamentos = clienteDAO.getFormasPagamento(cliente);
+                confirmaPedido.setFormaPagamentos(formaPagamentos);
+                confirmaPedido.setEnderecos(enderecos);
+                confirmaPedido.calcularPrecoTotal(RepositorioProdutos.getInstancia().frete);
+                sessao.setAttribute("pre-pedido-itens", confirmaPedido.getItens());
+                sessao.setAttribute("pre-pedido-preco", confirmaPedido.getPrecoTotal());
+            } else {
+                httpStatus = HttpStatus.UNAUTHORIZED;
+            }
         } catch (DAOException e) {
             e.printStackTrace();
             confirmaPedido = null;
@@ -378,42 +429,45 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(confirmaPedido, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(confirmaPedido, httpHeaders, httpStatus);
     }
 
     @PostMapping("cliente/confirmar-pedido")
     public ResponseEntity<ConfirmacaoPedido> confirmarPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
+        HttpStatus httpStatus = HttpStatus.OK;
         ConfirmacaoPedido confirmacaoPedido = new ConfirmacaoPedido();
         Pedido pedido = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
-            pedido = new Pedido();
-            pedido.setData(new Timestamp(Calendar.getInstance().getTimeInMillis()));
-            System.out.println(pedido.getData());
-            pedido.setEndereco(confirmaPedido.getEnderecos().get(0));
-            pedido.setFormaPagamento(confirmaPedido.getFormaPagamentos().get(0));
-            pedido.convertItemParaItemFacil((List<ItemPedido>) sessao.getAttribute("pre-pedido-itens"));
-            pedido.setPrecoTotal((Double) sessao.getAttribute("pre-pedido-preco"));
-            switch ((int) confirmaPedido.getFormaPagamentos().get(0).getId()) {
-                case 0:
-                    clienteDAO.inserirPedido(pedido, cliente);
-                    confirmacaoPedido.setStatus(0);
-                    break;
-                case 1:
-                    if (!clienteDAO.possuiPrePredido(cliente)) {
-                        ServicoPagamento servicoPagamento = new ServicoPagamento();
-                        Payment pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
-                        clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());
-                        confirmacaoPedido.setStatus(1);
-                        confirmacaoPedido.setLink(pagamentoCriado.getLinks().get(1).getHref());
-                    } else {
-                        confirmacaoPedido.setStatus(-2);
-                    }
-                    break;
-                default:
-                    confirmacaoPedido.setStatus(-1);
-                    break;
+            if (validarSessao(clienteDAO, sessao)) {
+                Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+                pedido = new Pedido();
+                pedido.setEndereco(confirmaPedido.getEnderecos().get(0));
+                pedido.setFormaPagamento(confirmaPedido.getFormaPagamentos().get(0));
+                pedido.convertItemParaItemFacil((List<ItemPedido>) sessao.getAttribute("pre-pedido-itens"));
+                pedido.setPrecoTotal((Double) sessao.getAttribute("pre-pedido-preco"));
+                switch ((int) confirmaPedido.getFormaPagamentos().get(0).getId()) {
+                    case 0:
+                        clienteDAO.inserirPedido(pedido, cliente);
+                        confirmacaoPedido.setStatus(0);
+                        break;
+                    case 1:
+                        if (!clienteDAO.possuiPrePredido(cliente)) {
+                            ServicoPagamento servicoPagamento = new ServicoPagamento();
+                            Payment pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
+                            clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());
+                            confirmacaoPedido.setStatus(1);
+                            confirmacaoPedido.setLink(pagamentoCriado.getLinks().get(1).getHref());
+                        } else {
+                            confirmacaoPedido.setStatus(-2);
+                        }
+                        break;
+                    default:
+                        confirmacaoPedido.setStatus(-1);
+                        break;
+                }
+            } else {
+                httpStatus = HttpStatus.UNAUTHORIZED;
             }
         } catch (DAOException e) {
             e.printStackTrace();
@@ -424,16 +478,21 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(confirmacaoPedido, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(confirmacaoPedido, httpHeaders, httpStatus);
     }
 
     @PostMapping("cliente/listar-pedidos")
     public ResponseEntity<List<Pedido2>> listarPedidos(HttpSession sessao) {
+        HttpStatus httpStatus = HttpStatus.OK;
         List<Pedido2> pedidos = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
-            pedidos = clienteDAO.getPedidos(cliente);
+            if (validarSessao(clienteDAO, sessao)) {
+                Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+                pedidos = clienteDAO.getPedidos(cliente);
+            } else {
+                httpStatus = HttpStatus.UNAUTHORIZED;
+            }
         } catch (DAOException e) {
             e.printStackTrace();
         } catch (SQLException e) {
@@ -441,9 +500,10 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(pedidos, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(pedidos, httpHeaders, httpStatus);
     }
 
+    /*
     @PostMapping("cliente/info-pedido")
     public ResponseEntity<Pedido> listarPedidos(@RequestBody Pedido pedido, HttpSession sessao) {
         try (Connection conexao = new FabricaConexao().conectar()) {
@@ -460,8 +520,7 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(pedido, httpHeaders, HttpStatus.OK);
-    }
-
+    }*/
     @PostMapping("cliente/info-entrega")
     public ResponseEntity<List<Pedido>> infoEntrega() {
         return null;
@@ -469,11 +528,16 @@ public class ClienteController {
 
     @PostMapping("cliente/listar-enderecos")
     public ResponseEntity<List<Endereco>> listarEnderecos(HttpSession sessao) {
+        HttpStatus httpStatus = HttpStatus.OK;
         List<Endereco> enderecos = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
-            enderecos = clienteDAO.getEnderecos(cliente);
+            if (validarSessao(clienteDAO, sessao)) {
+                Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+                enderecos = clienteDAO.getEnderecos(cliente);
+            } else {
+                httpStatus = HttpStatus.UNAUTHORIZED;
+            }
         } catch (DAOException e) {
             e.printStackTrace();
         } catch (SQLException e) {
@@ -481,18 +545,23 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(enderecos, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(enderecos, httpHeaders, httpStatus);
     }
 
     @PostMapping("cliente/cadastrar-endereco")
     public ResponseEntity<Mensagem> cadastrarEndereco(@RequestBody Endereco endereco, HttpSession sessao) {
+        HttpStatus httpStatus = HttpStatus.OK;
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
-            clienteDAO.cadastrarEndereco(cliente, endereco);
-            mensagem.setCodigo(100);
-            mensagem.setDescricao("Endereço cadastrado com sucesso");
+            if (validarSessao(clienteDAO, sessao)) {
+                Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+                clienteDAO.cadastrarEndereco(cliente, endereco);
+                mensagem.setCodigo(100);
+                mensagem.setDescricao("Endereço cadastrado com sucesso");
+            } else {
+                httpStatus = HttpStatus.UNAUTHORIZED;
+            }
         } catch (DAOException e) {
             mensagem.setCodigo(e.codigo);
             mensagem.setDescricao(e.getMessage());
@@ -503,18 +572,23 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(mensagem, httpHeaders, httpStatus);
     }
 
     @PostMapping("cliente/remover-endereco")
     public ResponseEntity<Mensagem> removerEndereco(@RequestBody Endereco endereco, HttpSession sessao) {
+        HttpStatus httpStatus = HttpStatus.OK;
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
-            clienteDAO.removerEndereco(cliente, endereco);
-            mensagem.setCodigo(100);
-            mensagem.setDescricao("Endereço removido com sucesso");
+            if (validarSessao(clienteDAO, sessao)) {
+                Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+                clienteDAO.removerEndereco(cliente, endereco);
+                mensagem.setCodigo(100);
+                mensagem.setDescricao("Endereço removido com sucesso");
+            } else {
+                httpStatus = HttpStatus.UNAUTHORIZED;
+            }
         } catch (DAOException e) {
             mensagem.setCodigo(e.codigo);
             mensagem.setDescricao(e.getMessage());
@@ -525,7 +599,7 @@ public class ClienteController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(mensagem, httpHeaders, httpStatus);
     }
 
     @PostMapping(value = "cliente/listar-formas-pagamento")
@@ -555,6 +629,14 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.IMAGE_PNG);
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
+    }
+
+    private boolean validarSessao(ClienteDAO dao, HttpSession sessao) throws DAOException {
+        if (!dao.verificarSessao(sessao.getId())) {
+            sessao.invalidate();
+            return false;
+        }
+        return true;
     }
 
 }
