@@ -1,9 +1,3 @@
-/*
- * Copyright (C) Paulo Henrique Goncalves Bacelar, Inc - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Paulo Henrique Gonacalves Bacelar <henrique.phgb@gmail.com>, Dezembro 2018
- */
 package com.br.phdev.srs.models;
 
 import com.paypal.base.ConfigManager;
@@ -19,10 +13,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 
-/**
- *
- * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
- */
 public class IPNMessage {
 
     private static final long serialVersionUID = -7187275404183441828L;

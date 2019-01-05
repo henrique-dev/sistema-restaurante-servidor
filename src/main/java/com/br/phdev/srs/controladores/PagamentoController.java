@@ -29,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -70,34 +71,39 @@ public class PagamentoController {
     }
 
     @RequestMapping("pagamentos/notificar")
-    public ResponseEntity<String> notificar(@RequestBody Payment pagamento) {
-        System.out.println("Notificação de pagamento");
-        if (pagamento != null) {
-            System.out.println(pagamento.toJSON());
-        }
-        return null;
+    public ResponseEntity<String> notificar(HttpServletRequest req) {
+        Map<String, String> configMap = new HashMap<String, String>();
+        configMap.put("mode", "sandbox");
+        IPNMessage ipnListener = new IPNMessage(req, configMap);
+        ipnListener.validate();
+        Map<String, String> m = ipnListener.getIpnMap();
+        System.out.println(m);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.TEXT_HTML);
+        return new ResponseEntity<>("", httpHeaders, HttpStatus.OK);
     }
 
-    @RequestMapping("pagamentos/notificar2")
+    @PostMapping("pagamentos/notificar2")
     public ResponseEntity<String> notificar2(HttpServletRequest req) {
         try (Connection conexao = new FabricaConexao().conectar()) {
             System.out.println("notificar2");
             Map<String, String> configMap = new HashMap<String, String>();
             configMap.put("mode", "sandbox");
             IPNMessage ipnListener = new IPNMessage(req, configMap);
-            ipnListener.validate();
-            Map<String, String> m = ipnListener.getIpnMap();
-            System.out.println(m);
-            String idComprador = m.get("payer_id");
-            ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            String sessaoUsuario = clienteDAO.recuperarSessaoClienteParaConfirmarCompra(idComprador);
-            Mensagem mensagem = new Mensagem();
-            mensagem.setCodigo(100);
-            mensagem.setDescricao("O pagamento foi confirmado");
-            ObjectMapper mapeador = new ObjectMapper();
-            String msg = mapeador.writeValueAsString(mensagem);
-            clienteDAO.inserirPedidoDePrePedido(idComprador);
-            this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);           
+            if (ipnListener.validate()) {
+                Map<String, String> m = ipnListener.getIpnMap();
+                System.out.println(m);
+                String idComprador = m.get("payer_id");
+                ClienteDAO clienteDAO = new ClienteDAO(conexao);
+                String sessaoUsuario = clienteDAO.recuperarSessaoClienteParaConfirmarCompra(idComprador);
+                Mensagem mensagem = new Mensagem();
+                mensagem.setCodigo(100);
+                mensagem.setDescricao("O pagamento foi confirmado");
+                ObjectMapper mapeador = new ObjectMapper();
+                String msg = mapeador.writeValueAsString(mensagem);
+                clienteDAO.inserirPedidoDePrePedido(idComprador);
+                this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);
+            }
         } catch (DAOException | SQLException | JsonProcessingException e) {
             e.printStackTrace();
         }
