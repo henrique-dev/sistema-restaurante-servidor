@@ -85,14 +85,13 @@ public class PagamentoController {
 
     @PostMapping("pagamentos/notificar2")
     public ResponseEntity<String> notificar2(HttpServletRequest req) {
-        try (Connection conexao = new FabricaConexao().conectar()) {
-            System.out.println("notificar2");
+        try (Connection conexao = new FabricaConexao().conectar()) {            
             Map<String, String> configMap = new HashMap<String, String>();
             configMap.put("mode", "sandbox");
             IPNMessage ipnListener = new IPNMessage(req, configMap);
             if (ipnListener.validate()) {
                 Map<String, String> m = ipnListener.getIpnMap();
-                System.out.println(m);
+                System.out.println(m.get("payment_status"));
                 String idComprador = m.get("payer_id");
                 ClienteDAO clienteDAO = new ClienteDAO(conexao);
                 String sessaoUsuario = clienteDAO.recuperarSessaoClienteParaConfirmarCompra(idComprador);
