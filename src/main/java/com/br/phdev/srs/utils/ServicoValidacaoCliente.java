@@ -24,17 +24,9 @@ public class ServicoValidacaoCliente {
             Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
             Message sms = Message.creator(new PhoneNumber("+55" + numero), new PhoneNumber("+12084178988"),
                     "Bem vindo ao MrFOOD. Insira o código " + token + " para ativar sua conta.").create();
-            //System.out.println(sms.getSid());
-
-            
-
         } catch (ApiException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) {
-        new ServicoValidacaoCliente().enviarMensagem("96992055072", "12345");
-    }
+    }    
 
 }

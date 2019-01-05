@@ -10,10 +10,8 @@ import com.br.phdev.srs.daos.ClienteDAO;
 import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.PaymentException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
-import com.br.phdev.srs.models.Pedido2;
-import com.br.phdev.srs.teste.IPNMessage;
-import com.br.phdev.srs.teste.WebSocketConfig;
-import com.br.phdev.srs.utils.Mensagem;
+import com.br.phdev.srs.models.IPNMessage;
+import com.br.phdev.srs.models.Mensagem;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,10 +19,8 @@ import com.paypal.api.payments.Payment;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,7 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -102,7 +97,7 @@ public class PagamentoController {
             ObjectMapper mapeador = new ObjectMapper();
             String msg = mapeador.writeValueAsString(mensagem);
             clienteDAO.inserirPedidoDePrePedido(idComprador);
-            this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);            
+            this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);           
         } catch (DAOException | SQLException | JsonProcessingException e) {
             e.printStackTrace();
         }

@@ -27,7 +27,7 @@ import com.br.phdev.srs.models.Pedido;
 import com.br.phdev.srs.models.Pedido2;
 import com.br.phdev.srs.models.TokenAlerta;
 import com.br.phdev.srs.models.Usuario;
-import com.br.phdev.srs.utils.Mensagem;
+import com.br.phdev.srs.models.Mensagem;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.br.phdev.srs.utils.ServicoValidacaoCliente;
@@ -188,12 +188,12 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
-    
+
     @PostMapping("cliente/cadastrar-token-alerta")
     public ResponseEntity<Mensagem> cadastrarTokenAlerta(@RequestBody TokenAlerta token, HttpSession sessao) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
-            Cliente cliente = (Cliente)sessao.getAttribute("cliente");
+            Cliente cliente = (Cliente) sessao.getAttribute("cliente");
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             clienteDAO.cadastrarTokenAlerta(cliente, token.getToken());
             mensagem.setCodigo(100);
@@ -410,11 +410,15 @@ public class ClienteController {
                     confirmacaoPedido.setStatus(0);
                     break;
                 case 1:
-                    ServicoPagamento servicoPagamento = new ServicoPagamento();
-                    Payment pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
-                    clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());
-                    confirmacaoPedido.setStatus(1);
-                    confirmacaoPedido.setLink(pagamentoCriado.getLinks().get(1).getHref());
+                    if (!clienteDAO.possuiPrePredido(cliente)) {
+                        ServicoPagamento servicoPagamento = new ServicoPagamento();
+                        Payment pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
+                        clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());
+                        confirmacaoPedido.setStatus(1);
+                        confirmacaoPedido.setLink(pagamentoCriado.getLinks().get(1).getHref());
+                    } else {
+                        confirmacaoPedido.setStatus(-2);
+                    }
                     break;
                 default:
                     confirmacaoPedido.setStatus(-1);

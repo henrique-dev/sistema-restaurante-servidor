@@ -51,6 +51,7 @@ public class RepositorioProdutos {
         item.setPreco(item2.getPreco());
         item.setNome(item2.getNome());
         item.setFotos(item2.getFotos());
+        item.setModificavel(item2.isModificavel());
     }
     
     public void preencherComplemento(Complemento complemento) {        
@@ -92,6 +93,7 @@ public class RepositorioProdutos {
                 item.setId(rs.getLong("id_item"));
                 item.setNome(rs.getString("nome"));
                 item.setPreco(rs.getDouble("preco"));
+                item.setModificavel(rs.getBoolean("modificavel"));
                 HashSet<Foto> fotos = new HashSet<>();
                 fotos.add(new Foto(rs.getLong("id_arquivo"), null, 0));
                 item.setFotos(fotos);

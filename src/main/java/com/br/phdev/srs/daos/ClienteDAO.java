@@ -28,7 +28,7 @@ import com.br.phdev.srs.models.Pedido2;
 import com.br.phdev.srs.models.Tipo;
 import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.models.ValidaCadastro;
-import com.br.phdev.srs.utils.Arquivo;
+import com.br.phdev.srs.models.Arquivo;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -556,8 +556,7 @@ public class ClienteDAO extends BasicDAO {
                         complemento.setPreco(cf.getPreco());
                         complemento.setCheck(true);
                         complementos.add(complemento);
-                    }
-                    ip.setModificavel(!complementos.isEmpty());
+                    }                    
                     ip.setComplementos(complementos);
                     RepositorioProdutos.getInstancia().preencherItem(ip);
                     itens.add(ip);
@@ -591,7 +590,7 @@ public class ClienteDAO extends BasicDAO {
         }
     }
 
-    synchronized public void inserirPrePedido(Pedido pedido, Cliente cliente, String token) throws DAOException {
+    synchronized public boolean inserirPrePedido(Pedido pedido, Cliente cliente, String token) throws DAOException {
         if (pedido == null || cliente == null) {
             throw new DAOIncorrectData(300);
         }
@@ -606,12 +605,17 @@ public class ClienteDAO extends BasicDAO {
             String json = objectMapper.writeValueAsString(pedido.getItens());
             stmt.setString(6, json);
             stmt.setString(7, token);
-            stmt.execute();
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                if (rs.getObject("erro") == null)
+                    return true;
+            }                
         } catch (SQLException e) {
             throw new DAOException(e, 200);
         } catch (JsonProcessingException e) {
             throw new DAOException(e, 307);
         }
+        return false;
     }
 
     synchronized public void inserirPedido(Pedido pedido, Cliente cliente) throws DAOException {

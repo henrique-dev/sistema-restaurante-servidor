@@ -80,18 +80,6 @@ public class ServicoPagamento {
             e.printStackTrace();
             throw new PaymentException(e);
         }
-    }
-    
-    public void aguadarConfirmacao() throws PayPalRESTException {
-        
-    }
-    
-    public static void main(String[] args) {
-        try {
-            new ServicoPagamento().aguadarConfirmacao();
-        } catch (PayPalRESTException e) {
-            e.printStackTrace();
-        }
-    }
+    }        
 
 }

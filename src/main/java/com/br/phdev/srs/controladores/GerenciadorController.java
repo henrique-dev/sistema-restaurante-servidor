@@ -15,7 +15,7 @@ import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.Genero;
 import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.Tipo;
-import com.br.phdev.srs.utils.Mensagem;
+import com.br.phdev.srs.models.Mensagem;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import java.sql.Connection;
 import java.sql.SQLException;
