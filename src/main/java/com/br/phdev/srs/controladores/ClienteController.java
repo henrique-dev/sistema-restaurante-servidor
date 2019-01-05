@@ -109,7 +109,7 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
-    }
+    }        
 
     @PostMapping("cliente/sair")
     public ResponseEntity<Mensagem> sair(HttpSession sessao, HttpServletRequest request) {

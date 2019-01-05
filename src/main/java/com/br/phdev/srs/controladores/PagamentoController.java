@@ -61,27 +61,18 @@ public class PagamentoController {
         } catch (DAOException e) {
             e.printStackTrace();
         }
-        return "pagamento-erro";
+        return "processando-pagamento";
     }
 
     @GetMapping("pagamentos/cancelar-pagamento")
-    public ResponseEntity<Object> cancelarPagamento(String paymentID, String payerID) {
-        System.out.println("CANCELAR PAGAMENTO");
-        return null;
-    }
-
-    @RequestMapping("pagamentos/notificar")
-    public ResponseEntity<String> notificar(HttpServletRequest req) {
-        Map<String, String> configMap = new HashMap<String, String>();
-        configMap.put("mode", "sandbox");
-        IPNMessage ipnListener = new IPNMessage(req, configMap);
-        ipnListener.validate();
-        Map<String, String> m = ipnListener.getIpnMap();
-        System.out.println(m);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.TEXT_HTML);
-        return new ResponseEntity<>("", httpHeaders, HttpStatus.OK);
-    }
+    public String cancelarPagamento(HttpServletRequest req) {
+        System.out.println("Pagamento cancelado");
+        String paymentId = req.getParameter("paymentId");
+        String payerId = req.getParameter("PayerID");
+        System.out.println("Id de pagamento: " + paymentId);        
+        System.out.println("Id do comprador: " + payerId);
+        return "processando-pagamento";
+    }    
 
     @PostMapping("pagamentos/notificar2")
     public ResponseEntity<String> notificar2(HttpServletRequest req) {
@@ -99,7 +90,7 @@ public class PagamentoController {
                 if (m.get("payment_status").equals("Completed")) {
                     mensagem.setCodigo(100);
                     mensagem.setDescricao("O pagamento foi confirmado");
-                    clienteDAO.inserirPedidoDePrePedido(idComprador);                    
+                    clienteDAO.inserirPedidoDePrePedido(idComprador);
                 } else {
                     mensagem.setCodigo(101);
                     mensagem.setDescricao("O pagamento foi recusado");
