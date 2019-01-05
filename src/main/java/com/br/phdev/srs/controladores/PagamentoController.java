@@ -85,22 +85,27 @@ public class PagamentoController {
 
     @PostMapping("pagamentos/notificar2")
     public ResponseEntity<String> notificar2(HttpServletRequest req) {
-        try (Connection conexao = new FabricaConexao().conectar()) {            
+        System.out.println("Chegou notificação de pagamento");
+        try (Connection conexao = new FabricaConexao().conectar()) {
             Map<String, String> configMap = new HashMap<String, String>();
             configMap.put("mode", "sandbox");
             IPNMessage ipnListener = new IPNMessage(req, configMap);
             if (ipnListener.validate()) {
                 Map<String, String> m = ipnListener.getIpnMap();
-                System.out.println(m.get("payment_status"));
                 String idComprador = m.get("payer_id");
+                Mensagem mensagem = new Mensagem();
                 ClienteDAO clienteDAO = new ClienteDAO(conexao);
                 String sessaoUsuario = clienteDAO.recuperarSessaoClienteParaConfirmarCompra(idComprador);
-                Mensagem mensagem = new Mensagem();
-                mensagem.setCodigo(100);
-                mensagem.setDescricao("O pagamento foi confirmado");
+                if (m.get("payment_status").equals("Completed")) {
+                    mensagem.setCodigo(100);
+                    mensagem.setDescricao("O pagamento foi confirmado");
+                    clienteDAO.inserirPedidoDePrePedido(idComprador);                    
+                } else {
+                    mensagem.setCodigo(101);
+                    mensagem.setDescricao("O pagamento foi recusado");
+                }
                 ObjectMapper mapeador = new ObjectMapper();
                 String msg = mapeador.writeValueAsString(mensagem);
-                clienteDAO.inserirPedidoDePrePedido(idComprador);
                 this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);
             }
         } catch (DAOException | SQLException | JsonProcessingException e) {
