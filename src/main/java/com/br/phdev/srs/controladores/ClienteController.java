@@ -632,10 +632,13 @@ public class ClienteController {
     }
 
     private boolean validarSessao(ClienteDAO dao, HttpSession sessao) throws DAOException {
+        System.out.println("Realizando validação de sessão: ");
         if (!dao.verificarSessao(sessao.getId())) {
+            System.out.print("A sessão não é válida");
             sessao.invalidate();
             return false;
         }
+        System.out.print("A sessão é válida");
         return true;
     }
 
