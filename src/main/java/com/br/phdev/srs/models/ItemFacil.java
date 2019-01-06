@@ -20,7 +20,7 @@ public class ItemFacil {
     private String nome;
     private double preco;
     private Set<ComplementoFacil> complementos;
-    private Map<Long, Variacao> variacoes;
+    private Map<Long, GrupoVariacao> variacoes;
 
     public ItemFacil() {
     }
@@ -69,12 +69,12 @@ public class ItemFacil {
         this.nome = nome;
     }        
 
-    public Map<Long, Variacao> getVariacoes() {
+    public Map<Long, GrupoVariacao> getVariacoes() {
         return variacoes;
     }
 
-    public void setVariacoes(Map<Long, Variacao> variacoes) {
+    public void setVariacoes(Map<Long, GrupoVariacao> variacoes) {
         this.variacoes = variacoes;
-    }       
-    
+    }
+            
 }

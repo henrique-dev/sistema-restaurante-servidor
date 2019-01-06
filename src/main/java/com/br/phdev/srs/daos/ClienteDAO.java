@@ -29,6 +29,7 @@ import com.br.phdev.srs.models.Tipo;
 import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.models.ValidaCadastro;
 import com.br.phdev.srs.models.Arquivo;
+import com.br.phdev.srs.models.GrupoVariacao;
 import com.br.phdev.srs.models.Variacao;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -393,7 +394,7 @@ public class ClienteDAO extends BasicDAO {
             Set<Tipo> tipos = new HashSet<>();
             Set<Foto> fotos = new HashSet<>();
             Set<Complemento> complementos = new HashSet<>();
-            Map<Long, Variacao> variacoes = new HashMap<>();
+            Map<Long, GrupoVariacao> variacoes = new HashMap<>();
             long itemAtual = -1;
             while (rs.next()) {
                 long idItemRecuperado = rs.getLong("id_item");
@@ -442,7 +443,18 @@ public class ClienteDAO extends BasicDAO {
                     ResultSet rs2 = stmt2.executeQuery();
                     variacoes = new HashMap<>();
                     while (rs2.next()) {
-                        variacoes.put(rs2.getLong("grupo"), new Variacao(rs2.getString("nome"), rs2.getDouble("preco"), rs2.getInt("max")));
+                        if (variacoes.containsKey(rs2.getLong("grupo"))) {
+                            GrupoVariacao gv = variacoes.get(rs2.getLong("grupo"));
+                            gv.getVariacoes().add(new Variacao(rs2.getString("nome"), rs2.getDouble("preco")));
+                            gv.setMax(rs2.getInt("max"));                            
+                        } else {
+                            GrupoVariacao gv = new GrupoVariacao();
+                            HashSet<Variacao> v = new HashSet<>();
+                            v.add(new Variacao(rs2.getString("nome"), rs2.getDouble("preco")));
+                            gv.setMax(rs2.getInt("max"));
+                            gv.setVariacoes(v);
+                            variacoes.put(rs2.getLong("grupo"), gv);
+                        }                        
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();

@@ -6,6 +6,7 @@
  */
 package com.br.phdev.srs.models;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,13 +24,13 @@ public class Item {
     private Set<Tipo> tipos;
     private boolean modificavel;
     private Set<Complemento> complementos;
-    private Map<Long, Variacao> variacoes;
+    private Map<Long, GrupoVariacao> variacoes;    
     private Set<Foto> fotos;
 
-    public Item() {
+    public Item() {        
     }        
 
-    public Item(long id, String nome, String descricao, double preco, Genero genero, Set<Tipo> tipos, boolean modificavel, Set<Complemento> complementos, Map<Long, Variacao> variacoes, Set<Foto> fotos) {
+    public Item(long id, String nome, String descricao, double preco, Genero genero, Set<Tipo> tipos, boolean modificavel, Set<Complemento> complementos, Map<Long, GrupoVariacao> variacoes, Set<Foto> fotos) {
         this.id = id;
         this.nome = nome;
         this.descricao = descricao;
@@ -114,11 +115,11 @@ public class Item {
         this.fotos = fotos;
     }            
 
-    public Map<Long, Variacao> getVariacoes() {
+    public Map<Long, GrupoVariacao> getVariacoes() {
         return variacoes;
     }
 
-    public void setVariacoes(Map<Long, Variacao> variacoes) {
+    public void setVariacoes(Map<Long, GrupoVariacao> variacoes) {
         this.variacoes = variacoes;
     }    
 
