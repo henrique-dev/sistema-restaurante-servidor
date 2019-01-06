@@ -5,7 +5,10 @@
  */
 package com.br.phdev.srs.interceptors;
 
+import com.br.phdev.srs.daos.ClienteDAO;
+import com.br.phdev.srs.jdbc.FabricaConexao;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.Enumeration;
 import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +27,9 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
         String uri = request.getRequestURI();        
         HttpSession sessao = request.getSession();
         System.out.println(sessao.getId() + " > " + uri);
-        if (request.getSession().getAttribute("usuario") != null) {
+        
+        /*
+        if (request.getSession().getAttribute("usuario") != null || uri.contains("imagens")) {
             return true;
         } else {
             if (uri.endsWith("cliente/autenticar") || uri.endsWith("cliente/sem-autorizacao") || uri.contains("cliente/teste")
@@ -38,8 +43,8 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
                 response.sendRedirect("sem-autorizacao");
                 return false;
             }
-        }
-        //return true;
+        } */
+        return true;
     }
 
 }
