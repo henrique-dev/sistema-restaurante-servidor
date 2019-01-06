@@ -27,6 +27,7 @@ public class HttpUtils {
                 if (headersValues.hasMoreElements())
                     System.out.print("; ");
             }
+            System.out.println("");
         }
     }
     
