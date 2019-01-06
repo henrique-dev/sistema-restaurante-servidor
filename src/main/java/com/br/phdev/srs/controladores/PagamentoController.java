@@ -12,6 +12,7 @@ import com.br.phdev.srs.exceptions.PaymentException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
 import com.br.phdev.srs.models.IPNMessage;
 import com.br.phdev.srs.models.Mensagem;
+import com.br.phdev.srs.utils.HttpUtils;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,7 +45,8 @@ public class PagamentoController {
     private SimpMessagingTemplate template;
 
     @GetMapping("pagamentos/executar-pagamento")
-    public String executarPagamento(HttpServletRequest req) {
+    public String executarPagamento(HttpServletRequest req) {        
+        new HttpUtils().showHeaders(req);
         try (Connection conexao = new FabricaConexao().conectar()) {
             String paymentId = req.getParameter("paymentId");
             String payerId = req.getParameter("PayerID");
@@ -66,6 +68,7 @@ public class PagamentoController {
 
     @GetMapping("pagamentos/cancelar-pagamento")
     public String cancelarPagamento(HttpServletRequest req) {
+        new HttpUtils().showHeaders(req);
         System.out.println("Pagamento cancelado");
         String paymentId = req.getParameter("paymentId");
         String payerId = req.getParameter("PayerID");
@@ -76,6 +79,7 @@ public class PagamentoController {
 
     @PostMapping("pagamentos/notificar2")
     public ResponseEntity<String> notificar2(HttpServletRequest req) {
+        new HttpUtils().showHeaders(req);
         System.out.println("Chegou notificação de pagamento");
         try (Connection conexao = new FabricaConexao().conectar()) {
             Map<String, String> configMap = new HashMap<String, String>();
