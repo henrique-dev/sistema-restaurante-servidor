@@ -27,11 +27,10 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
         String uri = request.getRequestURI();        
         HttpSession sessao = request.getSession();
         System.out.println(sessao.getId() + " > " + uri);
-        
-        /*
-        if (request.getSession().getAttribute("usuario") != null || uri.contains("imagens")) {
+                
+        if (request.getSession().getAttribute("usuario") != null) {
             return true;
-        } else {
+        } else {            
             if (uri.endsWith("cliente/autenticar") || uri.endsWith("cliente/sem-autorizacao") || uri.contains("cliente/teste")
                     || uri.contains("imagens") || uri.contains("validar-cadastro") || uri.endsWith("cliente/cadastrar")
                     || uri.endsWith("cliente/sair") || uri.endsWith("cliente/verificar-numero") || uri.endsWith("cliente/validar-numero")
@@ -43,8 +42,7 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
                 response.sendRedirect("sem-autorizacao");
                 return false;
             }
-        } */
-        return true;
-    }
+        }        
+    }        
 
 }
