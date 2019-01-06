@@ -442,7 +442,7 @@ public class ClienteDAO extends BasicDAO {
                     ResultSet rs2 = stmt2.executeQuery();
                     variacoes = new HashMap<>();
                     while (rs2.next()) {
-                        variacoes.put(rs.getLong("grupo"), new Variacao(rs2.getString("nome"), rs2.getDouble("preco")));
+                        variacoes.put(rs2.getLong("grupo"), new Variacao(rs2.getString("nome"), rs2.getDouble("preco"), rs2.getInt("max")));
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();

@@ -14,14 +14,16 @@ public class Variacao {
     
     private String nome;
     private double preco;
+    private int max;
 
     public Variacao() {
     }
 
-    public Variacao(String nome, double preco) {
+    public Variacao(String nome, double preco, int max) {
         this.nome = nome;
         this.preco = preco;
-    }        
+        this.max = max;
+    }    
 
     public String getNome() {
         return nome;
@@ -38,5 +40,13 @@ public class Variacao {
     public void setPreco(double preco) {
         this.preco = preco;
     }        
-    
+
+    public int getMax() {
+        return max;
+    }
+
+    public void setMax(int max) {
+        this.max = max;
+    }
+            
 }
