@@ -12,15 +12,17 @@ package com.br.phdev.srs.models;
  */
 public class Variacao {
     
+    private long id;
     private String nome;
     private double preco;
 
     public Variacao() {
     }
 
-    public Variacao(String nome, double preco) {
+    public Variacao(long id, String nome, double preco) {
+        this.id = id;
         this.nome = nome;
-        this.preco = preco;        
+        this.preco = preco;
     }    
 
     public String getNome() {
@@ -38,5 +40,13 @@ public class Variacao {
     public void setPreco(double preco) {
         this.preco = preco;
     }            
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }        
             
 }
