@@ -10,6 +10,7 @@ import java.util.Enumeration;
 import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 /**
@@ -21,6 +22,8 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String uri = request.getRequestURI();        
+        HttpSession sessao = request.getSession();
+        System.out.println(sessao.getId() + " > " + uri);
         if (request.getSession().getAttribute("usuario") != null) {
             return true;
         } else {
