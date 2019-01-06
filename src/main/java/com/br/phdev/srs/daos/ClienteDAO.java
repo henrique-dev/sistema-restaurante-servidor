@@ -274,7 +274,10 @@ public class ClienteDAO extends BasicDAO {
             stmt.setString(1, sessaoId);            
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return true;
+                if (rs.getObject("id") != null)
+                    return true;
+                else
+                    return false;
             }
         } catch (SQLException e) {
             throw new DAOException(e, 200);
