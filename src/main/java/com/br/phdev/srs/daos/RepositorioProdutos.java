@@ -93,6 +93,7 @@ public class RepositorioProdutos {
     }        
 
     private void carregarDados(Connection conexao) throws SQLException {
+        System.out.println("Atualizando dados dos produtos");
         this.itens.clear();
         this.complementos.clear();
         this.variacoes.clear();
