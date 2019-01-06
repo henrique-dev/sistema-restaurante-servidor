@@ -49,8 +49,7 @@ public class PagamentoController {
         System.out.println("");
         System.out.println("Executando pagamento");
         HttpUtils hu = new HttpUtils();
-        hu.showHeaders(req);
-        hu.showAttributes(req);
+        hu.showHeaders(req);        
         hu.showParams(req);
         try (Connection conexao = new FabricaConexao().conectar()) {
             String paymentId = req.getParameter("paymentId");
@@ -76,8 +75,7 @@ public class PagamentoController {
         System.out.println("");
         System.out.println("Cancelar pagamento");
         HttpUtils hu = new HttpUtils();
-        hu.showHeaders(req);
-        hu.showAttributes(req);
+        hu.showHeaders(req);        
         hu.showParams(req);
         System.out.println("Pagamento cancelado");
         String paymentId = req.getParameter("paymentId");
@@ -92,8 +90,7 @@ public class PagamentoController {
         System.out.println("");
         System.out.println("Notificação de pagamento");
         HttpUtils hu = new HttpUtils();
-        hu.showHeaders(req);
-        hu.showAttributes(req);
+        hu.showHeaders(req);        
         hu.showParams(req);
         try (Connection conexao = new FabricaConexao().conectar()) {
             Map<String, String> configMap = new HashMap<String, String>();
