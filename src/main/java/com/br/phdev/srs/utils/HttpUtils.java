@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 public class HttpUtils {
     
     public void showHeaders(HttpServletRequest req) {
+        System.out.println("Cabeçalhos");
         Enumeration<String> headers = req.getHeaderNames();
         while (headers.hasMoreElements()) {
             String headerName = headers.nextElement();
@@ -29,6 +30,33 @@ public class HttpUtils {
             }
             System.out.println("");
         }
+        System.out.println("");
+    }
+    
+    public void showAttributes(HttpServletRequest req) {
+        System.out.println("Atributos");
+        Enumeration<String> attributes = req.getAttributeNames();
+        while (attributes.hasMoreElements()) {
+            String attribute = attributes.nextElement();
+            System.out.println(attribute + ": " + req.getAttribute(attribute));
+        }
+        System.out.println("");
+    }
+    
+    public void showParams(HttpServletRequest req) {
+        System.out.println("Parametros");
+        Enumeration<String> parameters = req.getParameterNames();
+        while (parameters.hasMoreElements()) {
+            String parameter = parameters.nextElement();
+            System.out.print(parameter + ": ");
+            String[] values = req.getParameterValues(parameter);
+            for (int i=0; i<values.length; i++) {
+                System.out.println(values[i]);
+                if (i < values.length-1)
+                    System.out.println("; ");
+            }
+        }
+        System.out.println("");
     }
     
 }

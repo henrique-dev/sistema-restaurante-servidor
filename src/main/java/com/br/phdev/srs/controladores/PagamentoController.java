@@ -46,7 +46,12 @@ public class PagamentoController {
 
     @GetMapping("pagamentos/executar-pagamento")
     public String executarPagamento(HttpServletRequest req) {        
-        new HttpUtils().showHeaders(req);
+        System.out.println("");
+        System.out.println("Executando pagamento");
+        HttpUtils hu = new HttpUtils();
+        hu.showHeaders(req);
+        hu.showAttributes(req);
+        hu.showParams(req);
         try (Connection conexao = new FabricaConexao().conectar()) {
             String paymentId = req.getParameter("paymentId");
             String payerId = req.getParameter("PayerID");
@@ -68,7 +73,12 @@ public class PagamentoController {
 
     @GetMapping("pagamentos/cancelar-pagamento")
     public String cancelarPagamento(HttpServletRequest req) {
-        new HttpUtils().showHeaders(req);
+        System.out.println("");
+        System.out.println("Cancelar pagamento");
+        HttpUtils hu = new HttpUtils();
+        hu.showHeaders(req);
+        hu.showAttributes(req);
+        hu.showParams(req);
         System.out.println("Pagamento cancelado");
         String paymentId = req.getParameter("paymentId");
         String payerId = req.getParameter("PayerID");
@@ -79,8 +89,12 @@ public class PagamentoController {
 
     @PostMapping("pagamentos/notificar2")
     public ResponseEntity<String> notificar2(HttpServletRequest req) {
-        new HttpUtils().showHeaders(req);
-        System.out.println("Chegou notificação de pagamento");
+        System.out.println("");
+        System.out.println("Notificação de pagamento");
+        HttpUtils hu = new HttpUtils();
+        hu.showHeaders(req);
+        hu.showAttributes(req);
+        hu.showParams(req);
         try (Connection conexao = new FabricaConexao().conectar()) {
             Map<String, String> configMap = new HashMap<String, String>();
             configMap.put("mode", "sandbox");
