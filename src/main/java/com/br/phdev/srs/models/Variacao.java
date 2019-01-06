@@ -15,6 +15,8 @@ public class Variacao {
     private long id;
     private String nome;
     private double preco;
+    private long referenciaItem;
+    private int max;
 
     public Variacao() {
     }
@@ -47,6 +49,22 @@ public class Variacao {
 
     public void setId(long id) {
         this.id = id;
+    }        
+
+    public long getReferenciaItem() {
+        return referenciaItem;
+    }
+
+    public void setReferenciaItem(long referenciaItem) {
+        this.referenciaItem = referenciaItem;
+    }        
+
+    public int getMax() {
+        return max;
+    }
+
+    public void setMax(int max) {
+        this.max = max;
     }        
             
 }

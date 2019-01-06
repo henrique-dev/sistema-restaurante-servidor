@@ -564,6 +564,17 @@ public class ClienteDAO extends BasicDAO {
                     valorItem = valorItem.add(new BigDecimal(String.valueOf(c.getPreco())));
                 }
             }
+            if (ip.getVariacoes() != null) {
+                Map<Long, GrupoVariacao> variacoes = ip.getVariacoes();
+                for (GrupoVariacao gv : variacoes.values()) {
+                    if (gv.getVariacoes() != null) {
+                        for (Variacao v : gv.getVariacoes()) {
+                            repositorioPrecos.preecherVariacao(v);
+                            valorItem = valorItem.add(new BigDecimal(String.valueOf(v.getPreco())));
+                        }
+                    }
+                }
+            }
             repositorioPrecos.preencherItem(ip);
             valorItem = valorItem.add(new BigDecimal(String.valueOf(ip.getPreco())));
             valorTotal = valorTotal.add(valorItem.multiply(new BigDecimal(ip.getQuantidade())));

@@ -10,6 +10,7 @@ import com.br.phdev.srs.jdbc.FabricaConexao;
 import com.br.phdev.srs.models.Complemento;
 import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.Item;
+import com.br.phdev.srs.models.Variacao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,6 +30,7 @@ public class RepositorioProdutos {
 
     private final HashMap<Long, Item> itens;
     private final HashMap<Long, Complemento> complementos;
+    private final HashMap<Long, Variacao> variacoes;
     private Timestamp dataUltimoModificacao;
     
     public double frete;
@@ -36,6 +38,7 @@ public class RepositorioProdutos {
     private RepositorioProdutos() {        
         this.itens = new HashMap<>();
         this.complementos = new HashMap<>();
+        this.variacoes = new HashMap<>();
         this.frete = 3;
     }
 
@@ -58,6 +61,12 @@ public class RepositorioProdutos {
         Complemento complemento2 = this.complementos.get(complemento.getId());
         complemento.setPreco(complemento2.getPreco());
         complemento.setNome(complemento2.getNome());
+    }
+    
+    public void preecherVariacao(Variacao variacao) {
+        Variacao variacao2 = this.variacoes.get(variacao.getId());
+        variacao.setNome(variacao2.getNome());
+        variacao.setPreco(variacao2.getPreco());
     }
 
     public void carregar(Connection conexao) throws DAOException {
@@ -86,6 +95,7 @@ public class RepositorioProdutos {
     private void carregarDados(Connection conexao) throws SQLException {
         this.itens.clear();
         this.complementos.clear();
+        this.variacoes.clear();
         try (PreparedStatement stmt = conexao.prepareStatement("CALL get_lista_itens_basico")) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -108,6 +118,18 @@ public class RepositorioProdutos {
                 complemento.setNome(rs.getString("nome"));
                 complemento.setPreco(rs.getDouble("preco"));
                 this.complementos.put(rs.getLong("id_complemento"), complemento);
+            }
+        }
+        try (PreparedStatement stmt = conexao.prepareStatement("CALL get_lista_variacoes")) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Variacao variacao = new Variacao();
+                variacao.setId(rs.getLong("id_variacao"));
+                variacao.setNome(rs.getString("nome"));
+                variacao.setPreco(rs.getDouble("preco"));
+                variacao.setReferenciaItem(rs.getLong("id_item"));
+                variacao.setMax(rs.getInt("max"));
+                this.variacoes.put(rs.getLong("id_variacao"), variacao);
             }
         }
     }
