@@ -8,22 +8,15 @@ package com.br.phdev.srs.utils;
 
 import com.br.phdev.srs.exceptions.PaymentException;
 import com.paypal.api.payments.Amount;
-import com.paypal.api.payments.Event;
-import com.paypal.api.payments.EventType;
 import com.paypal.api.payments.Payer;
 import com.paypal.api.payments.Payment;
-import com.paypal.api.payments.PaymentCard;
 import com.paypal.api.payments.PaymentExecution;
 import com.paypal.api.payments.RedirectUrls;
 import com.paypal.api.payments.Transaction;
-import com.paypal.api.payments.Webhook;
-import com.paypal.base.Constants;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -51,7 +44,7 @@ public class ServicoPagamento {
         Payment payment = new Payment();
         payment.setIntent("sale");
         payment.setPayer(payer);
-        payment.setTransactions(transactions);
+        payment.setTransactions(transactions);                
 
         RedirectUrls redirectUrls = new RedirectUrls();
         redirectUrls.setCancelUrl("http://35.202.51.59/mrfood/pagamentos/cancelar-pagamento");
@@ -59,7 +52,7 @@ public class ServicoPagamento {
         payment.setRedirectUrls(redirectUrls);
 
         try {
-            APIContext apiContext = new APIContext(clientId, secret, "sandbox");            
+            APIContext apiContext = new APIContext(clientId, secret, "sandbox");                        
             Payment createdPayment = payment.create(apiContext);                        
             return createdPayment;
         } catch (PayPalRESTException e) {            

@@ -16,7 +16,6 @@ import com.br.phdev.srs.utils.HttpUtils;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.paypal.api.payments.Payment;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -31,8 +30,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  *

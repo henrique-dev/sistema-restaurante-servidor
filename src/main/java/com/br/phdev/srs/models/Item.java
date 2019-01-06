@@ -23,12 +23,13 @@ public class Item {
     private Set<Tipo> tipos;
     private boolean modificavel;
     private Set<Complemento> complementos;
+    private Map<Long, Variacao> variacoes;
     private Set<Foto> fotos;
 
     public Item() {
     }        
 
-    public Item(long id, String nome, String descricao, double preco, Genero genero, Set<Tipo> tipos, boolean modificavel, Set<Complemento> complementos, Set<Foto> fotos) {
+    public Item(long id, String nome, String descricao, double preco, Genero genero, Set<Tipo> tipos, boolean modificavel, Set<Complemento> complementos, Map<Long, Variacao> variacoes, Set<Foto> fotos) {
         this.id = id;
         this.nome = nome;
         this.descricao = descricao;
@@ -37,8 +38,9 @@ public class Item {
         this.tipos = tipos;
         this.modificavel = modificavel;
         this.complementos = complementos;
+        this.variacoes = variacoes;
         this.fotos = fotos;
-    }
+    }    
 
     public long getId() {
         return id;
@@ -111,6 +113,14 @@ public class Item {
     public void setFotos(Set<Foto> fotos) {
         this.fotos = fotos;
     }            
+
+    public Map<Long, Variacao> getVariacoes() {
+        return variacoes;
+    }
+
+    public void setVariacoes(Map<Long, Variacao> variacoes) {
+        this.variacoes = variacoes;
+    }    
 
     @Override
     public String toString() {

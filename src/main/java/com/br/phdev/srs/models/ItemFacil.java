@@ -7,6 +7,7 @@
 package com.br.phdev.srs.models;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -19,6 +20,7 @@ public class ItemFacil {
     private String nome;
     private double preco;
     private Set<ComplementoFacil> complementos;
+    private Map<Long, Variacao> variacoes;
 
     public ItemFacil() {
     }
@@ -27,7 +29,8 @@ public class ItemFacil {
         this.id = item.getId();
         this.nome = item.getNome();
         this.preco = item.getPreco();
-        this.complementos = new HashSet<>();
+        this.variacoes = item.getVariacoes();
+        this.complementos = new HashSet<>();        
         if (item.getComplementos() != null)
             for (Complemento c : item.getComplementos()) {
                 this.complementos.add(new ComplementoFacil(c.getId(), c.getPreco(), c.getNome()));
@@ -65,5 +68,13 @@ public class ItemFacil {
     public void setNome(String nome) {
         this.nome = nome;
     }        
+
+    public Map<Long, Variacao> getVariacoes() {
+        return variacoes;
+    }
+
+    public void setVariacoes(Map<Long, Variacao> variacoes) {
+        this.variacoes = variacoes;
+    }       
     
 }

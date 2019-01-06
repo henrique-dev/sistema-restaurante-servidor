@@ -29,6 +29,7 @@ import com.br.phdev.srs.models.Tipo;
 import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.models.ValidaCadastro;
 import com.br.phdev.srs.models.Arquivo;
+import com.br.phdev.srs.models.Variacao;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -231,7 +232,7 @@ public class ClienteDAO extends BasicDAO {
         String sql = "CALL utils_validar_sessao(?,?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setLong(1, usuario.getIdUsuario());
-            stmt.setString(2, token1);            
+            stmt.setString(2, token1);
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(e, 200);
@@ -253,11 +254,11 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException(e, 200);
         }
     }
-    
+
     public void cadastrarTokenAlerta(Cliente cliente, String token) throws DAOException {
         if (cliente == null) {
             throw new DAOException("Erro", 300);
-        }        
+        }
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL utils_inserir_token_web_socket(?,?)")) {
             stmt.setLong(1, cliente.getId());
             stmt.setString(2, token);
@@ -266,18 +267,20 @@ public class ClienteDAO extends BasicDAO {
             throw new DAOException(e, 200);
         }
     }
-    
+
     public boolean verificarSessao(String sessaoId) throws DAOException {
-        if (sessaoId == null)
+        if (sessaoId == null) {
             throw new DAOException("Erro", 300);
+        }
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL utils_verificar_sessao(?)")) {
-            stmt.setString(1, sessaoId);            
+            stmt.setString(1, sessaoId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                if (rs.getObject("id") != null)
+                if (rs.getObject("id") != null) {
                     return true;
-                else
+                } else {
                     return false;
+                }
             }
         } catch (SQLException e) {
             throw new DAOException(e, 200);
@@ -390,6 +393,7 @@ public class ClienteDAO extends BasicDAO {
             Set<Tipo> tipos = new HashSet<>();
             Set<Foto> fotos = new HashSet<>();
             Set<Complemento> complementos = new HashSet<>();
+            Map<Long, Variacao> variacoes = new HashMap<>();
             long itemAtual = -1;
             while (rs.next()) {
                 long idItemRecuperado = rs.getLong("id_item");
@@ -433,9 +437,20 @@ public class ClienteDAO extends BasicDAO {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
+                try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_lista_variacoes_item(?)")) {
+                    stmt2.setLong(1, item.getId());
+                    ResultSet rs2 = stmt2.executeQuery();
+                    variacoes = new HashMap<>();
+                    while (rs2.next()) {
+                        variacoes.put(rs.getLong("grupo"), new Variacao(rs2.getString("nome"), rs2.getDouble("preco")));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 item.setTipos(tipos);
                 item.setComplementos(complementos);
                 item.setFotos(fotos);
+                item.setVariacoes(variacoes);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -564,7 +579,7 @@ public class ClienteDAO extends BasicDAO {
                     ItemPedido ip = new ItemPedido();
                     ip.setId(ipf.getId());
                     ip.setQuantidade(ipf.getQuantidade());
-                    ip.setPreco(ipf.getPreco());                    
+                    ip.setPreco(ipf.getPreco());
                     Set<Complemento> complementos = new HashSet<>();
                     for (ComplementoFacil cf : ipf.getComplementos()) {
                         Complemento complemento = new Complemento();
@@ -573,7 +588,7 @@ public class ClienteDAO extends BasicDAO {
                         complemento.setPreco(cf.getPreco());
                         complemento.setCheck(true);
                         complementos.add(complemento);
-                    }                    
+                    }
                     ip.setComplementos(complementos);
                     RepositorioProdutos.getInstancia().preencherItem(ip);
                     itens.add(ip);
@@ -624,9 +639,10 @@ public class ClienteDAO extends BasicDAO {
             stmt.setString(7, token);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                if (rs.getObject("erro") == null)
+                if (rs.getObject("erro") == null) {
                     return true;
-            }                
+                }
+            }
         } catch (SQLException e) {
             throw new DAOException(e, 200);
         } catch (JsonProcessingException e) {
