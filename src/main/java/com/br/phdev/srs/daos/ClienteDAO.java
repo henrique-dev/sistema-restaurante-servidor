@@ -442,19 +442,21 @@ public class ClienteDAO extends BasicDAO {
                     stmt2.setLong(1, item.getId());
                     ResultSet rs2 = stmt2.executeQuery();
                     variacoes = new ArrayList<>();
-                    while (rs2.next()) {        
-                        System.out.println(rs2.getInt("ordem"));
+                    while (rs2.next()) {                                
                         if (variacoes.size() > rs2.getInt("grupo")) {
                             GrupoVariacao gv = variacoes.get(rs2.getInt("grupo"));
+                            System.out.println(rs2.getInt("id_variacao"));
                             gv.getVariacoes().add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco")));
                             gv.setMax(rs2.getInt("max"));
                         } else {
                             GrupoVariacao gv = new GrupoVariacao();
                             HashSet<Variacao> v = new HashSet<>();
+                            System.out.println(rs2.getInt("id_variacao"));
                             v.add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco")));
                             gv.setMax(rs2.getInt("max"));
                             gv.setVariacoes(v);
                             variacoes.add(gv);
+                            
                         }
                     }
                 } catch (SQLException e) {
