@@ -88,7 +88,8 @@ public class RepositorioProdutos {
                 throw new DAOIncorrectData(300);
             }
             for (int i = 0; i < gvListSistema.size(); i++) {
-                if (!(gvListCliente.size()-1 > i)) {
+                if (i > gvListCliente.size()-1) {
+                    System.out.println("HERRO AQUI");
                     throw new DAOIncorrectData(300);
                 }
                 GrupoVariacao gvCliente = gvListCliente.get(i);
