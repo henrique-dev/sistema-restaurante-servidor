@@ -28,9 +28,9 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
         String uri = request.getRequestURI();        
         HttpSession sessao = request.getSession();
         System.out.println(sessao.getId() + " > " + uri);
-        new HttpUtils().showHeaders(request);
         if (request.getSession().isNew())
             System.out.println("A sessão é nova");
+        new HttpUtils().showHeaders(request);        
                 
         if (request.getSession().getAttribute("usuario") != null) {
             return true;
