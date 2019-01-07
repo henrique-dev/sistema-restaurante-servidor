@@ -7,6 +7,7 @@
 package com.br.phdev.srs.models;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -15,12 +16,12 @@ import java.util.List;
 public class GrupoVariacao {
         
     private int max;
-    private List<Variacao> variacoes;        
+    private Set<Variacao> variacoes;        
 
     public GrupoVariacao() {
     }
 
-    public GrupoVariacao(int max, List<Variacao> variacoes) {
+    public GrupoVariacao(int max, Set<Variacao> variacoes) {
         this.max = max;
         this.variacoes = variacoes;
     }             
@@ -33,11 +34,11 @@ public class GrupoVariacao {
         this.max = max;
     }
 
-    public List<Variacao> getVariacoes() {
+    public Set<Variacao> getVariacoes() {
         return variacoes;
     }
 
-    public void setVariacoes(List<Variacao> variacoes) {
+    public void setVariacoes(Set<Variacao> variacoes) {
         this.variacoes = variacoes;
     }       
     

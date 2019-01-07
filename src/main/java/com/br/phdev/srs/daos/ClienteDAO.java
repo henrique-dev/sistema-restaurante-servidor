@@ -449,7 +449,7 @@ public class ClienteDAO extends BasicDAO {
                             gv.setMax(rs2.getInt("max"));
                         } else {
                             GrupoVariacao gv = new GrupoVariacao();
-                            List<Variacao> v = new ArrayList<>();                            
+                            Set<Variacao> v = new HashSet<>();                            
                             v.add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco")));
                             gv.setMax(rs2.getInt("max"));
                             gv.setVariacoes(v);
