@@ -446,7 +446,7 @@ public class ClienteDAO extends BasicDAO {
                         if (variacoes.containsKey(rs2.getLong("grupo"))) {
                             GrupoVariacao gv = variacoes.get(rs2.getLong("grupo"));
                             gv.getVariacoes().add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco")));
-                            gv.setMax(rs2.getInt("max"));                            
+                            gv.setMax(rs2.getInt("max"));
                         } else {
                             GrupoVariacao gv = new GrupoVariacao();
                             HashSet<Variacao> v = new HashSet<>();
@@ -454,7 +454,7 @@ public class ClienteDAO extends BasicDAO {
                             gv.setMax(rs2.getInt("max"));
                             gv.setVariacoes(v);
                             variacoes.put(rs2.getLong("grupo"), gv);
-                        }                        
+                        }
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -563,9 +563,10 @@ public class ClienteDAO extends BasicDAO {
                     repositorioPrecos.preencherComplemento(c);
                     valorItem = valorItem.add(new BigDecimal(String.valueOf(c.getPreco())));
                 }
-            }            
+            }
             if (ip.getVariacoes() != null) {
                 Map<Long, GrupoVariacao> variacoes = ip.getVariacoes();
+                repositorioPrecos.checarVariacoes(variacoes, ip);
                 for (GrupoVariacao gv : variacoes.values()) {
                     if (gv.getVariacoes() != null) {
                         for (Variacao v : gv.getVariacoes()) {

@@ -14,9 +14,7 @@ public class Variacao {
     
     private long id;
     private String nome;
-    private double preco;
-    private long referenciaItem;
-    private int max;
+    private double preco;    
 
     public Variacao() {
     }
@@ -51,20 +49,9 @@ public class Variacao {
         this.id = id;
     }        
 
-    public long getReferenciaItem() {
-        return referenciaItem;
-    }
-
-    public void setReferenciaItem(long referenciaItem) {
-        this.referenciaItem = referenciaItem;
-    }        
-
-    public int getMax() {
-        return max;
-    }
-
-    public void setMax(int max) {
-        this.max = max;
-    }        
+    @Override
+    public String toString() {
+        return "Variacao{" + "id=" + id + ", nome=" + nome + ", preco=" + preco + '}';
+    }      
             
 }
