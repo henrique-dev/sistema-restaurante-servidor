@@ -7,6 +7,7 @@ package com.br.phdev.srs.interceptors;
 
 import com.br.phdev.srs.daos.ClienteDAO;
 import com.br.phdev.srs.jdbc.FabricaConexao;
+import com.br.phdev.srs.utils.HttpUtils;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.Enumeration;
@@ -26,7 +27,8 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String uri = request.getRequestURI();        
         HttpSession sessao = request.getSession();
-        //System.out.println(sessao.getId() + " > " + uri);
+        System.out.println(sessao.getId() + " > " + uri);
+        new HttpUtils().showHeaders(request);
                 
         if (request.getSession().getAttribute("usuario") != null) {
             return true;
