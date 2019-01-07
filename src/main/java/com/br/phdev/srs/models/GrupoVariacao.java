@@ -6,7 +6,7 @@
  */
 package com.br.phdev.srs.models;
 
-import java.util.HashSet;
+import java.util.List;
 
 /**
  *
@@ -15,15 +15,15 @@ import java.util.HashSet;
 public class GrupoVariacao {
         
     private int max;
-    private HashSet<Variacao> variacoes;        
+    private List<Variacao> variacoes;        
 
     public GrupoVariacao() {
     }
 
-    public GrupoVariacao(int max, HashSet<Variacao> variacoes) {        
+    public GrupoVariacao(int max, List<Variacao> variacoes) {
         this.max = max;
         this.variacoes = variacoes;
-    }            
+    }             
 
     public int getMax() {
         return max;
@@ -33,12 +33,12 @@ public class GrupoVariacao {
         this.max = max;
     }
 
-    public HashSet<Variacao> getVariacoes() {
+    public List<Variacao> getVariacoes() {
         return variacoes;
     }
 
-    public void setVariacoes(HashSet<Variacao> variacoes) {
+    public void setVariacoes(List<Variacao> variacoes) {
         this.variacoes = variacoes;
-    }        
+    }       
     
 }
