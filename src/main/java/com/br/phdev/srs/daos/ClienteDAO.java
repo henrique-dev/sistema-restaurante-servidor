@@ -445,12 +445,12 @@ public class ClienteDAO extends BasicDAO {
                     while (rs2.next()) {                                
                         if (variacoes.size() > rs2.getInt("grupo")) {
                             GrupoVariacao gv = variacoes.get(rs2.getInt("grupo"));                            
-                            gv.getVariacoes().add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco"), rs.getInt("ordem")));
+                            gv.getVariacoes().add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco"), rs2.getInt("ordem")));
                             gv.setMax(rs2.getInt("max"));
                         } else {
                             GrupoVariacao gv = new GrupoVariacao();
                             Set<Variacao> v = new HashSet<>();                            
-                            v.add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco"), rs.getInt("ordem")));
+                            v.add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco"), rs2.getInt("ordem")));
                             gv.setMax(rs2.getInt("max"));
                             gv.setVariacoes(v);
                             variacoes.add(gv);
