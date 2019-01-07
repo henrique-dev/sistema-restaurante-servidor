@@ -71,12 +71,16 @@ public class RepositorioProdutos {
         variacao.setNome(variacao2.getNome());
         variacao.setPreco(variacao2.getPreco());
     }
-    
-    public void checarVariacoes(Map<Long, GrupoVariacao> gvCliente, Item itemReferencia) throws DAOIncorrectData {        
+
+    public void checarVariacoes(Map<Long, GrupoVariacao> gvCliente, Item itemReferencia) throws DAOIncorrectData {
         Map<Long, GrupoVariacao> gvSistema = this.itens.get(itemReferencia.getId()).getVariacoes();
-        for (GrupoVariacao gv : gvSistema.values()) {
-            for (Variacao v : gv.getVariacoes()) {
-                System.out.println(v);
+        if (gvSistema != null) {
+            for (GrupoVariacao gv : gvSistema.values()) {
+                if (gv.getVariacoes() != null) {
+                    for (Variacao v : gv.getVariacoes()) {
+                        System.out.println(v);
+                    }
+                }
             }
         }
     }
@@ -175,7 +179,7 @@ public class RepositorioProdutos {
                 }
             }
             if (idItemAtual != -1) {
-                this.itens.get(idItemAtual).setVariacoes(variacoesMap);                
+                this.itens.get(idItemAtual).setVariacoes(variacoesMap);
             }
         }
     }
