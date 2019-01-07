@@ -225,7 +225,7 @@ public class ClienteController {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (clienteDAO.verificarSessao(req.getHeader("ac-tkS"))) {
+            if (clienteDAO.verificarSessao(req.getHeader("ac-tk"))) {
                 mensagem.setDescricao("Pode autenticar");
                 mensagem.setCodigo(100);
             } else {
