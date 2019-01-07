@@ -221,11 +221,11 @@ public class ClienteController {
     }
 
     @PostMapping("cliente/verificar-sessao")
-    public ResponseEntity<Mensagem> verificarSessao(HttpSession sessao) {
+    public ResponseEntity<Mensagem> verificarSessao(HttpServletRequest req) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (clienteDAO.verificarSessao(sessao.getId())) {
+            if (clienteDAO.verificarSessao(req.getHeader("ac-tkS"))) {
                 mensagem.setDescricao("Pode autenticar");
                 mensagem.setCodigo(100);
             } else {
