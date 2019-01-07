@@ -179,8 +179,9 @@ public class RepositorioProdutos {
                     this.variacoes.put(rs.getLong("id_variacao"), variacao);
                 }
             }
-            if (idItemAtual != -1) {
+            if (idItemAtual != -1) {                                
                 this.itens.get(idItemAtual).setVariacoes(variacoesMap);
+                System.out.println("HERE: " + variacoesMap);
             }
         }
     }
