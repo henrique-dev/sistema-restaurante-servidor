@@ -27,10 +27,10 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String uri = request.getRequestURI();        
         HttpSession sessao = request.getSession();
-        System.out.println(sessao.getId() + " > " + uri);
+        /*System.out.println(sessao.getId() + " > " + uri);
         if (request.getSession().isNew())
             System.out.println("A sessão é nova");
-        new HttpUtils().showHeaders(request);        
+        new HttpUtils().showHeaders(request);        */
                 
         if (request.getSession().getAttribute("usuario") != null) {
             return true;
