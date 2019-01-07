@@ -72,7 +72,7 @@ public class RepositorioProdutos {
         variacao.setPreco(variacao2.getPreco());
     }
     
-    public void checarVariacoes(Map<Long, GrupoVariacao> gvCliente, Item itemReferencia) throws DAOIncorrectData {
+    public void checarVariacoes(Map<Long, GrupoVariacao> gvCliente, Item itemReferencia) throws DAOIncorrectData {        
         Map<Long, GrupoVariacao> gvSistema = this.itens.get(itemReferencia.getId()).getVariacoes();
         for (GrupoVariacao gv : gvSistema.values()) {
             for (Variacao v : gv.getVariacoes()) {

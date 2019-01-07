@@ -557,6 +557,7 @@ public class ClienteDAO extends BasicDAO {
         repositorioPrecos.carregar(super.conexao);
         BigDecimal valorTotal = new BigDecimal("0.00");
         for (ItemPedido ip : confirmaPedido.getItens()) {
+            repositorioPrecos.preencherItem(ip);
             BigDecimal valorItem = new BigDecimal("0.00");
             if (ip.getComplementos() != null) {
                 for (Complemento c : ip.getComplementos()) {
@@ -575,8 +576,7 @@ public class ClienteDAO extends BasicDAO {
                         }
                     }
                 }
-            }
-            repositorioPrecos.preencherItem(ip);
+            }            
             valorItem = valorItem.add(new BigDecimal(String.valueOf(ip.getPreco())));
             valorTotal = valorTotal.add(valorItem.multiply(new BigDecimal(ip.getQuantidade())));
         }
