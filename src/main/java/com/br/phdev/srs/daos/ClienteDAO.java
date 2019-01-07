@@ -443,7 +443,7 @@ public class ClienteDAO extends BasicDAO {
                     ResultSet rs2 = stmt2.executeQuery();
                     variacoes = new ArrayList<>();
                     while (rs2.next()) {        
-                        System.out.println(rs.getInt("ordem"));
+                        System.out.println(rs2.getInt("ordem"));
                         if (variacoes.size() > rs2.getInt("grupo")) {
                             GrupoVariacao gv = variacoes.get(rs2.getInt("grupo"));
                             gv.getVariacoes().add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco")));
