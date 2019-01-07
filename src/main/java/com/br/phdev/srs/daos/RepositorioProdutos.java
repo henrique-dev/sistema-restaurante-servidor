@@ -172,14 +172,14 @@ public class RepositorioProdutos {
                 }
                 if (variacoesMap.size() > rs.getInt("grupo")) {
                     GrupoVariacao gv = variacoesMap.get(rs.getInt("grupo"));
-                    Variacao variacao = new Variacao(rs.getLong("id_variacao"), rs.getString("nome"), rs.getDouble("preco"));
+                    Variacao variacao = new Variacao(rs.getLong("id_variacao"), rs.getString("nome"), rs.getDouble("preco"), rs.getInt("ordem"));
                     gv.getVariacoes().add(variacao);
                     gv.setMax(rs.getInt("max"));
                     this.variacoes.put(rs.getLong("id_variacao"), variacao);
                 } else {
                     GrupoVariacao gv = new GrupoVariacao();
                     Set<Variacao> v = new HashSet<>();
-                    Variacao variacao = new Variacao(rs.getLong("id_variacao"), rs.getString("nome"), rs.getDouble("preco"));
+                    Variacao variacao = new Variacao(rs.getLong("id_variacao"), rs.getString("nome"), rs.getDouble("preco"), rs.getInt("ordem"));
                     v.add(variacao);
                     gv.setMax(rs.getInt("max"));
                     gv.setVariacoes(v);
