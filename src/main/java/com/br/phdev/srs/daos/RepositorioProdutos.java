@@ -18,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -72,26 +73,26 @@ public class RepositorioProdutos {
         variacao.setPreco(variacao2.getPreco());
     }
 
-    /*
-    public void checarVariacoes(Map<Long, GrupoVariacao> gvMapCliente, Item itemReferencia) throws DAOIncorrectData {
-        Map<Long, GrupoVariacao> gvMapSistema = this.itens.get(itemReferencia.getId()).getVariacoes();
+    
+    public void checarVariacoes(List<GrupoVariacao> gvListCliente, Item itemReferencia) throws DAOIncorrectData {
+        List<GrupoVariacao> gvListSistema = this.itens.get(itemReferencia.getId()).getVariacoes();
 
-        if (gvMapSistema == null || gvMapSistema.isEmpty()) {
-            if (gvMapCliente != null) {
-                if (!gvMapCliente.isEmpty()) {
+        if (gvListSistema == null || gvListSistema.isEmpty()) {
+            if (gvListCliente != null) {
+                if (!gvListCliente.isEmpty()) {
                     throw new DAOIncorrectData(300);
                 }
             }
-        } else if (gvMapCliente != null && !gvMapCliente.isEmpty()) {
-            if (gvMapSistema.size() != gvMapCliente.size()) {
+        } else if (gvListCliente != null && !gvListCliente.isEmpty()) {
+            if (gvListSistema.size() != gvListCliente.size()) {
                 throw new DAOIncorrectData(300);
             }
-            for (long i = 0; i < gvMapSistema.size(); i++) {
-                if (!gvMapCliente.containsKey(i)) {
+            for (int i = 0; i < gvListSistema.size(); i++) {
+                if (!(gvListCliente.size()-1 > i)) {
                     throw new DAOIncorrectData(300);
                 }
-                GrupoVariacao gvCliente = gvMapCliente.get(i);
-                GrupoVariacao gvSistema = gvMapSistema.get(i);
+                GrupoVariacao gvCliente = gvListCliente.get(i);
+                GrupoVariacao gvSistema = gvListSistema.get(i);
                 if (gvSistema.getVariacoes() == null || gvCliente.getVariacoes() == null
                         || gvSistema.getVariacoes().isEmpty() || gvCliente.getVariacoes().isEmpty()) {
                     throw new DAOIncorrectData(300);
@@ -100,7 +101,7 @@ public class RepositorioProdutos {
                     throw new DAOIncorrectData(300);                
             }
         }        
-    }*/
+    }
 
     public void carregar(Connection conexao) throws DAOException {
         try (PreparedStatement stmt = conexao.prepareStatement("CALL get_data_ultima_alteracao_base(?)")) {
@@ -154,10 +155,10 @@ public class RepositorioProdutos {
                 this.complementos.put(rs.getLong("id_complemento"), complemento);
             }
         }
-        /*
+        
         try (PreparedStatement stmt = conexao.prepareStatement("CALL get_lista_variacoes")) {
             ResultSet rs = stmt.executeQuery();            
-            Map<Long, GrupoVariacao> variacoesMap = new HashMap<>();
+            List<GrupoVariacao> variacoesMap = new ArrayList<>();
             long idItemAtual = -1;
             while (rs.next()) {
                 long idItemLido = rs.getLong("id_item");
@@ -167,22 +168,22 @@ public class RepositorioProdutos {
                 if (idItemAtual != idItemLido) {
                     this.itens.get(idItemAtual).setVariacoes(variacoesMap);
                     System.out.println("HERE: " + variacoesMap);
-                    variacoesMap = new HashMap<>();
+                    variacoesMap = new ArrayList<>();
                 }
-                if (variacoesMap.containsKey(rs.getLong("grupo"))) {
-                    GrupoVariacao gv = variacoesMap.get(rs.getLong("grupo"));
+                if (variacoesMap.size() > rs.getInt("grupo")) {
+                    GrupoVariacao gv = variacoesMap.get(rs.getInt("grupo"));
                     Variacao variacao = new Variacao(rs.getLong("id_variacao"), rs.getString("nome"), rs.getDouble("preco"));
                     gv.getVariacoes().add(variacao);
                     gv.setMax(rs.getInt("max"));
                     this.variacoes.put(rs.getLong("id_variacao"), variacao);
                 } else {
                     GrupoVariacao gv = new GrupoVariacao();
-                    HashSet<Variacao> v = new HashSet<>();
+                    List<Variacao> v = new ArrayList<>();
                     Variacao variacao = new Variacao(rs.getLong("id_variacao"), rs.getString("nome"), rs.getDouble("preco"));
                     v.add(variacao);
                     gv.setMax(rs.getInt("max"));
                     gv.setVariacoes(v);
-                    variacoesMap.put(rs.getLong("grupo"), gv);
+                    variacoesMap.add(gv);
                     this.variacoes.put(rs.getLong("id_variacao"), variacao);
                 }
             }
@@ -190,7 +191,7 @@ public class RepositorioProdutos {
                 this.itens.get(idItemAtual).setVariacoes(variacoesMap);
                 System.out.println("HERE: " + variacoesMap);
             }
-        }*/
+        }
     }
 
 }
