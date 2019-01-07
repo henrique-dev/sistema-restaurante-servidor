@@ -76,7 +76,7 @@ public class RepositorioProdutos {
         Map<Long, GrupoVariacao> gvSistema = this.itens.get(itemReferencia.getId()).getVariacoes();
         System.out.println("id item: " + itemReferencia.getId());
         System.out.println("checarVariacoes: " + gvSistema);
-        if (gvSistema != null) {
+        /*if (gvSistema != null) {
             for (GrupoVariacao gv : gvSistema.values()) {
                 if (gv.getVariacoes() != null) {
                     for (Variacao v : gv.getVariacoes()) {
@@ -84,7 +84,7 @@ public class RepositorioProdutos {
                     }
                 }
             }
-        }
+        }*/
     }
 
     public void carregar(Connection conexao) throws DAOException {
