@@ -48,6 +48,20 @@ public class Variacao {
     public void setId(long id) {
         this.id = id;
     }        
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (!(obj instanceof Variacao)) return false;
+        if (obj == this) return true;
+        return this.id == ((Variacao)obj).id;
+    }
+    
+    
+    @Override
+    public int hashCode() {
+        return (int)this.id;
+    }
 
     @Override
     public String toString() {
