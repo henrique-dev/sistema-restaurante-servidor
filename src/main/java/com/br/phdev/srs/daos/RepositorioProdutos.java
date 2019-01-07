@@ -159,6 +159,7 @@ public class RepositorioProdutos {
                 }
                 if (idItemAtual != idItemLido) {
                     this.itens.get(idItemAtual).setVariacoes(variacoesMap);
+                    System.out.println("HERE: " + variacoesMap);
                     variacoesMap = new HashMap<>();
                 }
                 if (variacoesMap.containsKey(rs.getLong("grupo"))) {
