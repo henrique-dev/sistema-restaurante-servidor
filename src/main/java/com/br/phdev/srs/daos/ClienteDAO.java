@@ -453,7 +453,7 @@ public class ClienteDAO extends BasicDAO {
                             v.add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco")));
                             gv.setMax(rs2.getInt("max"));
                             gv.setVariacoes(v);
-                            variacoes.add(rs2.getInt("grupo"), gv);
+                            variacoes.add(gv);
                         }
                     }
                 } catch (SQLException e) {
