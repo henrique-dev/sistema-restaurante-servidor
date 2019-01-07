@@ -28,6 +28,7 @@ import com.br.phdev.srs.models.TokenAlerta;
 import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.models.Mensagem;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
+import com.br.phdev.srs.utils.ServicoAutenticacao;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.br.phdev.srs.utils.ServicoValidacaoCliente;
 import com.paypal.api.payments.Payment;
@@ -37,6 +38,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -75,7 +77,7 @@ public class ClienteController {
                 sessao.setAttribute("cliente", cliente);
                 HttpHeaders httpHeaders = new HttpHeaders();
                 httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-                httpHeaders.add("stk", "JSESSIONID=" + sessao.getId());
+                httpHeaders.add("stk", sessao.getId());
                 return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
             } else {
                 mensagem.setCodigo(101);
@@ -255,12 +257,12 @@ public class ClienteController {
     }
 
     @PostMapping("cliente/meu-perfil")
-    public ResponseEntity<Cliente> meuPerfil(HttpSession sessao) {
+    public ResponseEntity<Cliente> meuPerfil(HttpSession sessao, HttpServletRequest req) {
         HttpStatus httpStatus = HttpStatus.OK;
         Cliente cliente = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, sessao)) {
+            if (validarSessao(clienteDAO, req)) {
                 cliente = (Cliente) sessao.getAttribute("cliente");
                 clienteDAO.getCliente(cliente);
             } else {
@@ -279,12 +281,12 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/listar-itens")
-    public ResponseEntity<ListaItens> getPratos(HttpSession sessao) {
+    public ResponseEntity<ListaItens> getPratos(HttpSession sessao, HttpServletRequest req) {
         HttpStatus httpStatus = HttpStatus.OK;
         ListaItens listaItens = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, sessao)) {
+            if (validarSessao(clienteDAO, req)) {
                 listaItens = clienteDAO.getItens();
                 if (listaItens != null) {
                     listaItens.setFrete(RepositorioProdutos.getInstancia().frete);
@@ -320,12 +322,12 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/existe-prepedido")
-    public ResponseEntity<Mensagem> existePrepedido(HttpSession sessao) {
+    public ResponseEntity<Mensagem> existePrepedido(HttpSession sessao, HttpServletRequest req) {
         Mensagem mensagem = new Mensagem();
         HttpStatus httpStatus = HttpStatus.OK;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, sessao)) {
+            if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 if (clienteDAO.possuiPrePredido(cliente)) {
                     mensagem.setCodigo(100);
@@ -352,12 +354,12 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/recuperar-prepedido")
-    public ResponseEntity<List<ItemPedido>> recuperarPrepedido(HttpSession sessao) {
+    public ResponseEntity<List<ItemPedido>> recuperarPrepedido(HttpSession sessao, HttpServletRequest req) {
         HttpStatus httpStatus = HttpStatus.OK;
         List<ItemPedido> itens = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, sessao)) {
+            if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 itens = clienteDAO.recuperarPrePredido(cliente);
             } else {
@@ -374,12 +376,12 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/remover-prepedido")
-    public ResponseEntity<Mensagem> removerPrepedido(HttpSession sessao) {
+    public ResponseEntity<Mensagem> removerPrepedido(HttpSession sessao, HttpServletRequest req) {
         HttpStatus httpStatus = HttpStatus.OK;
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, sessao)) {
+            if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 clienteDAO.removerPrepedido(cliente);
                 sessao.removeAttribute("pre-pedido-itens");
@@ -403,11 +405,11 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/pre-confirmar-pedido")
-    public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
+    public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao, HttpServletRequest req) {
         HttpStatus httpStatus = HttpStatus.OK;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, sessao)) {
+            if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 clienteDAO.inserirPrecos(confirmaPedido);
                 List<Endereco> enderecos = clienteDAO.getEnderecos(cliente);
@@ -433,13 +435,13 @@ public class ClienteController {
     }
 
     @PostMapping("cliente/confirmar-pedido")
-    public ResponseEntity<ConfirmacaoPedido> confirmarPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao) {
+    public ResponseEntity<ConfirmacaoPedido> confirmarPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao, HttpServletRequest req) {
         HttpStatus httpStatus = HttpStatus.OK;
         ConfirmacaoPedido confirmacaoPedido = new ConfirmacaoPedido();
         Pedido pedido = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, sessao)) {
+            if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 pedido = new Pedido();
                 pedido.setEndereco(confirmaPedido.getEnderecos().get(0));
@@ -482,12 +484,12 @@ public class ClienteController {
     }
 
     @PostMapping("cliente/listar-pedidos")
-    public ResponseEntity<List<Pedido2>> listarPedidos(HttpSession sessao) {
+    public ResponseEntity<List<Pedido2>> listarPedidos(HttpSession sessao, HttpServletRequest req) {
         HttpStatus httpStatus = HttpStatus.OK;
         List<Pedido2> pedidos = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, sessao)) {
+            if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 pedidos = clienteDAO.getPedidos(cliente);
             } else {
@@ -527,12 +529,12 @@ public class ClienteController {
     }
 
     @PostMapping("cliente/listar-enderecos")
-    public ResponseEntity<List<Endereco>> listarEnderecos(HttpSession sessao) {
+    public ResponseEntity<List<Endereco>> listarEnderecos(HttpSession sessao, HttpServletRequest req) {
         HttpStatus httpStatus = HttpStatus.OK;
         List<Endereco> enderecos = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, sessao)) {
+            if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 enderecos = clienteDAO.getEnderecos(cliente);
             } else {
@@ -549,12 +551,12 @@ public class ClienteController {
     }
 
     @PostMapping("cliente/cadastrar-endereco")
-    public ResponseEntity<Mensagem> cadastrarEndereco(@RequestBody Endereco endereco, HttpSession sessao) {
+    public ResponseEntity<Mensagem> cadastrarEndereco(@RequestBody Endereco endereco, HttpSession sessao, HttpServletRequest req) {
         HttpStatus httpStatus = HttpStatus.OK;
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, sessao)) {
+            if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 clienteDAO.cadastrarEndereco(cliente, endereco);
                 mensagem.setCodigo(100);
@@ -576,12 +578,12 @@ public class ClienteController {
     }
 
     @PostMapping("cliente/remover-endereco")
-    public ResponseEntity<Mensagem> removerEndereco(@RequestBody Endereco endereco, HttpSession sessao) {
+    public ResponseEntity<Mensagem> removerEndereco(@RequestBody Endereco endereco, HttpSession sessao, HttpServletRequest req) {
         HttpStatus httpStatus = HttpStatus.OK;
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, sessao)) {
+            if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 clienteDAO.removerEndereco(cliente, endereco);
                 mensagem.setCodigo(100);
@@ -631,11 +633,11 @@ public class ClienteController {
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
     }
 
-    private boolean validarSessao(ClienteDAO dao, HttpSession sessao) throws DAOException {
+    private boolean validarSessao(ClienteDAO dao, HttpServletRequest req) throws DAOException {
         System.out.print("Realizando validação de sessão: ");
-        if (!dao.verificarSessao(sessao.getId())) {
+        if (!dao.verificarSessao(req.getHeader("ac-tk"))) {
             System.out.println("A sessão não é válida");
-            sessao.invalidate();
+            req.getSession().invalidate();
             return false;
         }
         System.out.println("A sessão é válida");
