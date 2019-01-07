@@ -75,7 +75,7 @@ public class RepositorioProdutos {
     public void checarVariacoes(Map<Long, GrupoVariacao> gvCliente, Item itemReferencia) throws DAOIncorrectData {
         Map<Long, GrupoVariacao> gvSistema = this.itens.get(itemReferencia.getId()).getVariacoes();
         
-        if (gvSistema == null || !gvSistema.isEmpty()) {
+        if (gvSistema == null || gvSistema.isEmpty()) {
             if (gvCliente != null) {
                 if (!gvCliente.isEmpty())
                     throw new DAOIncorrectData(300);
