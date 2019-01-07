@@ -72,24 +72,33 @@ public class RepositorioProdutos {
         variacao.setPreco(variacao2.getPreco());
     }
 
-    public void checarVariacoes(Map<Long, GrupoVariacao> gvCliente, Item itemReferencia) throws DAOIncorrectData {
-        Map<Long, GrupoVariacao> gvSistema = this.itens.get(itemReferencia.getId()).getVariacoes();
-        
-        if (gvSistema == null || gvSistema.isEmpty()) {
-            if (gvCliente != null) {
-                if (!gvCliente.isEmpty())
+    public void checarVariacoes(Map<Long, GrupoVariacao> gvMapCliente, Item itemReferencia) throws DAOIncorrectData {
+        Map<Long, GrupoVariacao> gvMapSistema = this.itens.get(itemReferencia.getId()).getVariacoes();
+
+        if (gvMapSistema == null || gvMapSistema.isEmpty()) {
+            if (gvMapCliente != null) {
+                if (!gvMapCliente.isEmpty()) {
                     throw new DAOIncorrectData(300);
-            }
-        }        
-        /*if (gvSistema != null) {
-            for (GrupoVariacao gv : gvSistema.values()) {
-                if (gv.getVariacoes() != null) {
-                    for (Variacao v : gv.getVariacoes()) {
-                        System.out.println(v);
-                    }
                 }
             }
-        }*/
+        } else if (gvMapCliente != null && !gvMapCliente.isEmpty()) {
+            if (gvMapSistema.size() != gvMapCliente.size()) {
+                throw new DAOIncorrectData(300);
+            }
+            for (long i = 0; i < gvMapSistema.size(); i++) {
+                if (!gvMapCliente.containsKey(i)) {
+                    throw new DAOIncorrectData(300);
+                }
+                GrupoVariacao gvCliente = gvMapCliente.get(i);
+                GrupoVariacao gvSistema = gvMapSistema.get(i);
+                if (gvSistema.getVariacoes() == null || gvCliente.getVariacoes() == null
+                        || gvSistema.getVariacoes().isEmpty() || gvCliente.getVariacoes().isEmpty()) {
+                    throw new DAOIncorrectData(300);
+                }
+                if (gvCliente.getVariacoes().size() > gvSistema.getMax())
+                    throw new DAOIncorrectData(300);                
+            }
+        }        
     }
 
     public void carregar(Connection conexao) throws DAOException {
@@ -186,7 +195,7 @@ public class RepositorioProdutos {
                     this.variacoes.put(rs.getLong("id_variacao"), variacao);
                 }
             }
-            if (idItemAtual != -1) {                                
+            if (idItemAtual != -1) {
                 this.itens.get(idItemAtual).setVariacoes(variacoesMap);
                 System.out.println("HERE: " + variacoesMap);
             }
