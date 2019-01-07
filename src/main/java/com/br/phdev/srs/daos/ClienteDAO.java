@@ -394,7 +394,7 @@ public class ClienteDAO extends BasicDAO {
             Set<Tipo> tipos = new HashSet<>();
             Set<Foto> fotos = new HashSet<>();
             Set<Complemento> complementos = new HashSet<>();
-            Map<Long, GrupoVariacao> variacoes = new HashMap<>();
+            List<GrupoVariacao> variacoes = new ArrayList<>();
             long itemAtual = -1;
             while (rs.next()) {
                 long idItemRecuperado = rs.getLong("id_item");
@@ -441,10 +441,10 @@ public class ClienteDAO extends BasicDAO {
                 try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_lista_variacoes_item(?)")) {
                     stmt2.setLong(1, item.getId());
                     ResultSet rs2 = stmt2.executeQuery();
-                    variacoes = new HashMap<>();
-                    while (rs2.next()) {
-                        if (variacoes.containsKey(rs2.getLong("grupo"))) {
-                            GrupoVariacao gv = variacoes.get(rs2.getLong("grupo"));
+                    variacoes = new ArrayList<>();
+                    while (rs2.next()) {                        
+                        if (variacoes.size() > rs2.getInt("grupo")) {
+                            GrupoVariacao gv = variacoes.get(rs2.getInt("grupo"));
                             gv.getVariacoes().add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco")));
                             gv.setMax(rs2.getInt("max"));
                         } else {
@@ -453,7 +453,7 @@ public class ClienteDAO extends BasicDAO {
                             v.add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco")));
                             gv.setMax(rs2.getInt("max"));
                             gv.setVariacoes(v);
-                            variacoes.put(rs2.getLong("grupo"), gv);
+                            variacoes.add(rs2.getInt("grupo"), gv);
                         }
                     }
                 } catch (SQLException e) {
@@ -565,10 +565,10 @@ public class ClienteDAO extends BasicDAO {
                     repositorioPrecos.preencherComplemento(c);
                     valorItem = valorItem.add(new BigDecimal(String.valueOf(c.getPreco())));
                 }
-            }
+            }/*
             if (ip.getVariacoes() != null) {
-                Map<Long, GrupoVariacao> variacoes = ip.getVariacoes();
-                repositorioPrecos.checarVariacoes(variacoes, ip);
+                //Map<Long, GrupoVariacao> variacoes = ip.getVariacoes();
+                //repositorioPrecos.checarVariacoes(variacoes, ip);
                 for (GrupoVariacao gv : variacoes.values()) {
                     if (gv.getVariacoes() != null) {
                         for (Variacao v : gv.getVariacoes()) {
@@ -577,7 +577,7 @@ public class ClienteDAO extends BasicDAO {
                         }
                     }
                 }
-            }            
+            }  */          
             valorItem = valorItem.add(new BigDecimal(String.valueOf(ip.getPreco())));
             valorTotal = valorTotal.add(valorItem.multiply(new BigDecimal(ip.getQuantidade())));
         }

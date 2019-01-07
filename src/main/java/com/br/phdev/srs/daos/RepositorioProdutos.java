@@ -72,6 +72,7 @@ public class RepositorioProdutos {
         variacao.setPreco(variacao2.getPreco());
     }
 
+    /*
     public void checarVariacoes(Map<Long, GrupoVariacao> gvMapCliente, Item itemReferencia) throws DAOIncorrectData {
         Map<Long, GrupoVariacao> gvMapSistema = this.itens.get(itemReferencia.getId()).getVariacoes();
 
@@ -99,7 +100,7 @@ public class RepositorioProdutos {
                     throw new DAOIncorrectData(300);                
             }
         }        
-    }
+    }*/
 
     public void carregar(Connection conexao) throws DAOException {
         try (PreparedStatement stmt = conexao.prepareStatement("CALL get_data_ultima_alteracao_base(?)")) {
@@ -153,19 +154,9 @@ public class RepositorioProdutos {
                 this.complementos.put(rs.getLong("id_complemento"), complemento);
             }
         }
+        /*
         try (PreparedStatement stmt = conexao.prepareStatement("CALL get_lista_variacoes")) {
-            ResultSet rs = stmt.executeQuery();
-            /*
-            while (rs.next()) {
-                Variacao variacao = new Variacao();
-                variacao.setId(rs.getLong("id_variacao"));
-                variacao.setNome(rs.getString("nome"));
-                variacao.setPreco(rs.getDouble("preco"));
-                variacao.setReferenciaItem(rs.getLong("id_item"));
-                variacao.setMax(rs.getInt("max"));
-                this.variacoes.put(rs.getLong("id_variacao"), variacao);
-            }*/
-
+            ResultSet rs = stmt.executeQuery();            
             Map<Long, GrupoVariacao> variacoesMap = new HashMap<>();
             long idItemAtual = -1;
             while (rs.next()) {
@@ -199,7 +190,7 @@ public class RepositorioProdutos {
                 this.itens.get(idItemAtual).setVariacoes(variacoesMap);
                 System.out.println("HERE: " + variacoesMap);
             }
-        }
+        }*/
     }
 
 }

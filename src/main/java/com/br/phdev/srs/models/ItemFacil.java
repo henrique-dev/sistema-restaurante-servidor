@@ -7,6 +7,7 @@
 package com.br.phdev.srs.models;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,7 +21,7 @@ public class ItemFacil {
     private String nome;
     private double preco;
     private Set<ComplementoFacil> complementos;
-    private Map<Long, GrupoVariacao> variacoes;
+    private List<GrupoVariacao> variacoes;
 
     public ItemFacil() {
     }
@@ -69,12 +70,12 @@ public class ItemFacil {
         this.nome = nome;
     }        
 
-    public Map<Long, GrupoVariacao> getVariacoes() {
+    public List<GrupoVariacao> getVariacoes() {
         return variacoes;
     }
 
-    public void setVariacoes(Map<Long, GrupoVariacao> variacoes) {
+    public void setVariacoes(List<GrupoVariacao> variacoes) {
         this.variacoes = variacoes;
-    }
+    }    
             
 }
