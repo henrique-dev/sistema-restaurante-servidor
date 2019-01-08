@@ -314,6 +314,7 @@ public class ClienteDAO extends BasicDAO {
             List<Item> itens = new ArrayList<>();
             Set<Tipo> tipos = new HashSet<>();
             Set<Genero> generos = new HashSet<>();
+            List<Genero> generos2 = new ArrayList<>();
             Set<Foto> fotos = null;
             Item item = new Item();
             long pratoAtual = -1;
@@ -347,7 +348,7 @@ public class ClienteDAO extends BasicDAO {
                     item.setPreco(rs.getDouble("preco"));
                     item.setModificavel(rs.getBoolean("modificavel"));
                     Genero genero = new Genero(rs.getLong("id_genero"), rs.getString("genero"));
-                    item.setGenero(genero);
+                    item.setGenero(genero);                    
                     generos.add(genero);
                 }
                 tipos.add(new Tipo(rs.getLong("id_tipo"), rs.getString("tipo_nome")));
@@ -371,7 +372,9 @@ public class ClienteDAO extends BasicDAO {
                 item.setFotos(fotos);
                 itens.add(item);
                 listaItens = new ListaItens();
-                listaItens.setGeneros(generos);
+                generos2.add(new Genero(0, "Todos"));
+                generos2.addAll(generos);
+                listaItens.setGeneros(generos2);
                 listaItens.setItens(itens);
             }
         } catch (SQLException e) {

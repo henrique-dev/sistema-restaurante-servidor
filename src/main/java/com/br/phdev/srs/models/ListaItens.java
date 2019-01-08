@@ -16,14 +16,14 @@ import java.util.Set;
 public class ListaItens {
     
     private double frete;
-    private Set<Genero> generos;
+    private List<Genero> generos;
     private List<Item> itens;
 
-    public Set<Genero> getGeneros() {
+    public List<Genero> getGeneros() {
         return generos;
     }
 
-    public void setGeneros(Set<Genero> generos) {
+    public void setGeneros(List<Genero> generos) {
         this.generos = generos;
     }
 
