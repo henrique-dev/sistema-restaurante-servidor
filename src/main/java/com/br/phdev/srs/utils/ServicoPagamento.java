@@ -22,46 +22,35 @@ import java.util.List;
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
-public class ServicoPagamento {
-
-    public enum PaymentMethod {
-        
-        CREDIT_CARD("credit_card"),
-        BANK("bank"),
-        PAYPAL("paypal"),
-        PAY_UPON_INVOICE("pay_upon_invoice"),
-        CARRIER("carrier"),
-        ALTERNATIVE_PAYMENT("alternate_payment");
-
-        public String method;
-
-        PaymentMethod(String s) {
-            this.method = s;
-        }                
-
-        public static String getMethod(int opc) {
-            switch (opc) {
-                case 1:
-                    return PAYPAL.method;
-                case 2:
-                    return BANK.method;
-                case 3:
-                    return CREDIT_CARD.method;
-                case 4:
-                    return PAY_UPON_INVOICE.method;
-                case 5:
-                    return CARRIER.method;
-                case 6:
-                    return ALTERNATIVE_PAYMENT.method;
-            }
-            return null;
-        }
-    }   
+public class ServicoPagamento {   
 
     private final String clientId = "ASzGEc_oF__CRXHexloOprXZUaIAQkpZx4t7KSs9Eqx14RLQR8rhUNUkq2OOob1HdcEQ0Pay_rP_Dz92";
     private final String secret = "ECq12WJhFwanQJTN6jELYm2WGf2rLfZ89aVBIRz_Mbexzu-2HzI6TplLbZbDbfpGXoW5FPbXDdHM-GGl";
 
     public Payment criarPagamento(String valorTotal, int metodoPagamento) throws PaymentException {
+
+        String method = "";
+        switch (metodoPagamento) {
+            case 1:
+                method = "paypal";
+                break;
+            case 2:
+                method = "credit_card";
+                break;
+            case 3:
+                method = "pay_upon_invoice";
+                break;
+            case 4:
+                method = "carrier";
+                break;
+            case 5:
+                method = "alternate_payment";
+                break;
+            case 6:
+                method = "bank";
+                break;
+
+        }
 
         Amount amount = new Amount();
         amount.setCurrency("BRL");
@@ -73,7 +62,7 @@ public class ServicoPagamento {
         transactions.add(transaction);
 
         Payer payer = new Payer();
-        payer.setPaymentMethod(PaymentMethod.getMethod(metodoPagamento));
+        payer.setPaymentMethod(method);
 
         Payment payment = new Payment();
         payment.setIntent("sale");
