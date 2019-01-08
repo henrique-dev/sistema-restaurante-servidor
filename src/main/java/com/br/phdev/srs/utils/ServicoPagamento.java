@@ -61,12 +61,12 @@ public class ServicoPagamento {
         List<Transaction> transactions = new ArrayList<>();
         transactions.add(transaction);
 
-        Payer payer = new Payer();
-        payer.setPaymentMethod(method);
+        //Payer payer = new Payer();
+        //payer.setPaymentMethod(method);
 
         Payment payment = new Payment();
         payment.setIntent("sale");
-        payment.setPayer(payer);
+        //payment.setPayer(payer);
         payment.setTransactions(transactions);
 
         RedirectUrls redirectUrls = new RedirectUrls();
