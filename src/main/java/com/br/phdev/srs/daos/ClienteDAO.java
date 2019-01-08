@@ -606,6 +606,7 @@ public class ClienteDAO extends BasicDAO {
                     ip.setId(ipf.getId());
                     ip.setQuantidade(ipf.getQuantidade());
                     ip.setPreco(ipf.getPreco());
+                    ip.setVariacoes(ipf.getVariacoes());
                     Set<Complemento> complementos = new HashSet<>();
                     for (ComplementoFacil cf : ipf.getComplementos()) {
                         Complemento complemento = new Complemento();

@@ -1,0 +1,25 @@
+[{
+        "id": 6,
+        "nome": "Pizza",
+        "preco": 15.8,
+        "variacoes": {
+            "0": {
+                "max": 0,
+                "variacoes": [{
+                        "id": 1,
+                        "nome": "Pequena",
+                        "preco": 0
+                    }]
+            },
+            "1": {
+                "max": 0,
+                "variacoes": [{
+                        "id": 6,
+                        "nome": "Calabresa",
+                        "preco": 2
+                    }]
+            }
+        },
+        "quantidade": 1,
+        "complementos": []
+    }]
