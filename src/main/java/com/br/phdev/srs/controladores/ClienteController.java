@@ -460,6 +460,11 @@ public class ClienteController {
                         confirmacaoPedido.setStatus(0);
                         break;
                     case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
                         if (!clienteDAO.possuiPrePredido(cliente)) {
                             ServicoPagamento servicoPagamento = new ServicoPagamento();
                             Payment pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()), 
