@@ -1,25 +1,27 @@
-[{
-        "id": 6,
-        "nome": "Pizza",
-        "preco": 15.8,
-        "variacoes": {
-            "0": {
-                "max": 0,
-                "variacoes": [{
-                        "id": 1,
-                        "nome": "Pequena",
-                        "preco": 0
-                    }]
-            },
-            "1": {
-                "max": 0,
-                "variacoes": [{
-                        "id": 6,
-                        "nome": "Calabresa",
-                        "preco": 2
-                    }]
-            }
-        },
-        "quantidade": 1,
-        "complementos": []
-    }]
+{
+    "itens": [{
+            "id": 2,
+            "quantidade": 1,
+            "total": 5.5,
+            "complementos": [],
+            "variacoes": []
+        }, {
+            "id": 6,
+            "quantidade": 1,
+            "total": 37.2,
+            "complementos": [{
+                    "id": 2
+                }, {
+                    "id": 4
+                }],
+            "variacoes": [{
+                    "variacoes": [{
+                            "id": 4
+                        }]
+                }, {
+                    "variacoes": [{
+                            "id": 6
+                        }]
+                }]
+        }]
+}

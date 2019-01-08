@@ -31,6 +31,7 @@ import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.br.phdev.srs.utils.ServicoAutenticacao;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.br.phdev.srs.utils.ServicoValidacaoCliente;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paypal.api.payments.Payment;
 import com.twilio.exception.ApiException;
 import java.io.IOException;
@@ -354,7 +355,7 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/recuperar-prepedido")
-    public ResponseEntity<List<ItemPedido>> recuperarPrepedido(HttpSession sessao, HttpServletRequest req) {
+    public ResponseEntity<List<ItemPedido>> recuperarPrepedido(HttpSession sessao, HttpServletRequest req) throws Exception {
         HttpStatus httpStatus = HttpStatus.OK;
         List<ItemPedido> itens = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
@@ -362,6 +363,11 @@ public class ClienteController {
             if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 itens = clienteDAO.recuperarPrePredido(cliente);
+                
+                ObjectMapper mapeador = new ObjectMapper();
+                String json = mapeador.writeValueAsString(itens);
+                System.out.println(json);
+                
             } else {
                 httpStatus = HttpStatus.UNAUTHORIZED;
             }
