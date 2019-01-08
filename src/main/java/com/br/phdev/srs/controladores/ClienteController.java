@@ -462,7 +462,8 @@ public class ClienteController {
                     case 1:
                         if (!clienteDAO.possuiPrePredido(cliente)) {
                             ServicoPagamento servicoPagamento = new ServicoPagamento();
-                            Payment pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
+                            Payment pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()), 
+                                    (int)confirmaPedido.getFormaPagamentos().get(0).getId());
                             clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());
                             confirmacaoPedido.setStatus(1);
                             confirmacaoPedido.setLink(pagamentoCriado.getLinks().get(1).getHref());

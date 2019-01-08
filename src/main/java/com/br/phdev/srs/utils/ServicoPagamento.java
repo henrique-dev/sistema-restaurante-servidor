@@ -24,10 +24,44 @@ import java.util.List;
  */
 public class ServicoPagamento {
 
+    public enum PaymentMethod {
+        
+        CREDIT_CARD("credit_card"),
+        BANK("bank"),
+        PAYPAL("paypal"),
+        PAY_UPON_INVOICE("pay_upon_invoice"),
+        CARRIER("carrier"),
+        ALTERNATIVE_PAYMENT("alternate_payment");
+
+        public String method;
+
+        PaymentMethod(String s) {
+            this.method = s;
+        }                
+
+        public static String getMethod(int opc) {
+            switch (opc) {
+                case 1:
+                    return PAYPAL.method;
+                case 2:
+                    return BANK.method;
+                case 3:
+                    return CREDIT_CARD.method;
+                case 4:
+                    return PAY_UPON_INVOICE.method;
+                case 5:
+                    return CARRIER.method;
+                case 6:
+                    return ALTERNATIVE_PAYMENT.method;
+            }
+            return null;
+        }
+    }   
+
     private final String clientId = "ASzGEc_oF__CRXHexloOprXZUaIAQkpZx4t7KSs9Eqx14RLQR8rhUNUkq2OOob1HdcEQ0Pay_rP_Dz92";
     private final String secret = "ECq12WJhFwanQJTN6jELYm2WGf2rLfZ89aVBIRz_Mbexzu-2HzI6TplLbZbDbfpGXoW5FPbXDdHM-GGl";
 
-    public Payment criarPagamento(String valorTotal) throws PaymentException {
+    public Payment criarPagamento(String valorTotal, int metodoPagamento) throws PaymentException {
 
         Amount amount = new Amount();
         amount.setCurrency("BRL");
@@ -39,25 +73,25 @@ public class ServicoPagamento {
         transactions.add(transaction);
 
         Payer payer = new Payer();
-        payer.setPaymentMethod("paypal");
+        payer.setPaymentMethod(PaymentMethod.getMethod(metodoPagamento));
 
         Payment payment = new Payment();
         payment.setIntent("sale");
         payment.setPayer(payer);
-        payment.setTransactions(transactions);                
+        payment.setTransactions(transactions);
 
         RedirectUrls redirectUrls = new RedirectUrls();
         redirectUrls.setCancelUrl("http://35.202.51.59/mrfood/pagamentos/cancelar-pagamento");
-        redirectUrls.setReturnUrl("http://35.202.51.59/mrfood/pagamentos/executar-pagamento");        
+        redirectUrls.setReturnUrl("http://35.202.51.59/mrfood/pagamentos/executar-pagamento");
         payment.setRedirectUrls(redirectUrls);
 
         try {
-            APIContext apiContext = new APIContext(clientId, secret, "sandbox");                        
-            Payment createdPayment = payment.create(apiContext);                        
+            APIContext apiContext = new APIContext(clientId, secret, "sandbox");
+            Payment createdPayment = payment.create(apiContext);
             return createdPayment;
-        } catch (PayPalRESTException e) {            
+        } catch (PayPalRESTException e) {
             throw new PaymentException(e);
-        }        
+        }
     }
 
     public void executarPagamento(String paymentID, String payerID) throws PaymentException {
@@ -66,13 +100,13 @@ public class ServicoPagamento {
             Payment payment = new Payment();
             payment.setId(paymentID);
             PaymentExecution paymentExecution = new PaymentExecution();
-            paymentExecution.setPayerId(payerID);           
+            paymentExecution.setPayerId(payerID);
             payment.execute(apiContext, paymentExecution);
             System.out.println("Id do comprador: " + payerID);
         } catch (PayPalRESTException e) {
             e.printStackTrace();
             throw new PaymentException(e);
         }
-    }        
+    }
 
 }

@@ -71,7 +71,7 @@ public class RepositorioProdutos {
     public void preecherVariacao(Variacao variacao) {
         Variacao variacao2 = this.variacoes.get(variacao.getId());
         variacao.setNome(variacao2.getNome());
-        variacao.setPreco(variacao2.getPreco());
+        variacao.setPreco(variacao2.getPreco());        
     }
 
     public void checarVariacoes(List<GrupoVariacao> gvListCliente, Item itemReferencia) throws DAOIncorrectData {
