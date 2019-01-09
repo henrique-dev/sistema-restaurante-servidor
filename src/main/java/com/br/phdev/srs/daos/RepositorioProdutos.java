@@ -175,14 +175,7 @@ public class RepositorioProdutos {
                 }
                 if (idItemAtual != idItemLido) {
                     this.itens.get(idItemAtual).setVariacoes(variacoesList);
-                    System.out.println(this.itens.get(idItemAtual).getNome());
-                    for (GrupoVariacao gv : variacoesList) {
-                        System.out.println(gv.getMax());
-                        for (Variacao v : gv.getVariacoes()) {
-                            System.out.println(v.getId());
-                            System.out.println(v.getNome());
-                        }
-                    }
+                    idItemAtual = idItemLido;
                     variacoesList = new ArrayList<>();
                 }
                 if (variacoesList.size() > rs.getInt("grupo")) {
@@ -203,15 +196,7 @@ public class RepositorioProdutos {
                 }
             }
             if (idItemAtual != -1) {
-                this.itens.get(idItemAtual).setVariacoes(variacoesList);
-                System.out.println(this.itens.get(idItemAtual).getNome());
-                for (GrupoVariacao gv : variacoesList) {
-                    System.out.println(gv.getMax());
-                    for (Variacao v : gv.getVariacoes()) {
-                        System.out.println(v.getId());
-                        System.out.println(v.getNome());
-                    }
-                }
+                this.itens.get(idItemAtual).setVariacoes(variacoesList);                
             }
 
         }
