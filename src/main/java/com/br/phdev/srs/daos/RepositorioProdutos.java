@@ -166,7 +166,7 @@ public class RepositorioProdutos {
 
         try (PreparedStatement stmt = conexao.prepareStatement("CALL get_lista_variacoes")) {
             ResultSet rs = stmt.executeQuery();
-            List<GrupoVariacao> variacoesMap = new ArrayList<>();
+            List<GrupoVariacao> variacoesList = new ArrayList<>();
             long idItemAtual = -1;
             while (rs.next()) {
                 long idItemLido = rs.getLong("id_item");
@@ -174,12 +174,19 @@ public class RepositorioProdutos {
                     idItemAtual = idItemLido;
                 }
                 if (idItemAtual != idItemLido) {
-                    this.itens.get(idItemAtual).setVariacoes(variacoesMap);
-                    System.out.println("HERE: " + variacoesMap);
-                    variacoesMap = new ArrayList<>();
+                    this.itens.get(idItemAtual).setVariacoes(variacoesList);
+                    System.out.println(this.itens.get(idItemAtual).getNome());
+                    for (GrupoVariacao gv : variacoesList) {
+                        System.out.println(gv.getMax());
+                        for (Variacao v : gv.getVariacoes()) {
+                            System.out.println(v.getId());
+                            System.out.println(v.getNome());
+                        }
+                    }
+                    variacoesList = new ArrayList<>();
                 }
-                if (variacoesMap.size() > rs.getInt("grupo")) {
-                    GrupoVariacao gv = variacoesMap.get(rs.getInt("grupo"));
+                if (variacoesList.size() > rs.getInt("grupo")) {
+                    GrupoVariacao gv = variacoesList.get(rs.getInt("grupo"));
                     Variacao variacao = new Variacao(rs.getLong("id_variacao"), rs.getString("nome"), rs.getDouble("preco"), rs.getInt("ordem"));
                     gv.getVariacoes().add(variacao);
                     gv.setMax(rs.getInt("max"));
@@ -191,13 +198,22 @@ public class RepositorioProdutos {
                     v.add(variacao);
                     gv.setMax(rs.getInt("max"));
                     gv.setVariacoes(v);
-                    variacoesMap.add(gv);
+                    variacoesList.add(gv);
                     this.variacoes.put(rs.getLong("id_variacao"), variacao);
                 }
             }
             if (idItemAtual != -1) {
-                this.itens.get(idItemAtual).setVariacoes(variacoesMap);
+                this.itens.get(idItemAtual).setVariacoes(variacoesList);
+                System.out.println(this.itens.get(idItemAtual).getNome());
+                for (GrupoVariacao gv : variacoesList) {
+                    System.out.println(gv.getMax());
+                    for (Variacao v : gv.getVariacoes()) {
+                        System.out.println(v.getId());
+                        System.out.println(v.getNome());
+                    }
+                }
             }
+
         }
     }
 
