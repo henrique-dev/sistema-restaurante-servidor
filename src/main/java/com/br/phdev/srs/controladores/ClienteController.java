@@ -31,6 +31,7 @@ import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.br.phdev.srs.utils.ServicoAutenticacao;
 import com.br.phdev.srs.utils.ServicoPagamento;
 import com.br.phdev.srs.utils.ServicoValidacaoCliente;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paypal.api.payments.Payment;
 import com.twilio.exception.ApiException;
@@ -417,6 +418,10 @@ public class ClienteController {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
+                
+                System.out.println(new ObjectMapper().writeValueAsString(confirmaPedido));
+                
+                
                 clienteDAO.inserirPrecos(confirmaPedido);
                 List<Endereco> enderecos = clienteDAO.getEnderecos(cliente);
                 List<FormaPagamento> formaPagamentos = clienteDAO.getFormasPagamento(cliente);
@@ -428,7 +433,7 @@ public class ClienteController {
             } else {
                 httpStatus = HttpStatus.UNAUTHORIZED;
             }
-        } catch (DAOException e) {
+        } catch (DAOException | JsonProcessingException e) {
             e.printStackTrace();
             confirmaPedido = null;
         } catch (SQLException e) {

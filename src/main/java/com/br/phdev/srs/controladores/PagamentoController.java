@@ -14,8 +14,13 @@ import com.br.phdev.srs.models.IPNMessage;
 import com.br.phdev.srs.models.Mensagem;
 import com.br.phdev.srs.utils.HttpUtils;
 import com.br.phdev.srs.utils.ServicoPagamento;
+import com.braintreegateway.BraintreeGateway;
+import com.braintreegateway.Result;
+import com.braintreegateway.Transaction;
+import com.braintreegateway.TransactionRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -28,6 +33,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -39,15 +45,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class PagamentoController {
 
     @Autowired
-    private SimpMessagingTemplate template;
+    private SimpMessagingTemplate template;    
 
     @GetMapping("pagamentos/executar-pagamento")
-    public String executarPagamento(HttpServletRequest req) {        
+    public String executarPagamento(HttpServletRequest req) {
         System.out.println("");
         System.out.println("Executando pagamento");
-        HttpUtils hu = new HttpUtils();
-        hu.showHeaders(req);        
-        hu.showParams(req);
         try (Connection conexao = new FabricaConexao().conectar()) {
             String paymentId = req.getParameter("paymentId");
             String payerId = req.getParameter("PayerID");
@@ -72,25 +75,25 @@ public class PagamentoController {
         System.out.println("");
         System.out.println("Cancelar pagamento");
         HttpUtils hu = new HttpUtils();
-        hu.showHeaders(req);        
+        hu.showHeaders(req);
         hu.showParams(req);
         System.out.println("Pagamento cancelado");
         String paymentId = req.getParameter("paymentId");
         String payerId = req.getParameter("PayerID");
-        System.out.println("Id de pagamento: " + paymentId);        
+        System.out.println("Id de pagamento: " + paymentId);
         System.out.println("Id do comprador: " + payerId);
         return "processando-pagamento";
-    }    
+    }
 
     @PostMapping("pagamentos/notificar2")
     public ResponseEntity<String> notificar2(HttpServletRequest req) {
         System.out.println("");
         System.out.println("Notificação de pagamento");
         HttpUtils hu = new HttpUtils();
-        hu.showHeaders(req);        
+        hu.showHeaders(req);
         hu.showParams(req);
         try (Connection conexao = new FabricaConexao().conectar()) {
-            Map<String, String> configMap = new HashMap<String, String>();
+            Map<String, String> configMap = new HashMap<>();
             configMap.put("mode", "sandbox");
             IPNMessage ipnListener = new IPNMessage(req, configMap);
             if (ipnListener.validate()) {
