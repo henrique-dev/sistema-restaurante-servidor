@@ -417,11 +417,7 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             if (validarSessao(clienteDAO, req)) {
-                Cliente cliente = (Cliente) sessao.getAttribute("cliente");
-                
-                System.out.println(new ObjectMapper().writeValueAsString(confirmaPedido));
-                
-                
+                Cliente cliente = (Cliente) sessao.getAttribute("cliente");                                                                
                 clienteDAO.inserirPrecos(confirmaPedido);
                 List<Endereco> enderecos = clienteDAO.getEnderecos(cliente);
                 List<FormaPagamento> formaPagamentos = clienteDAO.getFormasPagamento(cliente);
@@ -433,7 +429,7 @@ public class ClienteController {
             } else {
                 httpStatus = HttpStatus.UNAUTHORIZED;
             }
-        } catch (DAOException | JsonProcessingException e) {
+        } catch (DAOException e) {
             e.printStackTrace();
             confirmaPedido = null;
         } catch (SQLException e) {
@@ -650,14 +646,11 @@ public class ClienteController {
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
     }
 
-    private boolean validarSessao(ClienteDAO dao, HttpServletRequest req) throws DAOException {
-        System.out.print("Realizando validação de sessão: ");
-        if (!dao.verificarSessao(req.getHeader("ac-tk"))) {
-            System.out.println("A sessão não é válida");
+    private boolean validarSessao(ClienteDAO dao, HttpServletRequest req) throws DAOException {        
+        if (!dao.verificarSessao(req.getHeader("ac-tk"))) {            
             req.getSession().invalidate();
             return false;
-        }
-        System.out.println("A sessão é válida");
+        }        
         return true;
     }
 

@@ -13,6 +13,8 @@ import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.GrupoVariacao;
 import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.Variacao;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -71,11 +73,17 @@ public class RepositorioProdutos {
     public void preecherVariacao(Variacao variacao) {
         Variacao variacao2 = this.variacoes.get(variacao.getId());
         variacao.setNome(variacao2.getNome());
-        variacao.setPreco(variacao2.getPreco());        
+        variacao.setPreco(variacao2.getPreco());
     }
 
     public void checarVariacoes(List<GrupoVariacao> gvListCliente, Item itemReferencia) throws DAOIncorrectData {
         List<GrupoVariacao> gvListSistema = this.itens.get(itemReferencia.getId()).getVariacoes();
+        try {
+            System.out.println("Item: " + this.itens.get(itemReferencia.getId()).getNome());
+            System.out.println(new ObjectMapper().writeValueAsString(gvListSistema));
+        } catch (JsonProcessingException e) {
+
+        }
         if (gvListSistema == null || gvListSistema.isEmpty()) {
             if (gvListCliente != null) {
                 if (!gvListCliente.isEmpty()) {
@@ -87,7 +95,7 @@ public class RepositorioProdutos {
                 throw new DAOIncorrectData(300);
             }
             for (int i = 0; i < gvListSistema.size(); i++) {
-                if (i > gvListCliente.size() - 1) {                    
+                if (i > gvListCliente.size() - 1) {
                     throw new DAOIncorrectData(300);
                 }
                 GrupoVariacao gvCliente = gvListCliente.get(i);
@@ -188,7 +196,7 @@ public class RepositorioProdutos {
                 }
             }
             if (idItemAtual != -1) {
-                this.itens.get(idItemAtual).setVariacoes(variacoesMap);                
+                this.itens.get(idItemAtual).setVariacoes(variacoesMap);
             }
         }
     }
