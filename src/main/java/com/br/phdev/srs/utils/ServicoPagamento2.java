@@ -34,7 +34,12 @@ import br.com.uol.pagseguro.api.http.JSEHttpClient;
 import br.com.uol.pagseguro.api.transaction.register.DirectPaymentRegistrationBuilder;
 import br.com.uol.pagseguro.api.transaction.search.TransactionDetail;
 import br.com.uol.pagseguro.api.utils.logging.SimpleLoggerFactory;
+import com.br.phdev.srs.exceptions.DAOException;
+import com.br.phdev.srs.http.HttpClient;
+import com.br.phdev.srs.http.HttpConnection;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
 import java.text.SimpleDateFormat;
 
 /**
@@ -46,7 +51,25 @@ public class ServicoPagamento2 {
     private final String email = "henrique.phgb@gmail.com";
     private final String token = "ECE837D33EE94BFFAF0364B256ACFC8C";
 
-    public void criarPagamento() {
+    public String criarTokenSessao() {
+        String tokenSessao;
+        HttpURLConnection conexao = null;
+        try {
+            conexao = new HttpConnection().getConnection(
+                    "https://ws.sandbox.pagseguro.uol.com.br/v2/sessions/?email=" + email + "&token=" + token);
+            HttpClient cliente = new HttpClient(conexao, "POST");
+            tokenSessao = cliente.retrieveString();
+            ObjectMapper mapeador = new ObjectMapper();            
+        } catch (DAOException e) {
+            e.printStackTrace();
+        } finally {
+            if (conexao != null)
+                conexao.disconnect();
+        }
+        return null;
+    }
+
+    public void criarPagamento2() {
         try {
 
             final PagSeguro pagSeguro = PagSeguro
@@ -190,8 +213,8 @@ public class ServicoPagamento2 {
         }
     }
 
-    public void cartaoCredito() {        
-        
+    public void cartaoCredito() {
+
         final PagSeguro pagSeguro = PagSeguro
                 .instance(new SimpleLoggerFactory(), new JSEHttpClient(),
                         Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
@@ -266,7 +289,7 @@ public class ServicoPagamento2 {
                                     )
                             )
                             .withToken(null)
-                    );            
+                    );
             System.out.println(creditCardTransaction);
 
         } catch (Exception e) {

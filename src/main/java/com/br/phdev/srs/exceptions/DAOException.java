@@ -6,6 +6,8 @@
  */
 package com.br.phdev.srs.exceptions;
 
+import java.io.IOException;
+
 /**
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
@@ -27,6 +29,6 @@ public class DAOException extends Exception{
     public DAOException(String message, Throwable throwable, int codigo) {
         super(message, throwable);        
         this.codigo = codigo;
-    }
+    }    
     
 }
