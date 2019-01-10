@@ -1,4 +1,6 @@
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -9,13 +11,15 @@
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
-public class Teste {    
+public class Teste {
 
     public static void main(String args[]) {
-        System.out.println((int)'a');
-        System.out.println((int)'b');
-        System.out.println((int)'á');
-        System.out.println((int)'à');
+        double precoTotal = 2.60;
+        double desconto = 0.05;
+        BigDecimal resultado = new BigDecimal(String.valueOf(precoTotal)).multiply(new BigDecimal(String.valueOf(desconto)));
+        System.out.println(resultado);
+        resultado.setScale(2, BigDecimal.ROUND_HALF_UP);        
+        System.out.println(resultado);
     }
 
 }

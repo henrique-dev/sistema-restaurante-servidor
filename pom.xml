@@ -96,7 +96,17 @@
             <groupId>com.braintreepayments.gateway</groupId>
             <artifactId>braintree-java</artifactId>
             <version>2.87.0</version>
-        </dependency>                  
+        </dependency>                
+        <dependency>
+            <groupId>pagseguro-api</groupId>
+            <artifactId>pagseguro-api</artifactId>
+            <version>4.1.1-SNAPSHOT</version>
+        </dependency>  
+        <dependency>
+            <groupId>pagseguro-api-sources</groupId>
+            <artifactId>pagseguro-api-sources</artifactId>
+            <version>4.1.1-SNAPSHOT</version>
+        </dependency>  
            
     </dependencies>
 

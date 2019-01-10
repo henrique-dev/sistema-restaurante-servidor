@@ -37,11 +37,14 @@ import com.paypal.api.payments.Payment;
 import com.twilio.exception.ApiException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -424,6 +427,19 @@ public class ClienteController {
                 confirmaPedido.setFormaPagamentos(formaPagamentos);
                 confirmaPedido.setEnderecos(enderecos);
                 confirmaPedido.calcularPrecoTotal(RepositorioProdutos.getInstancia().frete);
+                
+                {
+                    Random rand = new Random();
+                    if (rand.nextInt(100) < 10) {
+                        BigDecimal precoTotal = new BigDecimal(String.valueOf(confirmaPedido.getPrecoTotal()));
+                        BigDecimal desconto = precoTotal.multiply(new BigDecimal(String.valueOf("0.05")));
+                        BigDecimal resultado = precoTotal.subtract(desconto);
+                        confirmaPedido.setCodigoPromocional(null);
+                        confirmaPedido.setPrecoTotal(resultado.doubleValue());
+                    }
+                }
+                
+                
                 sessao.setAttribute("pre-pedido-itens", confirmaPedido.getItens());
                 sessao.setAttribute("pre-pedido-preco", confirmaPedido.getPrecoTotal());
             } else {
@@ -632,6 +648,18 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(formaPagamentos, httpHeaders, HttpStatus.OK);
+    }
+    
+    @GetMapping("cliente/anunciantes")
+    @ResponseBody
+    public ResponseEntity<byte[]> anunciantes() {
+        byte[] bytes = null;
+        Foto foto = new Foto();
+        foto.setId(0);
+        bytes = new ServicoArmazenamento().carregar(foto);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.IMAGE_PNG);
+        return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
     }
 
     @GetMapping("imagens/{idArquivo}")

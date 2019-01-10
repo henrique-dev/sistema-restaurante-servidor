@@ -17,6 +17,7 @@ public class ConfirmaPedido {
     private List<ItemPedido> itens;
     private List<FormaPagamento> formaPagamentos;
     private List<Endereco> enderecos;
+    private String codigoPromocional;
     private double precoTotal;
 
     public ConfirmaPedido() {
@@ -64,6 +65,14 @@ public class ConfirmaPedido {
     public double getPrecoTotal() {
         return precoTotal;
     }      
+
+    public String getCodigoPromocional() {
+        return codigoPromocional;
+    }
+
+    public void setCodigoPromocional(String codigoPromocional) {
+        this.codigoPromocional = codigoPromocional;
+    }        
 
     @Override
     public String toString() {
