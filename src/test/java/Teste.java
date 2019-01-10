@@ -14,11 +14,11 @@ import java.math.MathContext;
 public class Teste {
 
     public static void main(String args[]) {
-        double precoTotal = 2.60;
-        double desconto = 0.05;
+        double precoTotal = 2.65660;
+        double desconto = 1;
         BigDecimal resultado = new BigDecimal(String.valueOf(precoTotal)).multiply(new BigDecimal(String.valueOf(desconto)));
         System.out.println(resultado);
-        resultado.setScale(2, BigDecimal.ROUND_HALF_UP);        
+        resultado = resultado.setScale(2, BigDecimal.ROUND_HALF_UP);        
         System.out.println(resultado);
     }
 
