@@ -10,22 +10,20 @@ import com.br.phdev.srs.daos.ClienteDAO;
 import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.PaymentException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
+import com.br.phdev.srs.models.ExecutarPagamento;
 import com.br.phdev.srs.models.IPNMessage;
 import com.br.phdev.srs.models.Mensagem;
 import com.br.phdev.srs.utils.HttpUtils;
-import com.br.phdev.srs.utils.ServicoPagamento;
-import com.braintreegateway.BraintreeGateway;
-import com.braintreegateway.Result;
-import com.braintreegateway.Transaction;
-import com.braintreegateway.TransactionRequest;
+import com.br.phdev.srs.utils.ServicoPagamentoPagSeguro;
+import com.br.phdev.srs.utils.ServicoPagamentoPayPal;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,9 +31,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  *
@@ -45,16 +43,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class PagamentoController {
 
     @Autowired
-    private SimpMessagingTemplate template;    
+    private SimpMessagingTemplate template;
 
     @GetMapping("pagamentos/executar-pagamento")
     public String executarPagamento(HttpServletRequest req) {
-        System.out.println("");
-        System.out.println("Executando pagamento");
         try (Connection conexao = new FabricaConexao().conectar()) {
             String paymentId = req.getParameter("paymentId");
             String payerId = req.getParameter("PayerID");
-            ServicoPagamento servicoPagamento = new ServicoPagamento();
+            ServicoPagamentoPayPal servicoPagamento = new ServicoPagamentoPayPal();
             servicoPagamento.executarPagamento(paymentId, payerId);
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             if (clienteDAO.atualizarTokenPrePedido(paymentId, payerId)) {
@@ -68,6 +64,51 @@ public class PagamentoController {
             e.printStackTrace();
         }
         return "processando-pagamento";
+    }
+
+    @PostMapping("pagamentos/executar-pagamento2")
+    public ResponseEntity<Mensagem> executarPagamento2(@RequestBody ExecutarPagamento ep, HttpSession sessao) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            ExecutarPagamento pagamento = (ExecutarPagamento) sessao.getAttribute("executar-pagamento");
+            ServicoPagamentoPagSeguro servicoPagamento = new ServicoPagamentoPagSeguro();
+            pagamento.setCpf(ep.getCpf());
+            pagamento.setNome(ep.getNome());
+            pagamento.setData(ep.getData());
+            pagamento.setTelefone(ep.getTelefone());
+            pagamento.setTokenSessao(ep.getTokenSessao());
+            pagamento.setTokenCartao(ep.getTokenCartao());
+            pagamento.setHashCliente(ep.getHashCliente());
+            String codigoPagamento = servicoPagamento.executarPagamento(pagamento);
+            if (codigoPagamento != null) {
+                ClienteDAO clienteDAO = new ClienteDAO(conexao);
+                if (clienteDAO.atualizarTokenPrePedido(ep.getTokenSessao(), codigoPagamento)) {
+                    mensagem.setCodigo(100);
+                    mensagem.setDescricao("Processando pagamento");
+                } else {
+                    mensagem.setCodigo(300);
+                    mensagem.setDescricao("Houve algum erro ao processar o pagamento");
+                }
+            } else {
+                mensagem.setCodigo(101);
+                mensagem.setDescricao("Não foi possível processar o pagamento");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(300);
+            mensagem.setDescricao(e.getMessage());
+        } catch (PaymentException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(300);
+            mensagem.setDescricao(e.getMessage());
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(300);
+            mensagem.setDescricao(e.getMessage());
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
 
     @GetMapping("pagamentos/cancelar-pagamento")
@@ -85,13 +126,17 @@ public class PagamentoController {
         return "processando-pagamento";
     }
 
+    @PostMapping("pagamentos/notificar3")
+    public ResponseEntity<String> notificar3(HttpServletRequest req) {
+        System.out.println("Notificação de pagamento do pagseguro");
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.TEXT_HTML);
+        return new ResponseEntity<>("", httpHeaders, HttpStatus.OK);
+    }
+
     @PostMapping("pagamentos/notificar2")
     public ResponseEntity<String> notificar2(HttpServletRequest req) {
-        System.out.println("");
-        System.out.println("Notificação de pagamento");
-        HttpUtils hu = new HttpUtils();
-        hu.showHeaders(req);
-        hu.showParams(req);
+        System.out.println("Notificação de pagamento do paypal");
         try (Connection conexao = new FabricaConexao().conectar()) {
             Map<String, String> configMap = new HashMap<>();
             configMap.put("mode", "sandbox");

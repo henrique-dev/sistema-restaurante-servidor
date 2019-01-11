@@ -17,6 +17,7 @@ import com.br.phdev.srs.models.Codigo;
 import com.br.phdev.srs.models.ConfirmaPedido;
 import com.br.phdev.srs.models.ConfirmacaoPedido;
 import com.br.phdev.srs.models.Endereco;
+import com.br.phdev.srs.models.ExecutarPagamento;
 import com.br.phdev.srs.models.FormaPagamento;
 import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.ListaItens;
@@ -29,7 +30,8 @@ import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.models.Mensagem;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.br.phdev.srs.utils.ServicoAutenticacao;
-import com.br.phdev.srs.utils.ServicoPagamento;
+import com.br.phdev.srs.utils.ServicoPagamentoPagSeguro;
+import com.br.phdev.srs.utils.ServicoPagamentoPayPal;
 import com.br.phdev.srs.utils.ServicoValidacaoCliente;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -367,11 +369,11 @@ public class ClienteController {
             if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 itens = clienteDAO.recuperarPrePredido(cliente);
-                
+
                 ObjectMapper mapeador = new ObjectMapper();
                 String json = mapeador.writeValueAsString(itens);
                 System.out.println(json);
-                
+
             } else {
                 httpStatus = HttpStatus.UNAUTHORIZED;
             }
@@ -420,14 +422,14 @@ public class ClienteController {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             if (validarSessao(clienteDAO, req)) {
-                Cliente cliente = (Cliente) sessao.getAttribute("cliente");                                                                
+                Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 clienteDAO.inserirPrecos(confirmaPedido);
                 List<Endereco> enderecos = clienteDAO.getEnderecos(cliente);
                 List<FormaPagamento> formaPagamentos = clienteDAO.getFormasPagamento(cliente);
                 confirmaPedido.setFormaPagamentos(formaPagamentos);
                 confirmaPedido.setEnderecos(enderecos);
                 confirmaPedido.calcularPrecoTotal(RepositorioProdutos.getInstancia().frete);
-                
+
                 {
                     Random rand = new Random();
                     if (rand.nextInt(100) < 30) {
@@ -439,8 +441,7 @@ public class ClienteController {
                         confirmaPedido.setPrecoTotal(resultado.doubleValue());
                     }
                 }
-                
-                
+
                 sessao.setAttribute("pre-pedido-itens", confirmaPedido.getItens());
                 sessao.setAttribute("pre-pedido-preco", confirmaPedido.getPrecoTotal());
             } else {
@@ -478,18 +479,27 @@ public class ClienteController {
                         confirmacaoPedido.setStatus(0);
                         break;
                     case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5:
-                    case 6:
                         if (!clienteDAO.possuiPrePredido(cliente)) {
-                            ServicoPagamento servicoPagamento = new ServicoPagamento();
-                            Payment pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()), 
-                                    (int)confirmaPedido.getFormaPagamentos().get(0).getId());
+                            ServicoPagamentoPayPal servicoPagamento = new ServicoPagamentoPayPal();
+                            Payment pagamentoCriado = servicoPagamento.criarPagamento(String.valueOf(pedido.getPrecoTotal()));
                             clienteDAO.inserirPrePedido(pedido, cliente, pagamentoCriado.getId());
                             confirmacaoPedido.setStatus(1);
                             confirmacaoPedido.setLink(pagamentoCriado.getLinks().get(1).getHref());
+                        } else {
+                            confirmacaoPedido.setStatus(-2);
+                        }
+                        break;
+                    case 2:
+                        if (!clienteDAO.possuiPrePredido(cliente)) {
+                            ServicoPagamentoPagSeguro servicoPagamento = new ServicoPagamentoPagSeguro();
+                            String tokenSessao = servicoPagamento.criarTokenPagamento();
+                            ExecutarPagamento pagamento = new ExecutarPagamento();
+                            pagamento.setCliente(cliente);
+                            pagamento.setConfirmaPedido(confirmaPedido);                            
+                            sessao.setAttribute("executar-pagamento", pagamento);
+                            clienteDAO.inserirPrePedido(pedido, cliente, tokenSessao);
+                            confirmacaoPedido.setStatus(1);
+                            confirmacaoPedido.setLink(tokenSessao);
                         } else {
                             confirmacaoPedido.setStatus(-2);
                         }
@@ -650,7 +660,7 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(formaPagamentos, httpHeaders, HttpStatus.OK);
     }
-    
+
     @GetMapping("cliente/anunciantes")
     @ResponseBody
     public ResponseEntity<byte[]> anunciantes() {
@@ -675,11 +685,11 @@ public class ClienteController {
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
     }
 
-    private boolean validarSessao(ClienteDAO dao, HttpServletRequest req) throws DAOException {        
-        if (!dao.verificarSessao(req.getHeader("ac-tk"))) {            
+    private boolean validarSessao(ClienteDAO dao, HttpServletRequest req) throws DAOException {
+        if (!dao.verificarSessao(req.getHeader("ac-tk"))) {
             req.getSession().invalidate();
             return false;
-        }        
+        }
         return true;
     }
 

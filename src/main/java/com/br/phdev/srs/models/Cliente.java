@@ -64,6 +64,14 @@ public class Cliente {
     public String getTelefone() {
         return telefone;
     }
+    
+    public String getTelefoneSemCodigoArea() {
+        return this.telefone.substring(2, this.telefone.length()-1);
+    }
+    
+    public String getCodigoAreaTelefone() {
+        return this.telefone.substring(0, 1);
+    }
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
