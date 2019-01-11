@@ -372,7 +372,7 @@ public class ClienteController {
 
                 ObjectMapper mapeador = new ObjectMapper();
                 String json = mapeador.writeValueAsString(itens);
-                System.out.println(json);
+                //System.out.println(json);
 
             } else {
                 httpStatus = HttpStatus.UNAUTHORIZED;
