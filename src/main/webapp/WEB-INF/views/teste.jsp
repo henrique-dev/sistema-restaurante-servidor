@@ -8,19 +8,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-    <div id="paypal-button"></div>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">   
     <script type="text/javascript" src="https://stc.sandbox.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js"></script>
     <script>
         function getToken() {
-            PagSeguroDirectPayment.setSessionId('${tokenSessao}');
+            PagSeguroDirectPayment.setSessionId('${tokenSessao}'); // tokenSessao -> Obtido na chamada confirmar-pedido
             PagSeguroDirectPayment.onSenderHashReady(function (response) {
                 if (response.status == 'error') {
                     console.log(response.message);
                     return false;
                 }
-                var hash = response.senderHash; //Hash estará disponível nesta variável.
+                var hash = response.senderHash; 
                 console.log(hash);
             });
             var param = {
@@ -30,10 +28,10 @@
                 expirationMonth: '05',
                 expirationYear: '2021',
                 success: function (response) {
-                    console.log(response);
+                    
                 },
                 error: function (response) {
-                    console.log(response);
+                    
                 },
                 complete: function (response) {
                     

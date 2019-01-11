@@ -498,7 +498,7 @@ public class ClienteController {
                             pagamento.setConfirmaPedido(confirmaPedido);                            
                             sessao.setAttribute("executar-pagamento", pagamento);
                             clienteDAO.inserirPrePedido(pedido, cliente, tokenSessao);
-                            confirmacaoPedido.setStatus(1);
+                            confirmacaoPedido.setStatus(2);
                             confirmacaoPedido.setLink(tokenSessao);
                         } else {
                             confirmacaoPedido.setStatus(-2);
