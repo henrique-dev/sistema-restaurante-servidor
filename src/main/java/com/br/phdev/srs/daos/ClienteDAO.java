@@ -271,7 +271,7 @@ public class ClienteDAO extends BasicDAO {
 
     public boolean verificarSessao(String sessaoId) throws DAOException {
         if (sessaoId == null) {
-            throw new DAOException("Erro", 300);
+            return false;
         }
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL utils_verificar_sessao(?)")) {
             stmt.setString(1, sessaoId);
@@ -284,7 +284,7 @@ public class ClienteDAO extends BasicDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DAOException(e, 200);
+            throw new DAOException(e, 300);
         }
         return false;
     }

@@ -77,13 +77,7 @@ public class RepositorioProdutos {
     }
 
     public void checarVariacoes(List<GrupoVariacao> gvListCliente, Item itemReferencia) throws DAOIncorrectData {
-        List<GrupoVariacao> gvListSistema = this.itens.get(itemReferencia.getId()).getVariacoes();
-        try {
-            System.out.println("Item: " + this.itens.get(itemReferencia.getId()).getNome());
-            System.out.println(new ObjectMapper().writeValueAsString(gvListSistema));
-        } catch (JsonProcessingException e) {
-
-        }
+        List<GrupoVariacao> gvListSistema = this.itens.get(itemReferencia.getId()).getVariacoes();        
         if (gvListSistema == null || gvListSistema.isEmpty()) {
             if (gvListCliente != null) {
                 if (!gvListCliente.isEmpty()) {
