@@ -73,6 +73,8 @@ public class ServicoPagamentoPagSeguro {
                     .instance(new SimpleLoggerFactory(), new JSEHttpClient(),
                             Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
             
+            System.out.println("IMPRIMIND VALORES");
+            
             System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getCep());
             System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getCidade());
             System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getComplemento());
@@ -90,6 +92,7 @@ public class ServicoPagamentoPagSeguro {
             System.out.println(ep.getTokenCartao());
             System.out.println(ep.getHashCliente());            
             
+            System.out.println("INICIANDO");
 
             AddressBuilder endereco = new AddressBuilder()
                     .withPostalCode(ep.getConfirmaPedido().getEnderecos().get(0).getCep())
