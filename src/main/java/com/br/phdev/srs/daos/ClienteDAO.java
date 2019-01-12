@@ -505,6 +505,36 @@ public class ClienteDAO extends BasicDAO {
         }
         return enderecos;
     }
+    
+    public Endereco getEndereco(Endereco endereco, Cliente cliente) throws DAOIncorrectData, DAOException {
+        if (cliente == null) {
+            throw new DAOIncorrectData(300);
+        }
+        if (cliente.getId() == 0) {
+            throw new DAOIncorrectData(301);
+        }
+        Endereco enderecoRetorno = null;
+        String sql = "call get_endereco(?,?)";
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+            stmt.setLong(1, cliente.getId());
+            stmt.setLong(2, endereco.getId());
+            ResultSet rs = stmt.executeQuery();            
+            while (rs.next()) {
+                enderecoRetorno = new Endereco();
+                enderecoRetorno.setId(rs.getLong("id_endereco"));
+                enderecoRetorno.setLogradouro(rs.getString("logradouro"));
+                enderecoRetorno.setNumero(rs.getString("numero"));
+                enderecoRetorno.setBairro(rs.getString("bairro"));
+                enderecoRetorno.setCidade(rs.getString("cidade"));
+                enderecoRetorno.setComplemento(rs.getString("complemento"));
+                enderecoRetorno.setCep(rs.getString("cep"));
+                enderecoRetorno.setDescricao(rs.getString("descricao"));                
+            }
+        } catch (SQLException e) {
+            throw new DAOException("Erro ao recuperar informações", e, 200);
+        }
+        return endereco;
+    }
 
     public List<FormaPagamento> getFormasPagamento(Cliente cliente) throws DAOException {
         if (cliente == null) {
