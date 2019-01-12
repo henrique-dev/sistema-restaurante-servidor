@@ -68,6 +68,7 @@ public class PagamentoController {
 
     @PostMapping("pagamentos/executar-pagamento2")
     public ResponseEntity<Mensagem> executarPagamento2(@RequestBody ExecutarPagamento ep, HttpSession sessao) {
+        System.out.println("Executando pagamento pag-seguro");
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ExecutarPagamento pagamento = (ExecutarPagamento) sessao.getAttribute("executar-pagamento");
@@ -80,6 +81,7 @@ public class PagamentoController {
             pagamento.setTokenCartao(ep.getTokenCartao());
             pagamento.setHashCliente(ep.getHashCliente());
             String codigoPagamento = servicoPagamento.executarPagamento(pagamento);
+            System.out.println("Dados capturados, preparando para executar pagamento");
             if (codigoPagamento != null) {
                 ClienteDAO clienteDAO = new ClienteDAO(conexao);
                 if (clienteDAO.atualizarTokenPrePedido(ep.getTokenSessao(), codigoPagamento)) {
