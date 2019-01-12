@@ -65,6 +65,15 @@ public class PagamentoController {
         }
         return "processando-pagamento";
     }
+    
+    @PostMapping("pagamentos/executar-pagamento4")
+    public ResponseEntity<Mensagem> executarPagamento4() {
+        new ServicoPagamentoPagSeguro().teste();
+        HttpHeaders httpHeaders = new HttpHeaders();        
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(null, httpHeaders, HttpStatus.OK);
+    }
+    
 
     @PostMapping("pagamentos/executar-pagamento2")
     public ResponseEntity<Mensagem> executarPagamento2(@RequestBody ExecutarPagamento ep, HttpSession sessao) {

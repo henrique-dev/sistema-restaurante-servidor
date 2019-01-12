@@ -65,11 +65,22 @@ public class ServicoPagamentoPagSeguro {
         }
         return tokenSessao;
     }
+    
+    public void teste() {
+        final PagSeguro pagSeguro = PagSeguro
+                    .instance(new SimpleLoggerFactory(), new JSEHttpClient(),
+                            Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
+        System.out.println(pagSeguro);
+    }
+    
+    public static void main(String[] args) {
+        new ServicoPagamentoPagSeguro().teste();
+    }        
 
     public String executarPagamento(ExecutarPagamento ep) throws PaymentException {
         System.out.println("EXECUTANDO PAGAMENTO");
         try {
-            final PagSeguro pagSeguro = PagSeguro
+            PagSeguro pagSeguro = PagSeguro
                     .instance(new SimpleLoggerFactory(), new JSEHttpClient(),
                             Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
             
