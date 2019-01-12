@@ -166,6 +166,7 @@ public class PagamentoController {
                     }
                     ObjectMapper mapeador = new ObjectMapper();
                     String msg = mapeador.writeValueAsString(mensagem);
+                    System.out.println("Enviando notificação para: " + sessaoUsuario);                    
                     this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);
                 } catch (DAOException | SQLException | JsonProcessingException e) {
                     e.printStackTrace();

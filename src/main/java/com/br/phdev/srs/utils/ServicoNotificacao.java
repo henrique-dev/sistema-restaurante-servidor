@@ -54,7 +54,7 @@ public class ServicoNotificacao implements WebSocketMessageBrokerConfigurer {
                     HttpSession sessao = serverHttpRequest.getServletRequest().getSession();
                     attributes.put("sessionId", sessao.getId());
                     sessoes.add(0, sessao.getId());
-                    //System.out.println(sessao.getId());
+                    System.out.println(sessao.getId());
                 }
                 return true;
             }
@@ -72,7 +72,7 @@ public class ServicoNotificacao implements WebSocketMessageBrokerConfigurer {
                     HttpSession sessao = serverHttpRequest.getServletRequest().getSession();
                     user = sessao.getId();
                 }
-                //System.out.println("usuario GERADO: " + user);
+                System.out.println("usuario GERADO: " + user);
                 return new StompPrincipal(user);
             }
         }).setAllowedOrigins("*").withSockJS();
