@@ -151,7 +151,7 @@ public class PagamentoController {
         switch (notificationType) {
             case TRANSACTION:
                 System.out.println("TRANSACTION");
-                System.out.println(transacao.getStatus());
+                System.out.println(transacao.getStatus().getStatus());
                 System.out.println(transacao.getCode());
                 break;
             case APPLICATION_AUTHORIZATION:
