@@ -25,6 +25,7 @@ import br.com.uol.pagseguro.api.credential.Credential;
 import br.com.uol.pagseguro.api.http.JSEHttpClient;
 import br.com.uol.pagseguro.api.transaction.register.DirectPaymentRegistrationBuilder;
 import br.com.uol.pagseguro.api.transaction.search.TransactionDetail;
+import br.com.uol.pagseguro.api.utils.logging.CommonsLoggerFactory;
 import br.com.uol.pagseguro.api.utils.logging.SimpleLoggerFactory;
 import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.PaymentException;
@@ -68,7 +69,7 @@ public class ServicoPagamentoPagSeguro {
     
     public void teste() {
         final PagSeguro pagSeguro = PagSeguro
-                    .instance(new SimpleLoggerFactory(), new JSEHttpClient(),
+                    .instance(new CommonsLoggerFactory(), new JSEHttpClient(),
                             Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
         System.out.println(pagSeguro);
     }
@@ -81,7 +82,7 @@ public class ServicoPagamentoPagSeguro {
         System.out.println("EXECUTANDO PAGAMENTO");
         try {
             PagSeguro pagSeguro = PagSeguro
-                    .instance(new SimpleLoggerFactory(), new JSEHttpClient(),
+                    .instance(new CommonsLoggerFactory(), new JSEHttpClient(),
                             Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
             
             System.out.println("IMPRIMIND VALORES");
