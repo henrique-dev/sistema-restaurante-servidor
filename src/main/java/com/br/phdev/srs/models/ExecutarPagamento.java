@@ -93,5 +93,10 @@ public class ExecutarPagamento {
     public void setHashCliente(String hashCliente) {
         this.hashCliente = hashCliente;
     }        
-    
+
+    @Override
+    public String toString() {
+        return "ExecutarPagamento{" + "nome=" + nome + ", cpf=" + cpf + ", data=" + data + ", telefone=" + telefone + ", confirmaPedido=" + confirmaPedido + ", cliente=" + cliente + ", tokenSessao=" + tokenSessao + ", tokenCartao=" + tokenCartao + ", hashCliente=" + hashCliente + '}';
+    }
+        
 }

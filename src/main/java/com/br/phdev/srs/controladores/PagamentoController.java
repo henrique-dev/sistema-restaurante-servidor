@@ -69,6 +69,7 @@ public class PagamentoController {
     @PostMapping("pagamentos/executar-pagamento2")
     public ResponseEntity<Mensagem> executarPagamento2(@RequestBody ExecutarPagamento ep, HttpSession sessao) {
         System.out.println("Executando pagamento pag-seguro");
+        System.out.println(ep);
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ExecutarPagamento pagamento = (ExecutarPagamento) sessao.getAttribute("executar-pagamento");
