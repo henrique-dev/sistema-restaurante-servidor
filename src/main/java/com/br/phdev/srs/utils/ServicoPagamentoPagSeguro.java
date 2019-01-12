@@ -67,6 +67,7 @@ public class ServicoPagamentoPagSeguro {
     }
 
     public String executarPagamento(ExecutarPagamento ep) throws PaymentException {
+        System.out.println("EXECUTANDO PAGAMENTO");
         try {
             final PagSeguro pagSeguro = PagSeguro
                     .instance(new SimpleLoggerFactory(), new JSEHttpClient(),
