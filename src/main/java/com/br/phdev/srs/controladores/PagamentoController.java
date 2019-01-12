@@ -83,9 +83,7 @@ public class PagamentoController {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             ExecutarPagamento pagamentoRecuperado = (ExecutarPagamento) sessao.getAttribute("executar-pagamento");            
             ServicoPagamentoPagSeguro servicoPagamento = new ServicoPagamentoPagSeguro();
-            pagamentoRecuperado.getConfirmaPedido().getEnderecos().set(0, clienteDAO.getEndereco(
-                    pagamentoRecuperado.getConfirmaPedido().getEnderecos().get(0),
-                    pagamentoRecuperado.getCliente()));            
+            pagamentoRecuperado.setEndereco(clienteDAO.getEndereco(pagamentoRecuperado.getEndereco(),pagamentoRecuperado.getCliente()));            
             pagamentoRecuperado.setCpf(ep.getCpf());
             pagamentoRecuperado.setNome(ep.getNome());
             pagamentoRecuperado.setData(ep.getData());

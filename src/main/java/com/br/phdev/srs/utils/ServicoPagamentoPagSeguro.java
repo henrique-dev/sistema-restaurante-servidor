@@ -87,17 +87,17 @@ public class ServicoPagamentoPagSeguro {
             
             System.out.println("IMPRIMIND VALORES");
             
-            System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getCep());
-            System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getCidade());
-            System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getComplemento());
-            System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getBairro());
-            System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getNumero());
-            System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getLogradouro());
+            System.out.println(ep.getEndereco().getCep());
+            System.out.println(ep.getEndereco().getCidade());
+            System.out.println(ep.getEndereco().getComplemento());
+            System.out.println(ep.getEndereco().getBairro());
+            System.out.println(ep.getEndereco().getNumero());
+            System.out.println(ep.getEndereco().getLogradouro());
             System.out.println(ep.getCliente().getCodigoAreaTelefone());
             System.out.println(ep.getCliente().getTelefoneSemCodigoArea());            
             System.out.println(ep.getCliente().getNome());
             System.out.println(ep.getCliente().getCpf());
-            System.out.println(ep.getConfirmaPedido().getPrecoTotal());
+            System.out.println(ep.getPedido().getPrecoTotal());
             System.out.println(ep.getCpf());
             System.out.println(ep.getNome());
             System.out.println(ep.getData());
@@ -107,14 +107,14 @@ public class ServicoPagamentoPagSeguro {
             System.out.println("INICIANDO");
 
             AddressBuilder endereco = new AddressBuilder()
-                    .withPostalCode(ep.getConfirmaPedido().getEnderecos().get(0).getCep())
+                    .withPostalCode(ep.getEndereco().getCep())
                     .withCountry("BRA")
                     .withState(State.AP)
-                    .withCity(ep.getConfirmaPedido().getEnderecos().get(0).getCidade())
-                    .withComplement(ep.getConfirmaPedido().getEnderecos().get(0).getComplemento())
-                    .withDistrict(ep.getConfirmaPedido().getEnderecos().get(0).getBairro())
-                    .withNumber(ep.getConfirmaPedido().getEnderecos().get(0).getNumero())
-                    .withStreet(ep.getConfirmaPedido().getEnderecos().get(0).getLogradouro());                        
+                    .withCity(ep.getEndereco().getCidade())
+                    .withComplement(ep.getEndereco().getComplemento())
+                    .withDistrict(ep.getEndereco().getBairro())
+                    .withNumber(ep.getEndereco().getNumero())
+                    .withStreet(ep.getEndereco().getLogradouro());                        
 
             PhoneBuilder telefone = new PhoneBuilder()
                     .withAreaCode(ep.getCliente().getCodigoAreaTelefone())
@@ -129,7 +129,7 @@ public class ServicoPagamentoPagSeguro {
                             .addItem(new PaymentItemBuilder()
                                     .withId("1")
                                     .withDescription("Alimentícios")
-                                    .withAmount(new BigDecimal(String.valueOf(ep.getConfirmaPedido().getPrecoTotal())))
+                                    .withAmount(new BigDecimal(String.valueOf(ep.getPedido().getPrecoTotal())))
                                     .withQuantity(1)
                                     .withWeight(500))
                             .withReference("mrfood_pagamento")
@@ -149,7 +149,7 @@ public class ServicoPagamentoPagSeguro {
                             .withBillingAddress(endereco)
                             .withInstallment(new InstallmentBuilder()
                                     .withQuantity(1)
-                                    .withValue(new BigDecimal(String.valueOf(ep.getConfirmaPedido().getPrecoTotal())))
+                                    .withValue(new BigDecimal(String.valueOf(ep.getPedido().getPrecoTotal())))
                             )
                             .withHolder(new HolderBuilder()
                                     .addDocument(new DocumentBuilder()

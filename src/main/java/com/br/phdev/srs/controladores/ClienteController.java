@@ -495,7 +495,8 @@ public class ClienteController {
                             String tokenSessao = servicoPagamento.criarTokenPagamento();
                             ExecutarPagamento pagamento = new ExecutarPagamento();
                             pagamento.setCliente(cliente);
-                            pagamento.setConfirmaPedido(confirmaPedido);                            
+                            pagamento.setPedido(pedido);
+                            pagamento.setEndereco(confirmaPedido.getEnderecos().get(0));
                             sessao.setAttribute("executar-pagamento", pagamento);
                             clienteDAO.inserirPrePedido(pedido, cliente, tokenSessao);
                             confirmacaoPedido.setStatus(2);

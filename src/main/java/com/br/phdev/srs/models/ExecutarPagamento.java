@@ -16,7 +16,8 @@ public class ExecutarPagamento {
     private String cpf;
     private String data;
     private String telefone;
-    private ConfirmaPedido confirmaPedido;
+    private Endereco endereco;
+    private Pedido pedido;
     private Cliente cliente;
     private String tokenSessao;
     private String tokenCartao;
@@ -28,6 +29,14 @@ public class ExecutarPagamento {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public String getData() {
@@ -46,12 +55,20 @@ public class ExecutarPagamento {
         this.telefone = telefone;
     }
 
-    public ConfirmaPedido getConfirmaPedido() {
-        return confirmaPedido;
+    public Endereco getEndereco() {
+        return endereco;
     }
 
-    public void setConfirmaPedido(ConfirmaPedido confirmaPedido) {
-        this.confirmaPedido = confirmaPedido;
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
+    }
+
+    public Pedido getPedido() {
+        return pedido;
+    }
+
+    public void setPedido(Pedido pedido) {
+        this.pedido = pedido;
     }
 
     public Cliente getCliente() {
@@ -60,15 +77,7 @@ public class ExecutarPagamento {
 
     public void setCliente(Cliente cliente) {
         this.cliente = cliente;
-    }        
-
-    public String getCpf() {
-        return cpf;
     }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }        
 
     public String getTokenSessao() {
         return tokenSessao;
@@ -76,7 +85,7 @@ public class ExecutarPagamento {
 
     public void setTokenSessao(String tokenSessao) {
         this.tokenSessao = tokenSessao;
-    }        
+    }
 
     public String getTokenCartao() {
         return tokenCartao;
@@ -92,11 +101,11 @@ public class ExecutarPagamento {
 
     public void setHashCliente(String hashCliente) {
         this.hashCliente = hashCliente;
-    }        
+    }
 
     @Override
     public String toString() {
-        return "ExecutarPagamento{" + "nome=" + nome + ", cpf=" + cpf + ", data=" + data + ", telefone=" + telefone + ", confirmaPedido=" + confirmaPedido + ", cliente=" + cliente + ", tokenSessao=" + tokenSessao + ", tokenCartao=" + tokenCartao + ", hashCliente=" + hashCliente + '}';
+        return "ExecutarPagamento{" + "nome=" + nome + ", cpf=" + cpf + ", data=" + data + ", telefone=" + telefone + ", endereco=" + endereco + ", pedido=" + pedido + ", cliente=" + cliente + ", tokenSessao=" + tokenSessao + ", tokenCartao=" + tokenCartao + ", hashCliente=" + hashCliente + '}';
     }
-        
+                
 }
