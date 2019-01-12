@@ -6,6 +6,8 @@
  */
 package com.br.phdev.srs.controladores;
 
+import br.com.uol.pagseguro.api.exception.PagSeguroLibException;
+import br.com.uol.pagseguro.api.notification.NotificationType;
 import com.br.phdev.srs.daos.ClienteDAO;
 import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.PaymentException;
@@ -65,25 +67,16 @@ public class PagamentoController {
         }
         return "processando-pagamento";
     }
-    
-    @PostMapping("pagamentos/executar-pagamento4")
-    public ResponseEntity<Mensagem> executarPagamento4() {
-        new ServicoPagamentoPagSeguro().teste();
-        HttpHeaders httpHeaders = new HttpHeaders();        
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(null, httpHeaders, HttpStatus.OK);
-    }
-    
 
     @PostMapping("pagamentos/executar-pagamento2")
     public ResponseEntity<Mensagem> executarPagamento2(@RequestBody ExecutarPagamento ep, HttpSession sessao) {
-        System.out.println("Executando pagamento pag-seguro");        
+        System.out.println("Executando pagamento pag-seguro");
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            ExecutarPagamento pagamentoRecuperado = (ExecutarPagamento) sessao.getAttribute("executar-pagamento");            
+            ExecutarPagamento pagamentoRecuperado = (ExecutarPagamento) sessao.getAttribute("executar-pagamento");
             ServicoPagamentoPagSeguro servicoPagamento = new ServicoPagamentoPagSeguro();
-            pagamentoRecuperado.setEndereco(clienteDAO.getEndereco(pagamentoRecuperado.getEndereco(),pagamentoRecuperado.getCliente()));            
+            pagamentoRecuperado.setEndereco(clienteDAO.getEndereco(pagamentoRecuperado.getEndereco(), pagamentoRecuperado.getCliente()));
             pagamentoRecuperado.setCpf(ep.getCpf());
             pagamentoRecuperado.setNome(ep.getNome());
             pagamentoRecuperado.setData(ep.getData());
@@ -139,11 +132,45 @@ public class PagamentoController {
     }
 
     @PostMapping("pagamentos/notificar3")
-    public ResponseEntity<String> notificar3(HttpServletRequest req) {
+    public ResponseEntity<String> notificar3(HttpServletRequest request) {
+        HttpStatus httpStatus = HttpStatus.OK;
         System.out.println("Notificação de pagamento do pagseguro");
+
+        if (request.getParameter("notificationCode").isEmpty()
+                || request.getParameter("notificationType").isEmpty()) {
+            throw new PagSeguroLibException(
+                    new IllegalArgumentException("Notification code or " + "notification type not exists")
+            );
+        }
+        NotificationType notificationType = NotificationType.fromName(
+                request.getParameter("notificationType")
+        );
+        ServicoPagamentoPagSeguro pagamento = new ServicoPagamentoPagSeguro();
+        String codigo = pagamento.procurarNotificao(request.getParameter("notificationCode"));
+        switch (notificationType) {
+            case TRANSACTION:
+                System.out.println("TRANSACTION");
+                System.out.println(codigo);
+                break;
+            case APPLICATION_AUTHORIZATION:
+                System.out.println("APPLICATION_AUTHORIZATION");
+                System.out.println(codigo);
+                break;
+            case PRE_APPROVAL:
+                System.out.println("PRE_APPROVAL");
+                System.out.println(codigo);
+                break;
+            default:
+                System.out.println("NONE");
+                System.out.println(codigo);
+                throw new PagSeguroLibException(
+                    new IllegalArgumentException("Notification not exists")
+                );                
+        }
+
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.TEXT_HTML);
-        return new ResponseEntity<>("", httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>("", httpHeaders, httpStatus);
     }
 
     @PostMapping("pagamentos/notificar2")

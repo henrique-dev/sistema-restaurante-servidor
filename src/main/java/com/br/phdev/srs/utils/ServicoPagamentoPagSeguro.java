@@ -66,45 +66,19 @@ public class ServicoPagamentoPagSeguro {
         }
         return tokenSessao;
     }
-    
+
     public void teste() {
         final PagSeguro pagSeguro = PagSeguro
-                    .instance(new CommonsLoggerFactory(), new JSEHttpClient(),
-                            Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
+                .instance(new CommonsLoggerFactory(), new JSEHttpClient(),
+                        Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
         System.out.println(pagSeguro);
     }
-    
-    public static void main(String[] args) {
-        new ServicoPagamentoPagSeguro().teste();
-    }        
 
     public String executarPagamento(ExecutarPagamento ep) throws PaymentException {
-        System.out.println("EXECUTANDO PAGAMENTO");
         try {
             PagSeguro pagSeguro = PagSeguro
                     .instance(new CommonsLoggerFactory(), new JSEHttpClient(),
                             Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
-            
-            System.out.println("IMPRIMIND VALORES");
-            
-            System.out.println(ep.getEndereco().getCep());
-            System.out.println(ep.getEndereco().getCidade());
-            System.out.println(ep.getEndereco().getComplemento());
-            System.out.println(ep.getEndereco().getBairro());
-            System.out.println(ep.getEndereco().getNumero());
-            System.out.println(ep.getEndereco().getLogradouro());
-            System.out.println(ep.getCliente().getCodigoAreaTelefone());
-            System.out.println(ep.getCliente().getTelefoneSemCodigoArea());            
-            System.out.println(ep.getCliente().getNome());
-            System.out.println(ep.getCliente().getCpf());
-            System.out.println(ep.getPedido().getPrecoTotal());
-            System.out.println(ep.getCpf());
-            System.out.println(ep.getNome());
-            System.out.println(ep.getData());
-            System.out.println(ep.getTokenCartao());
-            System.out.println(ep.getHashCliente());            
-            
-            System.out.println("INICIANDO");
 
             AddressBuilder endereco = new AddressBuilder()
                     .withPostalCode(ep.getEndereco().getCep())
@@ -114,7 +88,7 @@ public class ServicoPagamentoPagSeguro {
                     .withComplement(ep.getEndereco().getComplemento())
                     .withDistrict(ep.getEndereco().getBairro())
                     .withNumber(ep.getEndereco().getNumero())
-                    .withStreet(ep.getEndereco().getLogradouro());                        
+                    .withStreet(ep.getEndereco().getLogradouro());
 
             PhoneBuilder telefone = new PhoneBuilder()
                     .withAreaCode(ep.getCliente().getCodigoAreaTelefone())
@@ -163,13 +137,20 @@ public class ServicoPagamentoPagSeguro {
                                             .withNumber(ep.getCliente().getTelefoneSemCodigoArea()))
                             )
                             .withToken(ep.getTokenCartao())
-                    );            
+                    );
             System.out.println(creditCardTransaction);
             return creditCardTransaction.getCode();
         } catch (Exception e) {
             e.printStackTrace();
             throw new PaymentException(e);
-        }        
+        }
+    }
+
+    public String procurarNotificao(String notifationCode) {
+        PagSeguro pagSeguro = PagSeguro
+                .instance(new CommonsLoggerFactory(), new JSEHttpClient(),
+                        Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
+        return pagSeguro.transactions().search().byNotificationCode(notifationCode).getCode();
     }
 
 }
