@@ -134,7 +134,6 @@ public class PagamentoController {
 
     @PostMapping("pagamentos/notificar3")
     public ResponseEntity<String> notificar3(HttpServletRequest request) {
-        HttpStatus httpStatus = HttpStatus.OK;
         System.out.println("Notificação de pagamento do pagseguro");
 
         if (request.getParameter("notificationCode").isEmpty()
@@ -150,26 +149,44 @@ public class PagamentoController {
         TransactionDetail transacao = pagamento.procurarNotificao(request.getParameter("notificationCode"));
         switch (notificationType) {
             case TRANSACTION:
-                System.out.println("TRANSACTION");
-                System.out.println(transacao.getStatus().getStatus());
-                System.out.println(transacao.getCode());
+                try (Connection conexao = new FabricaConexao().conectar()) {
+                    Mensagem mensagem = new Mensagem();
+                    ClienteDAO clienteDAO = new ClienteDAO(conexao);
+                    String sessaoUsuario = clienteDAO.recuperarSessaoClienteParaConfirmarCompra(transacao.getCode());
+                    switch (transacao.getStatus().getStatus()) {
+                        case APPROVED:
+                            mensagem.setCodigo(100);
+                            mensagem.setDescricao("O pagamento foi confirmado");
+                            clienteDAO.inserirPedidoDePrePedido(transacao.getCode());
+                            break;
+                        case CANCELLED:
+                            mensagem.setCodigo(101);
+                            mensagem.setDescricao("O pagamento foi recusado");
+                            break;
+                    }
+                    ObjectMapper mapeador = new ObjectMapper();
+                    String msg = mapeador.writeValueAsString(mensagem);
+                    this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);
+                } catch (DAOException | SQLException | JsonProcessingException e) {
+                    e.printStackTrace();
+                }
                 break;
             case APPLICATION_AUTHORIZATION:
-                System.out.println("APPLICATION_AUTHORIZATION");                
+                System.out.println("APPLICATION_AUTHORIZATION");
                 break;
             case PRE_APPROVAL:
-                System.out.println("PRE_APPROVAL");                
+                System.out.println("PRE_APPROVAL");
                 break;
             default:
-                System.out.println("NONE");                
+                System.out.println("NONE");
                 throw new PagSeguroLibException(
-                    new IllegalArgumentException("Notification not exists")
-                );                
+                        new IllegalArgumentException("Notification not exists")
+                );
         }
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.TEXT_HTML);
-        return new ResponseEntity<>("", httpHeaders, httpStatus);
+        return new ResponseEntity<>("", httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping("pagamentos/notificar2")
