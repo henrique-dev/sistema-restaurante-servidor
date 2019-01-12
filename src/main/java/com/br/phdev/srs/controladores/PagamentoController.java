@@ -8,6 +8,7 @@ package com.br.phdev.srs.controladores;
 
 import br.com.uol.pagseguro.api.exception.PagSeguroLibException;
 import br.com.uol.pagseguro.api.notification.NotificationType;
+import br.com.uol.pagseguro.api.transaction.search.TransactionDetail;
 import com.br.phdev.srs.daos.ClienteDAO;
 import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.exceptions.PaymentException;
@@ -146,23 +147,21 @@ public class PagamentoController {
                 request.getParameter("notificationType")
         );
         ServicoPagamentoPagSeguro pagamento = new ServicoPagamentoPagSeguro();
-        String codigo = pagamento.procurarNotificao(request.getParameter("notificationCode"));
+        TransactionDetail transacao = pagamento.procurarNotificao(request.getParameter("notificationCode"));
         switch (notificationType) {
             case TRANSACTION:
                 System.out.println("TRANSACTION");
-                System.out.println(codigo);
+                System.out.println(transacao.getStatus());
+                System.out.println(transacao.getCode());
                 break;
             case APPLICATION_AUTHORIZATION:
-                System.out.println("APPLICATION_AUTHORIZATION");
-                System.out.println(codigo);
+                System.out.println("APPLICATION_AUTHORIZATION");                
                 break;
             case PRE_APPROVAL:
-                System.out.println("PRE_APPROVAL");
-                System.out.println(codigo);
+                System.out.println("PRE_APPROVAL");                
                 break;
             default:
-                System.out.println("NONE");
-                System.out.println(codigo);
+                System.out.println("NONE");                
                 throw new PagSeguroLibException(
                     new IllegalArgumentException("Notification not exists")
                 );                

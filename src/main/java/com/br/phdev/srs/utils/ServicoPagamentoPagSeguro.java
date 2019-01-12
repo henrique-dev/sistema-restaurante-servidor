@@ -146,11 +146,11 @@ public class ServicoPagamentoPagSeguro {
         }
     }
 
-    public String procurarNotificao(String notifationCode) {
+    public TransactionDetail procurarNotificao(String notifationCode) {
         PagSeguro pagSeguro = PagSeguro
                 .instance(new CommonsLoggerFactory(), new JSEHttpClient(),
                         Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
-        return pagSeguro.transactions().search().byNotificationCode(notifationCode).getCode();
+        return pagSeguro.transactions().search().byNotificationCode(notifationCode);
     }
 
 }
