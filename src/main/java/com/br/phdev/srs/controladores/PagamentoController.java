@@ -68,18 +68,15 @@ public class PagamentoController {
 
     @PostMapping("pagamentos/executar-pagamento2")
     public ResponseEntity<Mensagem> executarPagamento2(@RequestBody ExecutarPagamento ep, HttpSession sessao) {
-        System.out.println("Executando pagamento pag-seguro");
-        System.out.println("ep: " + ep);
+        System.out.println("Executando pagamento pag-seguro");        
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            ExecutarPagamento pagamentoRecuperado = (ExecutarPagamento) sessao.getAttribute("executar-pagamento");
-            System.out.println("pagamento recuperado: " + pagamentoRecuperado);
+            ExecutarPagamento pagamentoRecuperado = (ExecutarPagamento) sessao.getAttribute("executar-pagamento");            
             ServicoPagamentoPagSeguro servicoPagamento = new ServicoPagamentoPagSeguro();
             pagamentoRecuperado.getConfirmaPedido().getEnderecos().set(0, clienteDAO.getEndereco(
                     pagamentoRecuperado.getConfirmaPedido().getEnderecos().get(0),
-                    pagamentoRecuperado.getCliente()));
-            System.out.println("Endereco: " + pagamentoRecuperado.getConfirmaPedido().getEnderecos().get(0));
+                    pagamentoRecuperado.getCliente()));            
             pagamentoRecuperado.setCpf(ep.getCpf());
             pagamentoRecuperado.setNome(ep.getNome());
             pagamentoRecuperado.setData(ep.getData());

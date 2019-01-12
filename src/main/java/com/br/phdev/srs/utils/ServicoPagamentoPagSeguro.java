@@ -71,6 +71,24 @@ public class ServicoPagamentoPagSeguro {
             final PagSeguro pagSeguro = PagSeguro
                     .instance(new SimpleLoggerFactory(), new JSEHttpClient(),
                             Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
+            
+            System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getCep());
+            System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getCidade());
+            System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getComplemento());
+            System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getBairro());
+            System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getNumero());
+            System.out.println(ep.getConfirmaPedido().getEnderecos().get(0).getLogradouro());
+            System.out.println(ep.getCliente().getCodigoAreaTelefone());
+            System.out.println(ep.getCliente().getTelefoneSemCodigoArea());            
+            System.out.println(ep.getCliente().getNome());
+            System.out.println(ep.getCliente().getCpf());
+            System.out.println(ep.getConfirmaPedido().getPrecoTotal());
+            System.out.println(ep.getCpf());
+            System.out.println(ep.getNome());
+            System.out.println(ep.getData());
+            System.out.println(ep.getTokenCartao());
+            System.out.println(ep.getHashCliente());            
+            
 
             AddressBuilder endereco = new AddressBuilder()
                     .withPostalCode(ep.getConfirmaPedido().getEnderecos().get(0).getCep())
@@ -80,7 +98,7 @@ public class ServicoPagamentoPagSeguro {
                     .withComplement(ep.getConfirmaPedido().getEnderecos().get(0).getComplemento())
                     .withDistrict(ep.getConfirmaPedido().getEnderecos().get(0).getBairro())
                     .withNumber(ep.getConfirmaPedido().getEnderecos().get(0).getNumero())
-                    .withStreet(ep.getConfirmaPedido().getEnderecos().get(0).getLogradouro());
+                    .withStreet(ep.getConfirmaPedido().getEnderecos().get(0).getLogradouro());                        
 
             PhoneBuilder telefone = new PhoneBuilder()
                     .withAreaCode(ep.getCliente().getCodigoAreaTelefone())
@@ -100,7 +118,7 @@ public class ServicoPagamentoPagSeguro {
                                     .withWeight(500))
                             .withReference("mrfood_pagamento")
                             .withSender(new SenderBuilder()
-                                    .withEmail(ep.getCliente().getEmail())
+                                    .withEmail("henrique.phgb@sandbox.pagseguro.com.br")
                                     .withName(ep.getCliente().getNome())
                                     .withCPF(ep.getCliente().getCpf())
                                     .withIp("127.0.0.0")
