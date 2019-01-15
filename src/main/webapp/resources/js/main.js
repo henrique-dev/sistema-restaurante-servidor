@@ -10,10 +10,10 @@ function cadastrarComplemento() {
     });
 }
 
-function autenticar(nomeUusario, senhaUsuario) {
-    var usuario = nomeUusario.value;
-    var senha = senhaUsuario.value;    
-    $.post("autenticar", {usuario : usuario, senha : senha}, function (data) {
-        console.log(data);
-    });
+function autenticar() {
+    var usuario = document.querySelector("#nome").value;
+    var senha = document.querySelector("#senha").value;    
+    $.post("autenticar", {nomeUsuario : usuario, senhaUsuario : senha}, function (request) {
+        console.log(request);
+    });    
 }
