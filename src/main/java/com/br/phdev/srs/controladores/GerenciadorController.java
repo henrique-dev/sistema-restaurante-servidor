@@ -29,6 +29,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  *
@@ -43,8 +44,10 @@ public class GerenciadorController {
     }  
     
     @PostMapping("gerenciador/autenticar")
-    public String autenticar(@RequestBody Usuario usuario, HttpServletRequest req, HttpServletResponse res, HttpSession sessao) {
+    public String autenticar(String nomeUsuario, String senhaUsuario,
+            HttpServletRequest req, HttpServletResponse res, HttpSession sessao) {
         Mensagem mensagem = new Mensagem();
+        Usuario usuario = new Usuario(0, nomeUsuario, senhaUsuario);
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             Cliente cliente = clienteDAO.autenticar(usuario);
@@ -53,7 +56,7 @@ public class GerenciadorController {
                 mensagem.setCodigo(100);
                 sessao.setAttribute("usuario", usuario);
                 sessao.setAttribute("cliente", cliente);                
-                return "gerenciador/main";
+                return "admin/main";
             } else {
                 mensagem.setCodigo(101);
                 mensagem.setDescricao("Usuário ou senha inválidos");
