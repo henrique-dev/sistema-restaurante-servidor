@@ -6,31 +6,29 @@
  */
 package com.br.phdev.srs.controladores;
 
+import com.br.phdev.srs.daos.ClienteDAO;
 import com.br.phdev.srs.daos.GerenciadorDAO;
 import com.br.phdev.srs.exceptions.DAOException;
-import com.br.phdev.srs.exceptions.StorageException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
+import com.br.phdev.srs.models.Cliente;
 import com.br.phdev.srs.models.Complemento;
-import com.br.phdev.srs.models.Foto;
-import com.br.phdev.srs.models.Genero;
-import com.br.phdev.srs.models.Item;
-import com.br.phdev.srs.models.Tipo;
 import com.br.phdev.srs.models.Mensagem;
-import com.br.phdev.srs.utils.ServicoArmazenamento;
+import com.br.phdev.srs.models.Usuario;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -38,7 +36,60 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Controller
 public class GerenciadorController {
+    
+    @GetMapping("gerenciador/entrar")
+    public String entrar() {
+        return "login";
+    }  
+    
+    @PostMapping("gerenciador/autenticar")
+    public String autenticar(@RequestBody Usuario usuario, HttpServletRequest req, HttpServletResponse res, HttpSession sessao) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            Cliente cliente = clienteDAO.autenticar(usuario);
+            if (cliente != null) {
+                clienteDAO.gerarSessao(usuario, sessao.getId());
+                mensagem.setCodigo(100);
+                sessao.setAttribute("usuario", usuario);
+                sessao.setAttribute("cliente", cliente);                
+                return "gerenciador/main";
+            } else {
+                mensagem.setCodigo(101);
+                mensagem.setDescricao("Usuário ou senha inválidos");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(200);
+            mensagem.setDescricao(e.getMessage());
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(e.codigo);
+            mensagem.setDescricao(e.getMessage());
+        }        
+        return "login";
+    }
+    
+    @GetMapping("gerenciador/main")
+    public String main() {
+        return "admin/main";
+    }
+    
+    @GetMapping("gerenciador/complementos")
+    public String complementos(Model modelo) {
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            List<Complemento> complementos = new GerenciadorDAO(conexao).getComplementos();
+            modelo.addAttribute("listaComplementos", complementos);
+        } catch (DAOException | SQLException e) {
+            e.printStackTrace();
+        }
+        return "admin/pre/complemento";
+    }        
 
+    
+    
+    
+    /*
     @PostMapping("gerenciador/listar-generos")
     public ResponseEntity<List<Genero>> listarGeneros(HttpSession sessao) {
         List<Genero> generos = null;
@@ -307,6 +358,6 @@ public class GerenciadorController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
-    }
+    }*/
 
 }

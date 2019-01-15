@@ -29,22 +29,17 @@ import com.br.phdev.srs.models.TokenAlerta;
 import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.models.Mensagem;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
-import com.br.phdev.srs.utils.ServicoAutenticacao;
 import com.br.phdev.srs.utils.ServicoPagamentoPagSeguro;
 import com.br.phdev.srs.utils.ServicoPagamentoPayPal;
 import com.br.phdev.srs.utils.ServicoValidacaoCliente;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paypal.api.payments.Payment;
 import com.twilio.exception.ApiException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
@@ -432,13 +427,17 @@ public class ClienteController {
 
                 {
                     Random rand = new Random();
-                    if (rand.nextInt(100) < 30) {
-                        BigDecimal precoTotal = new BigDecimal(String.valueOf(confirmaPedido.getPrecoTotal()));
-                        BigDecimal desconto = precoTotal.multiply(new BigDecimal(String.valueOf("0.05")));
-                        BigDecimal resultado = precoTotal.subtract(desconto);
-                        resultado = resultado.setScale(2, BigDecimal.ROUND_HALF_UP);
-                        confirmaPedido.setCodigoPromocional(desconto.toString());
-                        confirmaPedido.setPrecoTotal(resultado.doubleValue());
+                    String codigo = confirmaPedido.getCodigoPromocional();
+                    if (codigo != null) {
+                        if (codigo.equals("teste")) {
+                            BigDecimal precoTotal = new BigDecimal(String.valueOf(confirmaPedido.getPrecoTotal()));
+                            BigDecimal desconto = precoTotal.multiply(new BigDecimal(String.valueOf("0.05")));
+                            BigDecimal resultado = precoTotal.subtract(desconto);
+                            resultado = resultado.setScale(2, BigDecimal.ROUND_HALF_UP);
+                            confirmaPedido.setCodigoPromocional(desconto.toString());
+                            confirmaPedido.setPrecoTotal(resultado.doubleValue());
+                        } else
+                            confirmaPedido.setCodigoPromocional(null);
                     }
                 }
 

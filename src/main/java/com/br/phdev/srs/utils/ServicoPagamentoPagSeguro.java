@@ -138,7 +138,7 @@ public class ServicoPagamentoPagSeguro {
                             )
                             .withToken(ep.getTokenCartao())
                     );
-            System.out.println(creditCardTransaction);
+            //System.out.println(creditCardTransaction);
             return creditCardTransaction.getCode();
         } catch (Exception e) {
             e.printStackTrace();
