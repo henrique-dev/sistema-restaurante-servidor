@@ -28,7 +28,7 @@ function trocarTela(opcao) {
 }
 
 function mostrarDialogo(mensagem) {    
-    console.log($("#dialogMessage").value);
+    document.getElementById("dialogMessage").innerHTML = mensagem;
     $("#tela").css("background-color", "rgba(0,0,0,0.4)");
     $("#dialogFrame").css("visibility", "visible");   
     $("#dialogButton").one("onClick", null, function () {
