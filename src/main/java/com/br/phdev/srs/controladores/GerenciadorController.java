@@ -107,6 +107,17 @@ public class GerenciadorController {
         }
         return "admin/pre/genero";
     }
+    
+    @GetMapping("gerenciador/itens")
+    public String itens(Model modelo) {
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            List<Item> itens = new GerenciadorDAO(conexao).getItens();
+            modelo.addAttribute("listaItens", itens);            
+        } catch (DAOException | SQLException e) {
+            e.printStackTrace();
+        }
+        return "admin/pre/item";
+    }
 
     @PostMapping("gerenciador/listar-generos")
     public ResponseEntity<List<Genero>> listarGeneros(HttpSession sessao) {

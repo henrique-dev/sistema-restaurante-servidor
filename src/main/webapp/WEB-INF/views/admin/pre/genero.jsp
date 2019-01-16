@@ -8,14 +8,14 @@
 <div class="tela">
     <div class="loader"></div>
     <div id="dialogFrame">
-        <p id="dialogMessage">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</p>
+        <p id="dialogMessage"></p>
         <button id="dialogButton">Entendi</button>    
     </div>
     <div class="painel">
         <div class="painel-form">
             <label>Nome: </label>
             <input id="nomeGenero" class="campo-nome" type="text"/><br>                                    
-            <div style="text-align: right">
+            <div style="text-align: left">
                 <button onclick="adicionarGenero()">Salvar</button>
             </div>            
         </div>    

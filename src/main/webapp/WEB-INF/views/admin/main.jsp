@@ -21,7 +21,7 @@
                     <ul>
                         <li id="main-0"><a onclick="trocarTela(0)">Cadastrar complemento</a></li>
                         <li id="main-1"><a onclick="trocarTela(1)">Cadastrar gênero</a></li>
-                        <li id="main-2"><a>Cadastrar item</a></li>                
+                        <li id="main-2"><a onclick="trocarTela(2)">Cadastrar item</a></li>                
                     </ul>
                 </div>                    
             </div>        

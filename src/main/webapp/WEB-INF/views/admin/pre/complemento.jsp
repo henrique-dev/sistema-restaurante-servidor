@@ -6,26 +6,28 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <div class="tela">
     <div class="loader"></div>
-    <div id="dialogFrame">
-        <div class="dialogFrameMessages">
-            <p id="dialogMessage">aaaaaaaaaaaaaa</p>
+    <span id="dialogFrame">
+        <div id="dialogWindow">
+            <div class="dialogFrameMessages">
+                <p id="dialogMessage"></p>
+            </div>        
+            <div class="dialogFrameButtons">
+                <button id="dialogButton">Entendi</button>    
+            </div>        
         </div>        
-        <div class="dialogFrameButtons">
-            <button id="dialogButton">Entendi</button>    
-        </div>        
-    </div>
+    </span>
     <div class="painel">
         <div class="painel-form">
             <label>Nome: </label>
             <input id="nomeComplemento" class="campo-nome" type="text"/><br>
-            
+
             <label>Preço: </label>
             <input id="precoComplemento" class="campo-valor" type="text"/><br>
-            
+
             <label>Arquivo de imagem: </label>
             <input id="arquivoComplemento" class="campo-arquivo" type="file"/><br>
-            
-            <div style="text-align: right">
+
+            <div style="text-align: left">
                 <button onclick="adicionarComplemento()">Salvar</button>
             </div>            
         </div>    
