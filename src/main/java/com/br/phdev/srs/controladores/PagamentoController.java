@@ -133,9 +133,7 @@ public class PagamentoController {
     }
 
     @PostMapping("pagamentos/notificar3")
-    public ResponseEntity<String> notificar3(HttpServletRequest request) {
-        System.out.println("Notificação de pagamento do pagseguro");
-
+    synchronized public ResponseEntity<String> notificar3(HttpServletRequest request) {
         if (request.getParameter("notificationCode").isEmpty()
                 || request.getParameter("notificationType").isEmpty()) {
             throw new PagSeguroLibException(

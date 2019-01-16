@@ -1,6 +1,7 @@
 <%-- 
     Document   : teste
     Created on : 19/12/2018, 13:08:51
-    Author     : Paulo Henrique GonÁalves Bacelar <henrique.phgb@gmail.com>
+    Author     : Paulo Henrique Gon√ßalves Bacelar <henrique.phgb@gmail.com>
 --%>
-<!DOCTYPE html>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<% response.sendRedirect("gerenciador/entrar"); %>

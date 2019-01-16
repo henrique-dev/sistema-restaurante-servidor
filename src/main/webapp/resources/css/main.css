@@ -58,7 +58,7 @@ body {
 }
 
 .collapsible {
-    background-color: #777;
+    background-color: #ff9900;
     color: white;
     cursor: pointer;
     padding: 18px;
@@ -70,7 +70,7 @@ body {
 }
 
 .active, .collapsible:hover {
-    background-color: #555;
+    background-color: #995c00;
 }
 
 .content {
@@ -111,7 +111,7 @@ body {
 
 /* Change the link color on hover */
 li a:hover {
-    background-color: #555;
+    background-color: #995c00;
     color: white;
     width: 100%;
     cursor: pointer;
