@@ -153,21 +153,23 @@ public class PagamentoController {
                     Mensagem mensagem = new Mensagem();
                     ClienteDAO clienteDAO = new ClienteDAO(conexao);
                     String sessaoUsuario = clienteDAO.recuperarSessaoClienteParaConfirmarCompra(transacao.getCode());
-                    switch (transacao.getStatus().getStatus()) {
-                        case APPROVED:
-                            mensagem.setCodigo(100);
-                            mensagem.setDescricao("O pagamento foi confirmado");
-                            clienteDAO.inserirPedidoDePrePedido(transacao.getCode());
-                            break;
-                        case CANCELLED:
-                            mensagem.setCodigo(101);
-                            mensagem.setDescricao("O pagamento foi recusado");
-                            break;
+                    if (sessaoUsuario != null) {
+                        switch (transacao.getStatus().getStatus()) {
+                            case APPROVED:
+                                mensagem.setCodigo(100);
+                                mensagem.setDescricao("O pagamento foi confirmado");
+                                clienteDAO.inserirPedidoDePrePedido(transacao.getCode());
+                                break;
+                            case CANCELLED:
+                                mensagem.setCodigo(101);
+                                mensagem.setDescricao("O pagamento foi recusado");
+                                break;
+                        }
+                        ObjectMapper mapeador = new ObjectMapper();
+                        String msg = mapeador.writeValueAsString(mensagem);
+                        System.out.println("Enviando notificação para: " + sessaoUsuario);
+                        this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);
                     }
-                    ObjectMapper mapeador = new ObjectMapper();
-                    String msg = mapeador.writeValueAsString(mensagem);
-                    System.out.println("Enviando notificação para: " + sessaoUsuario);                    
-                    this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);
                 } catch (DAOException | SQLException | JsonProcessingException e) {
                     e.printStackTrace();
                 }

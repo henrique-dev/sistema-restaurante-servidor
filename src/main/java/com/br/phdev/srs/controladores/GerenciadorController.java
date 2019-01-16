@@ -9,13 +9,20 @@ package com.br.phdev.srs.controladores;
 import com.br.phdev.srs.daos.ClienteDAO;
 import com.br.phdev.srs.daos.GerenciadorDAO;
 import com.br.phdev.srs.exceptions.DAOException;
+import com.br.phdev.srs.exceptions.StorageException;
 import com.br.phdev.srs.jdbc.FabricaConexao;
 import com.br.phdev.srs.models.Cliente;
 import com.br.phdev.srs.models.Complemento;
+import com.br.phdev.srs.models.Foto;
+import com.br.phdev.srs.models.Genero;
+import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.Mensagem;
+import com.br.phdev.srs.models.Tipo;
 import com.br.phdev.srs.models.Usuario;
+import com.br.phdev.srs.utils.ServicoArmazenamento;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +37,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -37,12 +45,12 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 public class GerenciadorController {
-    
+
     @GetMapping("gerenciador/entrar")
     public String entrar() {
         return "login";
-    }  
-    
+    }
+
     @PostMapping("gerenciador/autenticar")
     public String autenticar(String nomeUsuario, String senhaUsuario,
             HttpServletRequest req, HttpServletResponse res, HttpSession sessao) {
@@ -55,8 +63,8 @@ public class GerenciadorController {
                 clienteDAO.gerarSessao(usuario, sessao.getId());
                 mensagem.setCodigo(100);
                 sessao.setAttribute("usuario", usuario);
-                sessao.setAttribute("cliente", cliente);                
-                return "admin/main";
+                sessao.setAttribute("cliente", cliente);
+                return "redirect:main";
             } else {
                 mensagem.setCodigo(101);
                 mensagem.setDescricao("Usuário ou senha inválidos");
@@ -69,15 +77,15 @@ public class GerenciadorController {
             e.printStackTrace();
             mensagem.setCodigo(e.codigo);
             mensagem.setDescricao(e.getMessage());
-        }        
+        }
         return "login";
     }
-    
+
     @GetMapping("gerenciador/main")
     public String main() {
         return "admin/main";
     }
-    
+
     @GetMapping("gerenciador/complementos")
     public String complementos(Model modelo) {
         try (Connection conexao = new FabricaConexao().conectar()) {
@@ -87,12 +95,8 @@ public class GerenciadorController {
             e.printStackTrace();
         }
         return "admin/pre/complemento";
-    }        
+    }
 
-    
-    
-    
-    /*
     @PostMapping("gerenciador/listar-generos")
     public ResponseEntity<List<Genero>> listarGeneros(HttpSession sessao) {
         List<Genero> generos = null;
@@ -239,15 +243,20 @@ public class GerenciadorController {
         return new ResponseEntity<>(complementos, httpHeaders, HttpStatus.OK);
     }
 
+    @PostMapping("gerenciador/teste")
+    public ResponseEntity<Mensagem> teste(@RequestBody Mensagem mensagem) {        
+        System.out.println(mensagem);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+
     @PostMapping("gerenciador/cadastrar-complemento")
-    public ResponseEntity<Mensagem> cadastrarComplemento(MultipartFile arquivo, String nome, double preco) {
-        Mensagem mensagem = new Mensagem();
+    public ResponseEntity<Mensagem> cadastrarComplemento(@RequestBody Complemento complemento) {
+        Mensagem mensagem = new Mensagem();                 
         try (Connection conexao = new FabricaConexao().conectar()) {
-            GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);
-            long id = gerenciadorDAO.adicionarArquivo();
-            ServicoArmazenamento sa = new ServicoArmazenamento();
-            sa.salvar(arquivo, id);
-            gerenciadorDAO.adicionarComplemento(new Complemento(0, nome, preco, new Foto(id, null, 0)));
+            GerenciadorDAO gerenciadorDAO = new GerenciadorDAO(conexao);            
+            gerenciadorDAO.adicionarComplemento(complemento);
             mensagem.setCodigo(0);
             mensagem.setDescricao("Complementos inseridos com sucesso");
         } catch (DAOException e) {
@@ -257,10 +266,6 @@ public class GerenciadorController {
         } catch (SQLException e) {
             mensagem.setCodigo(-1);
             mensagem.setDescricao("Erro ao abrir conexão");
-            e.printStackTrace();
-        } catch (StorageException e) {
-            mensagem.setCodigo(-1);
-            mensagem.setDescricao("Erro ao salvar o arquivo no disco");
             e.printStackTrace();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -361,6 +366,6 @@ public class GerenciadorController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
-    }*/
+    }
 
 }

@@ -81,5 +81,10 @@ public class Complemento {
     public int hashCode() {
         return (int)this.id;
     }
+
+    @Override
+    public String toString() {
+        return "Complemento{" + "id=" + id + ", nome=" + nome + ", preco=" + preco + ", foto=" + foto + ", check=" + check + '}';
+    }        
     
 }

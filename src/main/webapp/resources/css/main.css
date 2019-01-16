@@ -11,57 +11,102 @@ Written by Paulo Henrique Gonacalves Bacelar <henrique.phgb@gmail.com>, Dezembro
 html, body {
     height: 100%;
     width: 100%;
+    min-width: 1000px;
 }
 
 body {
     margin: 0;
 }
 
+.loader {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;   
+    left: calc(50% - 175px);
+    top: calc(50% - 175px);
+    visibility: hidden;
+    position: fixed;
+    width: 350px;
+    height: 350px;    
+    -webkit-animation: spin 2s linear infinite; /* Safari */
+    animation: spin 2s linear infinite;    
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#dialogFrame {
+    left: calc(50% - 175px);
+    top: calc(50% - 175px);
+    visibility: hidden;
+    position: fixed;
+    width: 350px;
+    height: 350px;    
+    background-color: #f1f1f1; 
+}
+
+#dialogFrame p {
+    color: black;
+}
+
 .collapsible {
-  background-color: #777;
-  color: white;
-  cursor: pointer;
-  padding: 18px;
-  width: 100%;  
-  border: none;
-  text-align: left;
-  outline: none;
-  font-size: 15px;
+    background-color: #777;
+    color: white;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;  
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 20px;
 }
 
 .active, .collapsible:hover {
-  background-color: #555;
+    background-color: #555;
 }
 
 .content {
-  padding: 0 0;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.2s ease-out;
-  background-color: #f1f1f1;
+    padding: 0 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    background-color: #f1f1f1;
 }
 
-.navbar {
+.sidenav {
     height: 100%;    
-    float: left;
+    width: 200px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
     background-color: #f5f5f5;
 }
 
-ul {
+.sidenav ul {
     list-style-type: none;
+    float: left;
     margin: 0;
-    padding: 0;
-    width: 350px;
+    padding: 0;    
+    width: 100%;
     height: 100%;    
     background-color: #f1f1f1;
 }
 
-li a {
-    display: block;    
-    color: #000;
+.sidenav li a {
+    display: block;
     padding: 8px 16px;    
     text-decoration: none;
-    width: 100%;
+    width: 100%;    
 }
 
 /* Change the link color on hover */
@@ -72,27 +117,78 @@ li a:hover {
     cursor: pointer;
 }
 
-#tela-complementos {
-    padding: 15px 15px;
-    display: inline-block;
+.tela {
+    position: fixed;
+    left: 200px;    
+    width: calc(100% - 200px);    
 }
 
-#tela-complementos label {
+.painel {    
+    padding: 2rem 2rem 2rem 2rem;
+    width: auto;
+}
+
+.painel-form {
+    width: 100%;
+}
+
+.painel-form label {
     padding-left: 1rem;
-    width: 250px;
+    margin-top: 1rem;
+    width: 15%;
     display: inline-block;
 }
 
-#tela-complementos table {    
+.painel-form .campo-nome {
+    width: 80%;
+    height: 25px;
+}
+
+.painel-form .campo-valor {
+    width: 30%;
+    height: 25px;
+}
+
+.painel-form .campo-arquivo {
+    width: 80%;
+    height: 25px;
+}
+
+.painel-form button {
+    margin-top: 1rem;
+    padding: 5px;
+    width: 25%;
+    display: inline-block;
+}
+
+.tabela {        
     border-collapse: collapse;
     border-spacing: 0;
-    width: 300px;    
+    width: 100%;
     border: 1px solid #ddd;
 }
 
-#tela-complementos th, td {
+.tabela th, td {
     text-align: left;
-    padding: 8px;
+    padding: 8px;    
 }
 
-#tela-complementos tr:nth-child(even){background-color: #f2f2f2}
+.tabela .row-actions {
+    text-align: center;
+    width: 200px;
+}
+
+
+.tabela tr:nth-child(even){
+    background-color: #f2f2f2
+}
+
+.tabela .conteudo:hover {
+    background-color: #555;
+    color: white;
+    width: auto;    
+}
+
+.tabela button:hover{
+    cursor: pointer;
+}

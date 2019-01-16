@@ -79,6 +79,7 @@ public class ServicoPagamentoPagSeguro {
             PagSeguro pagSeguro = PagSeguro
                     .instance(new CommonsLoggerFactory(), new JSEHttpClient(),
                             Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
+            pagSeguro.sessions().create().getId();            
 
             AddressBuilder endereco = new AddressBuilder()
                     .withPostalCode(ep.getEndereco().getCep())

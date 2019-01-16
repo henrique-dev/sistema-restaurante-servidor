@@ -38,5 +38,10 @@ public class Mensagem {
     public void setDescricao(String descricao) {
         this.descricao = descricao;
     }        
+
+    @Override
+    public String toString() {
+        return "Mensagem{" + "codigo=" + codigo + ", descricao=" + descricao + '}';
+    }        
     
 }

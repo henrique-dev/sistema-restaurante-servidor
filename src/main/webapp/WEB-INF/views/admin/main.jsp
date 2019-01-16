@@ -8,17 +8,25 @@
         <script src="${pageContext.request.contextPath}/resources/js/main.js"></script>       
     </head>    
     <body>
-        <div class="navbar">
-            <button class="collapsible">Venda</button>
-            <div class="content">            
-                <ul>
-                    <li><a onclick="cadastrarComplemento()">Cadastrar complemento</a></li>
-                    <li><a>Cadastrar gênero</a></li>
-                    <li><a>Cadastrar item</a></li>                
-                </ul>
-            </div>                    
+        <div style="display: inline;">
+            <div class="sidenav">
+                <button class="collapsible">Venda</button>
+                <div class="content">            
+                    <ul>
+                        <li id="main-3"><a>Pedidos</a></li>                        
+                    </ul>
+                </div>                    
+                <button class="collapsible">Administração</button>
+                <div class="content">            
+                    <ul>
+                        <li id="main-0"><a onclick="trocarTela(0)">Cadastrar complemento</a></li>
+                        <li id="main-1"><a>Cadastrar gênero</a></li>
+                        <li id="main-2"><a>Cadastrar item</a></li>                
+                    </ul>
+                </div>                    
+            </div>        
+            <div id="tela"></div>
         </div>        
-        <div id="tela" style="display: block; float: none; height: auto; padding-left: 10rem;"></div>
         <script>
             var coll = document.getElementsByClassName("collapsible");
             var i;

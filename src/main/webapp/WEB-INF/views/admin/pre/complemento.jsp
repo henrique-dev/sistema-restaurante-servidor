@@ -4,25 +4,40 @@
     Author     : Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
 --%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<div id="tela-complementos">
-    <form>
-        <label>Nome: </label>
-        <input type="text"/><br>
-        <label>Preço: </label>
-        <input type="number"/><br>
-        <label>Arquivo de imagem: </label>
-        <input type="file"/><br>
-    </form>    
-    <div>
-        <table id="tabela-complementos">       
+<div class="tela">
+    <div class="loader"></div>
+    <div id="dialogFrame">
+        <p id="dialogMessage"></p>
+        <button id="dialogButton">Entendi</button>    
+    </div>
+    <div class="painel">
+        <div class="painel-form">
+            <label>Nome: </label>
+            <input id="nomeComplemento" class="campo-nome" type="text"/><br>
+            
+            <label>Preço: </label>
+            <input id="precoComplemento" class="campo-valor" type="text"/><br>
+            
+            <label>Arquivo de imagem: </label>
+            <input id="arquivoComplemento" class="campo-arquivo" type="file"/><br>
+            
+            <div style="text-align: right">
+                <button onclick="adicionarComplemento()">Salvar</button>
+            </div>            
+        </div>    
+    </div>    
+    <div class="painel">
+        <table id="tabelaComplemento" class="tabela">       
             <tr>
                 <th>Nome</th>
                 <th>Preço</th>                    
+                <th class="row-actions">Ações</th>
             </tr>
             <c:forEach items="${listaComplementos}" var="complemento">
-                <tr>
-                    <th>${complemento.nome}</th>
-                    <th>${complemento.preco}</th>
+                <tr class="conteudo">
+                    <td>${complemento.nome}</td>
+                    <td>${complemento.preco}</td>
+                    <td class="row-actions"><button>Modificar</button><button>Excluir</button></td>
                 </tr>
             </c:forEach>
         </table>        
