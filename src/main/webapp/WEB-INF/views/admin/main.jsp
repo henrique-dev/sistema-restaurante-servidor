@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>JSP Page</title>
+        <title>Principal</title>
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/main.css"/>
         <script src="${pageContext.request.contextPath}/resources/js/jquery.js"></script>
         <script src="${pageContext.request.contextPath}/resources/js/main.js"></script>       
@@ -20,7 +20,7 @@
                 <div class="content">            
                     <ul>
                         <li id="main-0"><a onclick="trocarTela(0)">Cadastrar complemento</a></li>
-                        <li id="main-1"><a>Cadastrar gênero</a></li>
+                        <li id="main-1"><a onclick="trocarTela(1)">Cadastrar gênero</a></li>
                         <li id="main-2"><a>Cadastrar item</a></li>                
                     </ul>
                 </div>                    

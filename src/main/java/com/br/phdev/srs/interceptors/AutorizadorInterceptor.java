@@ -37,7 +37,7 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
                     || uri.contains("entrar")) {
                 return true;
             } else {
-                response.sendRedirect("sem-autorizacao");
+                response.sendRedirect("entrar");
                 return false;
             }
         }

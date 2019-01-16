@@ -4,28 +4,32 @@
  * Proprietary and confidential
  * Written by Paulo Henrique Gonacalves Bacelar <henrique.phgb@gmail.com>, Dezembro 2018
  */
-function trocarTela(opcao) {
+function trocarTela(opcao) {    
+    $("#main-0").css({"background-color": "#f1f1f1", "color": "black"});
+    $("#main-1").css({"background-color": "#f1f1f1", "color": "black"});
+    $("#main-2").css({"background-color": "#f1f1f1", "color": "black"});
+    $("#main-3").css({"background-color": "#f1f1f1", "color": "black"});
+    $("#main-4").css({"background-color": "#f1f1f1", "color": "black"});
     switch (opcao) {
         case 0:
             $("#main-" + opcao).css({"background-color": "#555", "color": "white"});
-
             $.get("complementos", {}, function (data) {
                 $("#tela").html(data);
             });
             break;
         case 1:
-            $.get("complementos", {}, function (data) {
+            $("#main-" + opcao).css({"background-color": "#555", "color": "white"});
+            $.get("generos", {}, function (data) {
                 $("#tela").html(data);
             });
-            break;
         case 2:
             break;
     }
 }
 
-function mostrarDialogo(mensagem) {
-    console.log("HERE");
-    $("#dialogMessage").add("<p>" + mensagem + "<p>");    
+function mostrarDialogo(mensagem) {    
+    console.log($("#dialogMessage").value);
+    $("#tela").css("background-color", "rgba(0,0,0,0.4)");
     $("#dialogFrame").css("visibility", "visible");   
     $("#dialogButton").one("onClick", null, function () {
         console.log("OK");

@@ -133,7 +133,7 @@ public class PagamentoController {
     }
 
     @PostMapping("pagamentos/notificar3")
-    synchronized public ResponseEntity<String> notificar3(HttpServletRequest request) {
+    public ResponseEntity<String> notificar3(HttpServletRequest request) throws InterruptedException {
         if (request.getParameter("notificationCode").isEmpty()
                 || request.getParameter("notificationType").isEmpty()) {
             throw new PagSeguroLibException(
@@ -166,6 +166,9 @@ public class PagamentoController {
                         ObjectMapper mapeador = new ObjectMapper();
                         String msg = mapeador.writeValueAsString(mensagem);
                         System.out.println("Enviando notificação para: " + sessaoUsuario);
+                        this.template.setSendTimeout(10000);
+                        this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);
+                        Thread.sleep(10000);
                         this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);
                     }
                 } catch (DAOException | SQLException | JsonProcessingException e) {
@@ -212,8 +215,8 @@ public class PagamentoController {
                     mensagem.setDescricao("O pagamento foi recusado");
                 }
                 ObjectMapper mapeador = new ObjectMapper();
-                String msg = mapeador.writeValueAsString(mensagem);
-                this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);
+                String msg = mapeador.writeValueAsString(mensagem);                
+                this.template.convertAndSendToUser(sessaoUsuario, "/queue/reply", msg);                
             }
         } catch (DAOException | SQLException | JsonProcessingException e) {
             e.printStackTrace();

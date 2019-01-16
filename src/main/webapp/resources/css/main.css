@@ -44,17 +44,27 @@ body {
 }
 
 #dialogFrame {
-    left: calc(50% - 175px);
-    top: calc(50% - 175px);
-    visibility: hidden;
+    left: calc(50% - 125px);
+    top: calc(50% - 125px);    
     position: fixed;
-    width: 350px;
-    height: 350px;    
-    background-color: #f1f1f1; 
+    visibility: hidden;
+    width: 450px;
+    height: auto;    
+    border-color: #000;
+    border-style: solid;
+    background-color: #f4f4f4; 
 }
 
-#dialogFrame p {
-    color: black;
+#dialogFrame .dialogFrameMessages {
+    text-align: center;
+}
+
+#dialogFrame .dialogFrameButtons {
+    text-align: center;
+}
+
+#dialogFrame .dialogFrameButtons button {
+    margin: 10px;
 }
 
 .collapsible {

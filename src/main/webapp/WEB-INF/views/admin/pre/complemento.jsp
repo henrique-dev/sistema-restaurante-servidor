@@ -7,8 +7,12 @@
 <div class="tela">
     <div class="loader"></div>
     <div id="dialogFrame">
-        <p id="dialogMessage"></p>
-        <button id="dialogButton">Entendi</button>    
+        <div class="dialogFrameMessages">
+            <p id="dialogMessage">aaaaaaaaaaaaaa</p>
+        </div>        
+        <div class="dialogFrameButtons">
+            <button id="dialogButton">Entendi</button>    
+        </div>        
     </div>
     <div class="painel">
         <div class="painel-form">
