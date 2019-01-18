@@ -347,6 +347,7 @@ public class ClienteDAO extends BasicDAO {
                     item.setNome(rs.getString("nome"));
                     item.setPreco(rs.getDouble("preco"));
                     item.setModificavel(rs.getBoolean("modificavel"));
+                    item.setModificavelIngrediente(rs.getBoolean("modificavel_ingrediente"));
                     Genero genero = new Genero(rs.getLong("id_genero"), rs.getString("genero"));
                     item.setGenero(genero);                    
                     generos.add(genero);
@@ -409,6 +410,7 @@ public class ClienteDAO extends BasicDAO {
                     item.setPreco(rs.getDouble("preco"));
                     item.setDescricao(rs.getString("descricao"));
                     item.setModificavel(rs.getBoolean("modificavel"));
+                    item.setModificavelIngrediente(rs.getBoolean("modificavel_ingrediente"));
                     Genero genero = new Genero(rs.getLong("id_genero"), rs.getString("genero"));
                     item.setGenero(genero);
                 }

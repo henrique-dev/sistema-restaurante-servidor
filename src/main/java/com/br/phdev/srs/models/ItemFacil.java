@@ -21,6 +21,7 @@ public class ItemFacil {
     private String nome;
     private double preco;
     private Set<ComplementoFacil> complementos;
+    private Set<Ingrediente> ingredientes;
     private List<GrupoVariacao> variacoes;
 
     public ItemFacil() {
@@ -31,6 +32,7 @@ public class ItemFacil {
         this.nome = item.getNome();
         this.preco = item.getPreco();
         this.variacoes = item.getVariacoes();
+        this.ingredientes = item.getIngredientes();
         this.complementos = new HashSet<>();        
         if (item.getComplementos() != null)
             for (Complemento c : item.getComplementos()) {
@@ -77,5 +79,13 @@ public class ItemFacil {
     public void setVariacoes(List<GrupoVariacao> variacoes) {
         this.variacoes = variacoes;
     }    
+
+    public Set<Ingrediente> getIngredientes() {
+        return ingredientes;
+    }
+
+    public void setIngredientes(Set<Ingrediente> ingredientes) {
+        this.ingredientes = ingredientes;
+    }        
             
 }

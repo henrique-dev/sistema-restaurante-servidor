@@ -24,7 +24,9 @@ public class Item {
     private Genero genero;
     private Set<Tipo> tipos;
     private boolean modificavel;
+    private boolean modificavelIngrediente;
     private Set<Complemento> complementos;
+    private Set<Ingrediente> ingredientes;
     private List<GrupoVariacao> variacoes;    
     private Set<Foto> fotos;
 
@@ -123,6 +125,22 @@ public class Item {
     public void setVariacoes(List<GrupoVariacao> variacoes) {
         this.variacoes = variacoes;
     }    
+
+    public Set<Ingrediente> getIngredientes() {
+        return ingredientes;
+    }
+
+    public void setIngredientes(Set<Ingrediente> ingredientes) {
+        this.ingredientes = ingredientes;
+    }        
+
+    public boolean isModificavelIngrediente() {
+        return modificavelIngrediente;
+    }
+
+    public void setModificavelIngrediente(boolean modificavelIngrediente) {
+        this.modificavelIngrediente = modificavelIngrediente;
+    }        
 
     @Override
     public String toString() {
