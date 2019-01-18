@@ -490,6 +490,7 @@ public class ClienteController {
                             if (sessao.getAttribute("token_sessao_pagseguro") == null) {
                                 ServicoPagamentoPagSeguro servicoPagamento = new ServicoPagamentoPagSeguro();
                                 tokenSessao = servicoPagamento.criarTokenPagamento();
+                                sessao.setAttribute("token_sessao_pagseguro", tokenSessao);
                             } else {
                                 tokenSessao = (String) sessao.getAttribute("token_sessao_pagseguro");
                             }
