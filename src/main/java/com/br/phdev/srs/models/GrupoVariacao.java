@@ -15,16 +15,26 @@ import java.util.Set;
  */
 public class GrupoVariacao {
         
+    private String nome;
     private int max;
     private Set<Variacao> variacoes;        
 
     public GrupoVariacao() {
     }
 
-    public GrupoVariacao(int max, Set<Variacao> variacoes) {
+    public GrupoVariacao(String nome, int max, Set<Variacao> variacoes) {
+        this.nome = nome;
         this.max = max;
         this.variacoes = variacoes;
     }             
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }        
 
     public int getMax() {
         return max;

@@ -186,6 +186,7 @@ public class RepositorioProdutos {
                     Variacao variacao = new Variacao(rs.getLong("id_variacao"), rs.getString("nome"), rs.getDouble("preco"), rs.getInt("ordem"));
                     v.add(variacao);
                     gv.setMax(rs.getInt("max"));
+                    gv.setNome(rs.getString("nome_grupo"));
                     gv.setVariacoes(v);
                     variacoesList.add(gv);
                     this.variacoes.put(rs.getLong("id_variacao"), variacao);

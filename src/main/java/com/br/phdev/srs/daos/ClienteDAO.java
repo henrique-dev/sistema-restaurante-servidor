@@ -475,6 +475,7 @@ public class ClienteDAO extends BasicDAO {
                             Set<Variacao> v = new HashSet<>();
                             v.add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco"), rs2.getInt("ordem")));
                             gv.setMax(rs2.getInt("max"));
+                            gv.setNome(rs2.getString("nome_grupo"));
                             gv.setVariacoes(v);
                             variacoes.add(gv);
 
