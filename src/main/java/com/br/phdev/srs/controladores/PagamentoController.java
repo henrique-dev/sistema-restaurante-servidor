@@ -47,6 +47,20 @@ public class PagamentoController {
 
     @Autowired
     private SimpMessagingTemplate template;
+    
+    @GetMapping("pagamentos/criar-pagamento")
+    public ResponseEntity<Mensagem> criarPagamento(HttpSession sessao) {
+        Mensagem mensagem = new Mensagem();
+        ServicoPagamentoPagSeguro pagSeguro = new ServicoPagamentoPagSeguro();
+        String token = pagSeguro.criarTokenPagamento();
+        mensagem.setCodigo(100);
+        mensagem.setDescricao(token);
+        sessao.setAttribute("token_sessao_pagseguro", token);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+    
 
     @GetMapping("pagamentos/executar-pagamento")
     public String executarPagamento(HttpServletRequest req) {

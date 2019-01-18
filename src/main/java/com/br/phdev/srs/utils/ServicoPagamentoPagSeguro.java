@@ -73,8 +73,7 @@ public class ServicoPagamentoPagSeguro {
     public void teste() {
         final PagSeguro pagSeguro = PagSeguro
                 .instance(new CommonsLoggerFactory(), new JSEHttpClient(),
-                        Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
-        System.out.println(pagSeguro);
+                        Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);        
     }
 
     public String executarPagamento(ExecutarPagamento ep) throws PaymentException {

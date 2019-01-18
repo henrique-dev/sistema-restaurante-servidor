@@ -431,8 +431,9 @@ public class ClienteController {
                             resultado = resultado.setScale(2, BigDecimal.ROUND_HALF_UP);
                             confirmaPedido.setCodigoPromocional(desconto.toString());
                             confirmaPedido.setPrecoTotal(resultado.doubleValue());
-                        } else
+                        } else {
                             confirmaPedido.setCodigoPromocional(null);
+                        }
                     }
                 }
 
@@ -485,8 +486,13 @@ public class ClienteController {
                         break;
                     case 2:
                         if (!clienteDAO.possuiPrePredido(cliente)) {
-                            ServicoPagamentoPagSeguro servicoPagamento = new ServicoPagamentoPagSeguro();
-                            String tokenSessao = servicoPagamento.criarTokenPagamento();
+                            String tokenSessao;
+                            if (sessao.getAttribute("token_sessao_pagseguro") == null) {
+                                ServicoPagamentoPagSeguro servicoPagamento = new ServicoPagamentoPagSeguro();
+                                tokenSessao = servicoPagamento.criarTokenPagamento();
+                            } else {
+                                tokenSessao = (String) sessao.getAttribute("token_sessao_pagseguro");
+                            }
                             ExecutarPagamento pagamento = new ExecutarPagamento();
                             pagamento.setCliente(cliente);
                             pagamento.setPedido(pedido);
@@ -516,7 +522,7 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(confirmacaoPedido, httpHeaders, httpStatus);
-    }
+    }            
 
     @PostMapping("cliente/listar-pedidos")
     public ResponseEntity<List<Pedido2>> listarPedidos(HttpSession sessao, HttpServletRequest req) {
