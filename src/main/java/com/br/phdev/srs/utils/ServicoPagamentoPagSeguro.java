@@ -55,6 +55,9 @@ public class ServicoPagamentoPagSeguro {
                     "https://ws.sandbox.pagseguro.uol.com.br/v2/sessions/?email=" + email + "&token=" + token);
             HttpClient cliente = new HttpClient(conexao, "POST");
             String resposta = cliente.retrieveString();
+            
+            System.out.println(conexao.getHeaderFields());
+            
             tokenSessao = new XMLUtils().getFirstElement("id", resposta);
             ObjectMapper mapeador = new ObjectMapper();
         } catch (DAOException e) {

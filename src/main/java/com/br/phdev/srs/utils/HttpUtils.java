@@ -31,7 +31,7 @@ public class HttpUtils {
             System.out.println("");
         }
         System.out.println("");
-    }
+    }       
     
     public void showAttributes(HttpServletRequest req) {
         System.out.println("Atributos");

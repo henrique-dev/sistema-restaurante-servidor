@@ -364,11 +364,6 @@ public class ClienteController {
             if (validarSessao(clienteDAO, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 itens = clienteDAO.recuperarPrePredido(cliente);
-
-                ObjectMapper mapeador = new ObjectMapper();
-                String json = mapeador.writeValueAsString(itens);
-                //System.out.println(json);
-
             } else {
                 httpStatus = HttpStatus.UNAUTHORIZED;
             }

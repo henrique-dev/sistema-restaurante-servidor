@@ -23,9 +23,9 @@ public class Item {
     private double preco;
     private Genero genero;
     private Set<Tipo> tipos;
-    private boolean modificavel;
-    private boolean modificavelIngrediente;
+    private boolean modificavel;    
     private Set<Complemento> complementos;
+    private boolean modificavelIngrediente;
     private Set<Ingrediente> ingredientes;
     private List<GrupoVariacao> variacoes;    
     private Set<Foto> fotos;
