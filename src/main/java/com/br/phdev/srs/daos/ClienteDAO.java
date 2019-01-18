@@ -30,6 +30,7 @@ import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.models.ValidaCadastro;
 import com.br.phdev.srs.models.Arquivo;
 import com.br.phdev.srs.models.GrupoVariacao;
+import com.br.phdev.srs.models.Ingrediente;
 import com.br.phdev.srs.models.Variacao;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -349,7 +350,7 @@ public class ClienteDAO extends BasicDAO {
                     item.setModificavel(rs.getBoolean("modificavel"));
                     item.setModificavelIngrediente(rs.getBoolean("modificavel_ingrediente"));
                     Genero genero = new Genero(rs.getLong("id_genero"), rs.getString("genero"));
-                    item.setGenero(genero);                    
+                    item.setGenero(genero);
                     generos.add(genero);
                 }
                 tipos.add(new Tipo(rs.getLong("id_tipo"), rs.getString("tipo_nome")));
@@ -396,6 +397,7 @@ public class ClienteDAO extends BasicDAO {
             stmt.setLong(1, item.getId());
             ResultSet rs = stmt.executeQuery();
             Set<Tipo> tipos = new HashSet<>();
+            Set<Ingrediente> ingredientes = new HashSet<>();
             Set<Foto> fotos = new HashSet<>();
             Set<Complemento> complementos = new HashSet<>();
             List<GrupoVariacao> variacoes = new ArrayList<>();
@@ -429,37 +431,53 @@ public class ClienteDAO extends BasicDAO {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_lista_complementos_item(?)")) {
-                    stmt2.setLong(1, item.getId());
-                    ResultSet rs2 = stmt2.executeQuery();
-                    complementos = new HashSet<>();
-                    while (rs2.next()) {
-                        complementos.add(new Complemento(
-                                rs2.getLong("id_complemento"),
-                                rs2.getString("nome"),
-                                rs2.getDouble("preco"),
-                                new Foto(rs2.getLong("id_arquivo"), null, 0)));
+                if (item.isModificavel()) {
+                    try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_lista_complementos_item(?)")) {
+                        stmt2.setLong(1, item.getId());
+                        ResultSet rs2 = stmt2.executeQuery();
+                        complementos = new HashSet<>();
+                        while (rs2.next()) {
+                            complementos.add(new Complemento(
+                                    rs2.getLong("id_complemento"),
+                                    rs2.getString("nome"),
+                                    rs2.getDouble("preco"),
+                                    new Foto(rs2.getLong("id_arquivo"), null, 0)));
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
                     }
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                }
+                if (item.isModificavelIngrediente()) {
+                    try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_lista_ingredientes_item(?)")) {
+                        stmt2.setLong(1, item.getId());
+                        ResultSet rs2 = stmt2.executeQuery();
+                        ingredientes = new HashSet<>();
+                        while (rs2.next()) {
+                            ingredientes.add(new Ingrediente(
+                                    rs2.getLong("id_ingrediente"),
+                                    rs2.getString("nome")));
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
                 try (PreparedStatement stmt2 = super.conexao.prepareStatement("CALL get_lista_variacoes_item(?)")) {
                     stmt2.setLong(1, item.getId());
                     ResultSet rs2 = stmt2.executeQuery();
                     variacoes = new ArrayList<>();
-                    while (rs2.next()) {                                
+                    while (rs2.next()) {
                         if (variacoes.size() > rs2.getInt("grupo")) {
-                            GrupoVariacao gv = variacoes.get(rs2.getInt("grupo"));                            
+                            GrupoVariacao gv = variacoes.get(rs2.getInt("grupo"));
                             gv.getVariacoes().add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco"), rs2.getInt("ordem")));
                             gv.setMax(rs2.getInt("max"));
                         } else {
                             GrupoVariacao gv = new GrupoVariacao();
-                            Set<Variacao> v = new HashSet<>();                            
+                            Set<Variacao> v = new HashSet<>();
                             v.add(new Variacao(rs2.getLong("id_variacao"), rs2.getString("nome"), rs2.getDouble("preco"), rs2.getInt("ordem")));
                             gv.setMax(rs2.getInt("max"));
                             gv.setVariacoes(v);
                             variacoes.add(gv);
-                            
+
                         }
                     }
                 } catch (SQLException e) {
@@ -467,6 +485,7 @@ public class ClienteDAO extends BasicDAO {
                 }
                 item.setTipos(tipos);
                 item.setComplementos(complementos);
+                item.setIngredientes(ingredientes);
                 item.setFotos(fotos);
                 item.setVariacoes(variacoes);
             }
@@ -507,7 +526,7 @@ public class ClienteDAO extends BasicDAO {
         }
         return enderecos;
     }
-    
+
     public Endereco getEndereco(Endereco endereco, Cliente cliente) throws DAOIncorrectData, DAOException {
         if (cliente == null) {
             throw new DAOIncorrectData(300);
@@ -520,7 +539,7 @@ public class ClienteDAO extends BasicDAO {
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setLong(1, cliente.getId());
             stmt.setLong(2, endereco.getId());
-            ResultSet rs = stmt.executeQuery();            
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 enderecoRetorno = new Endereco();
                 enderecoRetorno.setId(rs.getLong("id_endereco"));
@@ -530,7 +549,7 @@ public class ClienteDAO extends BasicDAO {
                 enderecoRetorno.setCidade(rs.getString("cidade"));
                 enderecoRetorno.setComplemento(rs.getString("complemento"));
                 enderecoRetorno.setCep(rs.getString("cep"));
-                enderecoRetorno.setDescricao(rs.getString("descricao"));                
+                enderecoRetorno.setDescricao(rs.getString("descricao"));
             }
         } catch (SQLException e) {
             throw new DAOException("Erro ao recuperar informações", e, 200);
@@ -593,7 +612,7 @@ public class ClienteDAO extends BasicDAO {
         repositorioPrecos.carregar(super.conexao);
         BigDecimal valorTotal = new BigDecimal("0.00");
         for (ItemPedido ip : confirmaPedido.getItens()) {
-            repositorioPrecos.preencherItem(ip);            
+            repositorioPrecos.preencherItem(ip);
             BigDecimal valorItem = new BigDecimal("0.00");
             if (ip.getComplementos() != null) {
                 for (Complemento c : ip.getComplementos()) {

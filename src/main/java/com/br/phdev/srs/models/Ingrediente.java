@@ -15,6 +15,14 @@ public class Ingrediente {
     private long id;
     private String nome;
 
+    public Ingrediente() {
+    }
+
+    public Ingrediente(long id, String nome) {
+        this.id = id;
+        this.nome = nome;
+    }        
+
     public long getId() {
         return id;
     }
