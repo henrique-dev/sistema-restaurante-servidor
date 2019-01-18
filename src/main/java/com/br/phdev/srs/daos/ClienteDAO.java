@@ -815,7 +815,20 @@ public class ClienteDAO extends BasicDAO {
                 endereco.setId(rs.getObject("id_endereco") != null ? rs.getLong("id_endereco") : -1);
                 endereco.setDescricao(rs.getString("endereco_descricao"));
                 pedido.setEndereco(endereco);
-                pedido.setStatus(!rs.getBoolean("entregue") ? "Entrega em andamento" : "Entregue");
+                switch (rs.getInt("estado")) {
+                    case 1:
+                        pedido.setStatus("Conferido");
+                       break;
+                    case 2:
+                        pedido.setStatus("Em produção");
+                        break;
+                    case 3:
+                        pedido.setStatus("Saiu pra entrega");
+                        break;
+                    case 4:
+                        pedido.setStatus("Entregue");
+                        break;                        
+                }                
                 pedidos.add(pedido);
             }
         } catch (SQLException e) {
