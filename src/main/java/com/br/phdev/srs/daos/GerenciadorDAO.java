@@ -10,6 +10,7 @@ import com.br.phdev.srs.exceptions.DAOException;
 import com.br.phdev.srs.models.Complemento;
 import com.br.phdev.srs.models.Foto;
 import com.br.phdev.srs.models.Genero;
+import com.br.phdev.srs.models.Ingrediente;
 import com.br.phdev.srs.models.Item;
 import com.br.phdev.srs.models.ListaItens;
 import com.br.phdev.srs.models.Tipo;
@@ -184,6 +185,52 @@ public class GerenciadorDAO extends BasicDAO {
         }
         complementos.clear();
         complementos.addAll(complementosParaApagarFoto);
+    }
+    
+    public List<Ingrediente> getIngredientes() throws DAOException {
+        List<Ingrediente> ingredientes = null;
+        String sql = "CALL get_lista_ingredientes";
+        try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            ingredientes = new ArrayList<>();
+            while (rs.next()) {
+                Ingrediente ingrediente = new Ingrediente();
+                ingrediente.setId(rs.getLong("id_ingrediente"));
+                ingrediente.setNome(rs.getString("nome"));                
+                ingredientes.add(ingrediente);
+            }
+        } catch (SQLException e) {
+            throw new DAOException(e, 200);
+        }
+        return ingredientes;
+    }
+
+    public void adicionarIngrediente(List<Ingrediente> ingredientes) throws DAOException {
+        String sql = "CALL inserir_ingrediente(?)";
+        for (Ingrediente ingrediente : ingredientes) {
+            try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+                stmt.setString(1, ingrediente.getNome());
+                stmt.execute();
+            } catch (SQLException e) {
+                throw new DAOException(e, 200);
+            }
+        }
+    }
+
+    public void removerIngredientes(List<Ingrediente> ingredientes) throws DAOException, SQLIntegrityConstraintViolationException {
+        String sql = "CALL remover_ingrediente(?)";
+        for (Ingrediente ingrediente : ingredientes) {
+            try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
+                stmt.setLong(1, ingrediente.getId());
+                stmt.execute();
+            } catch (SQLException e) {
+                if (e instanceof SQLIntegrityConstraintViolationException) {
+                    throw new SQLIntegrityConstraintViolationException("Algum ingrediente está sendo utilizado e não pode ser excluido.");
+                } else {
+                    throw new DAOException(e, 200);
+                }
+            }
+        }
     }
 
     public List<Item> getItens() throws DAOException {

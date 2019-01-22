@@ -6,6 +6,9 @@
  */
 package com.br.phdev.srs.controladores;
 
+import com.br.phdev.srs.daos.AutenticaDAO;
+import com.br.phdev.srs.daos.BasicDAO;
+import com.br.phdev.srs.daos.CadastroDAO;
 import com.br.phdev.srs.daos.ClienteDAO;
 import com.br.phdev.srs.daos.RepositorioProdutos;
 import com.br.phdev.srs.exceptions.DAOException;
@@ -64,16 +67,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class ClienteController {
 
-    private final String chave = "ZXDas7966mby@";
-
     @PostMapping("cliente/autenticar")
     public ResponseEntity<Mensagem> autenticar(@RequestBody Usuario usuario, HttpServletRequest req, HttpServletResponse res, HttpSession sessao) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
-            ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            Cliente cliente = clienteDAO.autenticar(usuario);
+            AutenticaDAO autenticaDAO = new AutenticaDAO(conexao);
+            Cliente cliente = autenticaDAO.autenticar(usuario);
             if (cliente != null) {
-                clienteDAO.gerarSessao(usuario, sessao.getId());
+                autenticaDAO.gerarSessao(usuario, sessao.getId());
                 mensagem.setCodigo(100);
                 sessao.setAttribute("usuario", usuario);
                 sessao.setAttribute("cliente", cliente);
@@ -103,8 +104,8 @@ public class ClienteController {
     public ResponseEntity<Mensagem> sair(HttpSession sessao, HttpServletRequest request) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
-            ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.sairSessao((Usuario) sessao.getAttribute("usuario"), null);
+            AutenticaDAO autenticaDAO = new AutenticaDAO(conexao);
+            autenticaDAO.sairSessao((Usuario) sessao.getAttribute("usuario"), null);
             mensagem.setCodigo(100);
             mensagem.setDescricao("Desconectado do sistema");
             sessao.removeAttribute("usuario");
@@ -124,12 +125,12 @@ public class ClienteController {
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
 
-    @RequestMapping("cliente/verificar-numero")
+    @PostMapping("cliente/verificar-numero")
     public ResponseEntity<Mensagem> verificarNumero(@RequestBody Cadastro cadastro) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
-            ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            String token = clienteDAO.preCadastrar(cadastro.getTelefone(), this.chave);
+            CadastroDAO cadastroDAO = new CadastroDAO(conexao);
+            String token = cadastroDAO.preCadastrar(cadastro.getTelefone());
             try {
                 new ServicoValidacaoCliente().enviarMensagem(cadastro.getTelefone(), token);
             } catch (ApiException e) {
@@ -151,12 +152,12 @@ public class ClienteController {
         return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
     }
 
-    @RequestMapping("cliente/validar-numero")
+    @PostMapping("cliente/validar-numero")
     public ResponseEntity<Mensagem> validarNumero(@RequestBody Codigo codigo) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
-            ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (clienteDAO.validarNumero(codigo)) {
+            CadastroDAO cadastroDAO = new CadastroDAO(conexao);
+            if (cadastroDAO.validarNumero(codigo)) {
                 mensagem.setDescricao("Numero verificado com sucesso. Agora falta apenas finalizar se ucadastro.");
                 mensagem.setCodigo(100);
             } else {
@@ -170,6 +171,35 @@ public class ClienteController {
         } catch (DAOException e) {
             e.printStackTrace();
             mensagem.setCodigo(200);
+            mensagem.setDescricao(e.getMessage());
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping("cliente/reenviar-codigo")
+    public ResponseEntity<Mensagem> reenviarCodigo(@RequestBody Cadastro cadastro) {
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            CadastroDAO cadastroDAO = new CadastroDAO(conexao);
+            mensagem = cadastroDAO.reenviarCodigo(cadastro.getTelefone());
+            if (mensagem.getCodigo() == 100) {
+                String token = mensagem.getDescricao();
+                try {
+                    new ServicoValidacaoCliente().enviarMensagem(cadastro.getTelefone(), token);
+                } catch (ApiException e) {
+                    e.printStackTrace();
+                }
+                mensagem.setDescricao("O codigo foi reenviado");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mensagem.setDescricao(e.getMessage());
+            mensagem.setCodigo(200);
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(e.codigo);
             mensagem.setDescricao(e.getMessage());
         }
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -204,8 +234,8 @@ public class ClienteController {
     public ResponseEntity<Mensagem> cadastrar(@RequestBody Cadastro cadastro) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
-            ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            clienteDAO.cadastrarCliente(cadastro);
+            CadastroDAO cadastroDAO = new CadastroDAO(conexao);
+            cadastroDAO.cadastrarCliente(cadastro);
             mensagem.setDescricao("Cadastro realizado com sucesso");
             mensagem.setCodigo(100);
         } catch (SQLException e) {
@@ -226,8 +256,8 @@ public class ClienteController {
     public ResponseEntity<Mensagem> verificarSessao(HttpServletRequest req) {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
-            ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (clienteDAO.verificarSessao(req.getHeader("ac-tk"))) {
+            AutenticaDAO autenticaDAO = new AutenticaDAO(conexao);
+            if (autenticaDAO.verificarSessao(req.getHeader("ac-tk"))) {
                 mensagem.setDescricao("Pode autenticar");
                 mensagem.setCodigo(100);
             } else {
@@ -264,7 +294,7 @@ public class ClienteController {
         Cliente cliente = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, req)) {
+            if (validarSessao(conexao, req)) {
                 cliente = (Cliente) sessao.getAttribute("cliente");
                 clienteDAO.getCliente(cliente);
             } else {
@@ -288,7 +318,7 @@ public class ClienteController {
         ListaItens listaItens = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, req)) {
+            if (validarSessao(conexao, req)) {
                 listaItens = clienteDAO.getItens();
                 if (listaItens != null) {
                     listaItens.setFrete(RepositorioProdutos.getInstancia().frete);
@@ -329,7 +359,7 @@ public class ClienteController {
         HttpStatus httpStatus = HttpStatus.OK;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, req)) {
+            if (validarSessao(conexao, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 if (clienteDAO.possuiPrePredido(cliente)) {
                     mensagem.setCodigo(100);
@@ -361,7 +391,7 @@ public class ClienteController {
         List<ItemPedido> itens = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, req)) {
+            if (validarSessao(conexao, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 itens = clienteDAO.recuperarPrePredido(cliente);
             } else {
@@ -383,7 +413,7 @@ public class ClienteController {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, req)) {
+            if (validarSessao(conexao, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 clienteDAO.removerPrepedido(cliente);
                 sessao.removeAttribute("pre-pedido-itens");
@@ -411,7 +441,7 @@ public class ClienteController {
         HttpStatus httpStatus = HttpStatus.OK;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, req)) {
+            if (validarSessao(conexao, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 clienteDAO.inserirPrecos(confirmaPedido);
                 List<Endereco> enderecos = clienteDAO.getEnderecos(cliente);
@@ -461,7 +491,7 @@ public class ClienteController {
         Pedido pedido = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, req)) {
+            if (validarSessao(conexao, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 pedido = new Pedido();
                 pedido.setEndereco(confirmaPedido.getEnderecos().get(0));
@@ -523,7 +553,7 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(confirmacaoPedido, httpHeaders, httpStatus);
-    }            
+    }
 
     @PostMapping("cliente/listar-pedidos")
     public ResponseEntity<List<Pedido2>> listarPedidos(HttpSession sessao, HttpServletRequest req) {
@@ -531,7 +561,7 @@ public class ClienteController {
         List<Pedido2> pedidos = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, req)) {
+            if (validarSessao(conexao, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 pedidos = clienteDAO.getPedidos(cliente);
             } else {
@@ -576,7 +606,7 @@ public class ClienteController {
         List<Endereco> enderecos = null;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, req)) {
+            if (validarSessao(conexao, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 enderecos = clienteDAO.getEnderecos(cliente);
             } else {
@@ -598,7 +628,7 @@ public class ClienteController {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, req)) {
+            if (validarSessao(conexao, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 clienteDAO.cadastrarEndereco(cliente, endereco);
                 mensagem.setCodigo(100);
@@ -625,7 +655,7 @@ public class ClienteController {
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
-            if (validarSessao(clienteDAO, req)) {
+            if (validarSessao(conexao, req)) {
                 Cliente cliente = (Cliente) sessao.getAttribute("cliente");
                 clienteDAO.removerEndereco(cliente, endereco);
                 mensagem.setCodigo(100);
@@ -687,8 +717,8 @@ public class ClienteController {
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
     }
 
-    private boolean validarSessao(ClienteDAO dao, HttpServletRequest req) throws DAOException {
-        if (!dao.verificarSessao(req.getHeader("ac-tk"))) {
+    private boolean validarSessao(Connection conexao, HttpServletRequest req) throws DAOException {
+        if (!new AutenticaDAO(conexao).verificarSessao(req.getHeader("ac-tk"))) {
             req.getSession().invalidate();
             return false;
         }

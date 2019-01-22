@@ -1,26 +1,20 @@
 {
     "itens": [{
-            "id": 15,
-            "nome": null,
-            "descricao": null,
-            "preco": 0.0,
-            "genero": null,
-            "tipos": null,
-            "modificavel": false,
+            "id": 6,
+            "quantidade": 1,
+            "total": 32.8,
             "complementos": [],
             "variacoes": [{
-                    "max": 0,
                     "variacoes": [{
-                            "id": 9,
-                            "nome": null,
-                            "preco": 0.0,
-                            "ordem": 0
+                            "id": 4
                         }]
-                }],
-            "fotos": null,
-            "quantidade": 1
+                }, {
+                    "variacoes": [{
+                            "id": 5
+                        }, {
+                            "id": 6
+                        }]
+                }]
         }],
-    "formaPagamentos": null,
-    "enderecos": null,
-    "precoTotal": 0.0
+    "codigoPromocional": ""
 }
