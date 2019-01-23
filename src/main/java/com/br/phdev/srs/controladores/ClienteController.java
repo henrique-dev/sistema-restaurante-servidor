@@ -458,7 +458,8 @@ public class ClienteController {
                             BigDecimal precoTotal = new BigDecimal(String.valueOf(confirmaPedido.getPrecoTotal()));
                             BigDecimal desconto = precoTotal.multiply(new BigDecimal(String.valueOf("0.05")));
                             BigDecimal resultado = precoTotal.subtract(desconto);
-                            resultado = resultado.setScale(2, BigDecimal.ROUND_HALF_UP);
+                            resultado = resultado.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+                            System.out.println(resultado);
                             confirmaPedido.setCodigoPromocional(desconto.toString());
                             confirmaPedido.setPrecoTotal(resultado.doubleValue());
                         } else {
