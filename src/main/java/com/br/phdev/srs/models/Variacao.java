@@ -70,7 +70,7 @@ public class Variacao {
         if (obj == this) {
             return true;
         }
-        return this.id == ((Variacao) obj).id;
+        return this.id == ((Variacao) obj).id && this.nome.equals(((Variacao) obj).nome);
     }
 
     @Override
