@@ -14,13 +14,14 @@ public class Ingrediente {
     
     private long id;
     private String nome;
+    private boolean check = true;
 
     public Ingrediente() {
     }
 
     public Ingrediente(long id, String nome) {
         this.id = id;
-        this.nome = nome;
+        this.nome = nome;        
     }        
 
     public long getId() {
@@ -37,6 +38,14 @@ public class Ingrediente {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }        
+
+    public boolean isCheck() {
+        return check;
+    }
+
+    public void setCheck(boolean check) {
+        this.check = check;
     }        
     
     @Override
