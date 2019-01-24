@@ -46,7 +46,10 @@ public class CadastroDAO extends BasicDAO {
             throw new DAOIncorrectData(301);
         }
         for (char c : cadastro.getNome().toCharArray()) {
-            if (!(((int) c > 64 && (int) c < 91) || ((int) c > 96 && (int) c < 122)) && (int) c != 32) {
+            if (!(((int) c > 64 && (int) c < 91) || ((int) c > 96 && (int) c < 123)
+                    || ((int) c > 191 && (int) c < 198) || ((int) c > 198 && (int) c < 215)
+                    || ((int) c > 215 && (int) c < 222) || ((int) c > 223 && (int) c < 230)
+                    || ((int) c > 230 && (int) c < 247) || ((int) c > 248 && (int) c < 257)) && (int) c != 32) {
                 throw new DAOIncorrectData(302);
             }
         }
@@ -162,7 +165,7 @@ public class CadastroDAO extends BasicDAO {
                             stmt2.execute();
                             mensagem.setCodigo(100);
                             mensagem.setDescricao(token.toString());
-                        }                        
+                        }
                     } else {
                         mensagem.setCodigo(101);
                         mensagem.setDescricao(String.valueOf(segundos));

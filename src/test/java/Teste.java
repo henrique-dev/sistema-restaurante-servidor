@@ -19,14 +19,9 @@ import java.math.MathContext;
 public class Teste {
 
     public static void main(String args[]) throws JsonProcessingException {
-        Complemento c = new Complemento();
-        Foto f = new Foto();
-        f.setId(1);
-        c.setNome("Limão");
-        c.setPreco(3.50);
-        c.setFoto(f);
-        ObjectMapper m = new ObjectMapper();
-        System.out.println(m.writeValueAsString(c));
+        for (int i = 0; i < 1500; i++) {
+            System.out.println(i + ": " + (char) i);
+        }
     }
 
 }
