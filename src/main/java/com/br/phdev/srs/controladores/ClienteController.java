@@ -438,6 +438,7 @@ public class ClienteController {
 
     @PostMapping(value = "cliente/pre-confirmar-pedido")
     public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao, HttpServletRequest req) {
+        System.out.println(confirmaPedido);
         HttpStatus httpStatus = HttpStatus.OK;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);

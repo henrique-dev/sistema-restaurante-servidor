@@ -60,5 +60,10 @@ public class Ingrediente {
     public int hashCode() {
         return (int)this.id;
     }
+
+    @Override
+    public String toString() {
+        return "Ingrediente{" + "id=" + id + ", nome=" + nome + ", check=" + check + '}';
+    }        
     
 }

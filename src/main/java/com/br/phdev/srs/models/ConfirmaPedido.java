@@ -76,7 +76,7 @@ public class ConfirmaPedido {
 
     @Override
     public String toString() {
-        return "ConfirmaPedido{" + "itens=" + itens + ", formaPagamentos=" + formaPagamentos + ", enderecos=" + enderecos + '}';
-    }   
+        return "ConfirmaPedido{" + "itens=" + itens + ", formaPagamentos=" + formaPagamentos + ", enderecos=" + enderecos + ", codigoPromocional=" + codigoPromocional + ", precoTotal=" + precoTotal + '}';
+    }    
         
 }

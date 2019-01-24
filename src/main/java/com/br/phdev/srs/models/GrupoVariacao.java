@@ -51,5 +51,10 @@ public class GrupoVariacao {
     public void setVariacoes(Set<Variacao> variacoes) {
         this.variacoes = variacoes;
     }       
+
+    @Override
+    public String toString() {
+        return "GrupoVariacao{" + "nome=" + nome + ", max=" + max + ", variacoes=" + variacoes + '}';
+    }        
     
 }
