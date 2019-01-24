@@ -31,6 +31,7 @@ import com.br.phdev.srs.models.Pedido2;
 import com.br.phdev.srs.models.TokenAlerta;
 import com.br.phdev.srs.models.Usuario;
 import com.br.phdev.srs.models.Mensagem;
+import com.br.phdev.srs.utils.HttpUtils;
 import com.br.phdev.srs.utils.ServicoArmazenamento;
 import com.br.phdev.srs.utils.ServicoPagamentoPagSeguro;
 import com.br.phdev.srs.utils.ServicoPagamentoPayPal;
@@ -439,6 +440,11 @@ public class ClienteController {
     @PostMapping(value = "cliente/pre-confirmar-pedido")
     public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao, HttpServletRequest req) {
         System.out.println(confirmaPedido);
+        
+        new HttpUtils().showHeaders(req);
+        new HttpUtils().showAttributes(req);
+        new HttpUtils().showParams(req);
+        
         HttpStatus httpStatus = HttpStatus.OK;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
