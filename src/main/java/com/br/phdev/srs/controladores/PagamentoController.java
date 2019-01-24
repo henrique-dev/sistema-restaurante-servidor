@@ -85,7 +85,7 @@ public class PagamentoController {
 
     @PostMapping("pagamentos/executar-pagamento2")
     public ResponseEntity<Mensagem> executarPagamento2(@RequestBody ExecutarPagamento ep, HttpSession sessao) {
-        System.out.println("Executando pagamento pag-seguro");
+        System.out.println("Executando pagamento pag-seguro com cartão de credito");
         Mensagem mensagem = new Mensagem();
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
@@ -99,8 +99,54 @@ public class PagamentoController {
             pagamentoRecuperado.setTokenSessao(ep.getTokenSessao());
             pagamentoRecuperado.setTokenCartao(ep.getTokenCartao());
             pagamentoRecuperado.setHashCliente(ep.getHashCliente());
-            String codigoPagamento = servicoPagamento.executarPagamento(pagamentoRecuperado);
-            System.out.println("Dados capturados, preparando para executar pagamento");
+            String codigoPagamento = servicoPagamento.executarPagamentoCartaoCredito(pagamentoRecuperado);            
+            if (codigoPagamento != null) {
+                if (clienteDAO.atualizarTokenPrePedido(ep.getTokenSessao(), codigoPagamento)) {
+                    mensagem.setCodigo(100);
+                    mensagem.setDescricao("Processando pagamento");
+                } else {
+                    mensagem.setCodigo(300);
+                    mensagem.setDescricao("Houve algum erro ao processar o pagamento");
+                }
+            } else {
+                mensagem.setCodigo(101);
+                mensagem.setDescricao("Não foi possível processar o pagamento");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(300);
+            mensagem.setDescricao(e.getMessage());
+        } catch (PaymentException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(300);
+            mensagem.setDescricao(e.getMessage());
+        } catch (DAOException e) {
+            e.printStackTrace();
+            mensagem.setCodigo(300);
+            mensagem.setDescricao(e.getMessage());
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(mensagem, httpHeaders, HttpStatus.OK);
+    }
+    
+    @PostMapping("pagamentos/executar-pagamento3")
+    public ResponseEntity<Mensagem> executarPagamento3(@RequestBody ExecutarPagamento ep, HttpSession sessao) {
+        System.out.println("Executando pagamento pag-seguro com cartão de debito");
+        Mensagem mensagem = new Mensagem();
+        try (Connection conexao = new FabricaConexao().conectar()) {
+            ClienteDAO clienteDAO = new ClienteDAO(conexao);
+            ExecutarPagamento pagamentoRecuperado = (ExecutarPagamento) sessao.getAttribute("executar-pagamento");
+            ServicoPagamentoPagSeguro servicoPagamento = new ServicoPagamentoPagSeguro();
+            pagamentoRecuperado.setEndereco(clienteDAO.getEndereco(pagamentoRecuperado.getEndereco(), pagamentoRecuperado.getCliente()));
+            pagamentoRecuperado.setCpf(ep.getCpf());
+            pagamentoRecuperado.setNome(ep.getNome());
+            pagamentoRecuperado.setData(ep.getData());
+            pagamentoRecuperado.setTelefone(ep.getTelefone());
+            pagamentoRecuperado.setTokenSessao(ep.getTokenSessao());
+            pagamentoRecuperado.setTokenCartao(ep.getTokenCartao());
+            pagamentoRecuperado.setHashCliente(ep.getHashCliente());
+            String codigoPagamento = servicoPagamento.executarPagamentoCartaoDebito(pagamentoRecuperado);            
             if (codigoPagamento != null) {
                 if (clienteDAO.atualizarTokenPrePedido(ep.getTokenSessao(), codigoPagamento)) {
                     mensagem.setCodigo(100);

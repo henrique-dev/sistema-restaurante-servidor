@@ -8,8 +8,10 @@ package com.br.phdev.srs.utils;
 
 import br.com.uol.pagseguro.api.PagSeguro;
 import br.com.uol.pagseguro.api.PagSeguroEnv;
+import br.com.uol.pagseguro.api.common.domain.BankName;
 import br.com.uol.pagseguro.api.common.domain.ShippingType;
 import br.com.uol.pagseguro.api.common.domain.builder.AddressBuilder;
+import br.com.uol.pagseguro.api.common.domain.builder.BankBuilder;
 import br.com.uol.pagseguro.api.common.domain.builder.CreditCardBuilder;
 import br.com.uol.pagseguro.api.common.domain.builder.DocumentBuilder;
 import br.com.uol.pagseguro.api.common.domain.builder.HolderBuilder;
@@ -55,11 +57,7 @@ public class ServicoPagamentoPagSeguro {
                     "https://ws.sandbox.pagseguro.uol.com.br/v2/sessions/?email=" + email + "&token=" + token);
             HttpClient cliente = new HttpClient(conexao, "POST");
             String resposta = cliente.retrieveString();
-            
-            System.out.println(conexao.getHeaderFields());
-            
-            tokenSessao = new XMLUtils().getFirstElement("id", resposta);
-            ObjectMapper mapeador = new ObjectMapper();
+            tokenSessao = new XMLUtils().getFirstElement("id", resposta);            
         } catch (DAOException e) {
             e.printStackTrace();
         } finally {
@@ -70,18 +68,12 @@ public class ServicoPagamentoPagSeguro {
         return tokenSessao;
     }
 
-    public void teste() {
-        final PagSeguro pagSeguro = PagSeguro
-                .instance(new CommonsLoggerFactory(), new JSEHttpClient(),
-                        Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);        
-    }
-
-    public String executarPagamento(ExecutarPagamento ep) throws PaymentException {
+    public String executarPagamentoCartaoCredito(ExecutarPagamento ep) throws PaymentException {
         try {
             PagSeguro pagSeguro = PagSeguro
                     .instance(new CommonsLoggerFactory(), new JSEHttpClient(),
                             Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
-            pagSeguro.sessions().create().getId();            
+            pagSeguro.sessions().create().getId();
 
             AddressBuilder endereco = new AddressBuilder()
                     .withPostalCode(ep.getEndereco().getCep())
@@ -142,6 +134,61 @@ public class ServicoPagamentoPagSeguro {
                             .withToken(ep.getTokenCartao())
                     );
             //System.out.println(creditCardTransaction);
+            return creditCardTransaction.getCode();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PaymentException(e);
+        }
+    }
+
+    public String executarPagamentoCartaoDebito(ExecutarPagamento ep) throws PaymentException {
+        try {
+            PagSeguro pagSeguro = PagSeguro
+                    .instance(new CommonsLoggerFactory(), new JSEHttpClient(),
+                            Credential.sellerCredential(email, token), PagSeguroEnv.SANDBOX);
+            pagSeguro.sessions().create().getId();
+
+            AddressBuilder endereco = new AddressBuilder()
+                    .withPostalCode(ep.getEndereco().getCep())
+                    .withCountry("BRA")
+                    .withState(State.AP)
+                    .withCity(ep.getEndereco().getCidade())
+                    .withComplement(ep.getEndereco().getComplemento())
+                    .withDistrict(ep.getEndereco().getBairro())
+                    .withNumber(ep.getEndereco().getNumero())
+                    .withStreet(ep.getEndereco().getLogradouro());
+
+            PhoneBuilder telefone = new PhoneBuilder()
+                    .withAreaCode(ep.getCliente().getCodigoAreaTelefone())
+                    .withNumber(ep.getCliente().getTelefoneSemCodigoArea());
+
+            TransactionDetail creditCardTransaction
+                    = pagSeguro.transactions().register(new DirectPaymentRegistrationBuilder()
+                            .withPaymentMode("default")
+                            .withCurrency(Currency.BRL)
+                            .withExtraAmount(new BigDecimal(0))
+                            .withNotificationURL("http://35.202.51.59/mrfood/pagamentos/notificar3")
+                            .addItem(new PaymentItemBuilder()
+                                    .withId("1")
+                                    .withDescription("Alimentícios")
+                                    .withAmount(new BigDecimal(String.valueOf(ep.getPedido().getPrecoTotal())))
+                                    .withQuantity(1)
+                                    .withWeight(500))
+                            .withReference("mrfood_pagamento")
+                            .withSender(new SenderBuilder()
+                                    .withEmail("henrique.phgb@sandbox.pagseguro.com.br")
+                                    .withName(ep.getCliente().getNome())
+                                    .withCPF(ep.getCliente().getCpf())
+                                    .withIp("127.0.0.0")
+                                    .withHash(ep.getHashCliente())
+                                    .withPhone(telefone))
+                            .withShipping(new ShippingBuilder()
+                                    .withType(ShippingType.Type.USER_CHOISE)
+                                    .withCost(BigDecimal.ZERO)
+                                    .withAddress(endereco)
+                            )
+                    ).withOnlineDebit(new BankBuilder().withName(BankName.Name.ITAU));
+            System.out.println(creditCardTransaction);
             return creditCardTransaction.getCode();
         } catch (Exception e) {
             e.printStackTrace();

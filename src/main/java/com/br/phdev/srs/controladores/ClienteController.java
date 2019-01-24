@@ -438,9 +438,7 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/pre-confirmar-pedido")
-    public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao, HttpServletRequest req) {
-        System.out.println(confirmaPedido);
-        
+    public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao, HttpServletRequest req) {        
         HttpStatus httpStatus = HttpStatus.OK;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
@@ -526,6 +524,31 @@ public class ClienteController {
                             if (sessao.getAttribute("token_sessao_pagseguro") == null) {
                                 ServicoPagamentoPagSeguro servicoPagamento = new ServicoPagamentoPagSeguro();
                                 tokenSessao = servicoPagamento.criarTokenPagamento();
+                                if (tokenSessao == null)
+                                    throw new PaymentException();
+                                sessao.setAttribute("token_sessao_pagseguro", tokenSessao);
+                            } else {
+                                tokenSessao = (String) sessao.getAttribute("token_sessao_pagseguro");
+                            }
+                            System.out.println("Gerando pagamento pagseguro com token: " + tokenSessao);
+                            ExecutarPagamento pagamento = new ExecutarPagamento();
+                            pagamento.setCliente(cliente);
+                            pagamento.setPedido(pedido);
+                            pagamento.setEndereco(confirmaPedido.getEnderecos().get(0));
+                            sessao.setAttribute("executar-pagamento", pagamento);
+                            clienteDAO.inserirPrePedido(pedido, cliente, tokenSessao);
+                            confirmacaoPedido.setStatus(2);
+                            confirmacaoPedido.setLink(tokenSessao);
+                        } else {
+                            confirmacaoPedido.setStatus(-2);
+                        }
+                        break;
+                    case 3:
+                        if (!clienteDAO.possuiPrePredido(cliente)) {
+                            String tokenSessao;
+                            if (sessao.getAttribute("token_sessao_pagseguro") == null) {
+                                ServicoPagamentoPagSeguro servicoPagamento = new ServicoPagamentoPagSeguro();
+                                tokenSessao = servicoPagamento.criarTokenPagamento();
                                 sessao.setAttribute("token_sessao_pagseguro", tokenSessao);
                             } else {
                                 tokenSessao = (String) sessao.getAttribute("token_sessao_pagseguro");
@@ -536,7 +559,7 @@ public class ClienteController {
                             pagamento.setEndereco(confirmaPedido.getEnderecos().get(0));
                             sessao.setAttribute("executar-pagamento", pagamento);
                             clienteDAO.inserirPrePedido(pedido, cliente, tokenSessao);
-                            confirmacaoPedido.setStatus(2);
+                            confirmacaoPedido.setStatus(3);
                             confirmacaoPedido.setLink(tokenSessao);
                         } else {
                             confirmacaoPedido.setStatus(-2);
