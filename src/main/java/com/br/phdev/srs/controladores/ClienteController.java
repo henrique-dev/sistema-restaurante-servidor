@@ -441,10 +441,6 @@ public class ClienteController {
     public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao, HttpServletRequest req) {
         System.out.println(confirmaPedido);
         
-        new HttpUtils().showHeaders(req);
-        new HttpUtils().showAttributes(req);
-        new HttpUtils().showParams(req);
-        
         HttpStatus httpStatus = HttpStatus.OK;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
