@@ -27,12 +27,16 @@ public class ServicoNotificacaoRestaurante {
     
     private static ServicoNotificacaoRestaurante instancia = new ServicoNotificacaoRestaurante();
     
+    private final ThreadAguardandoConexao mainThread;
+    
     private final int PORTA = 45578;
     
     private final List<Cliente> clientesConectados;
     
     private ServicoNotificacaoRestaurante() {
         this.clientesConectados = new ArrayList<>();
+        this.mainThread = new ThreadAguardandoConexao();
+        this.mainThread.start();
     }
     
     public static ServicoNotificacaoRestaurante getInstancia() {
