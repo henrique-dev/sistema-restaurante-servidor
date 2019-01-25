@@ -43,7 +43,7 @@ public class ServicoNotificacao implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry ser) {
         //ser.addEndpoint("/chat");
         //ser.addEndpoint("/chat").setAllowedOrigins("*").withSockJS();
-
+        
         ser.addEndpoint("/chat").addInterceptors(new HttpSessionHandshakeInterceptor() {
             @Override
             public boolean beforeHandshake(ServerHttpRequest req,
@@ -53,8 +53,7 @@ public class ServicoNotificacao implements WebSocketMessageBrokerConfigurer {
                     ServletServerHttpRequest serverHttpRequest = (ServletServerHttpRequest) req;
                     HttpSession sessao = serverHttpRequest.getServletRequest().getSession();
                     attributes.put("sessionId", sessao.getId());
-                    sessoes.add(0, sessao.getId());
-                    System.out.println(sessao.getId());
+                    sessoes.add(0, sessao.getId());                    
                 }
                 return true;
             }
@@ -64,6 +63,7 @@ public class ServicoNotificacao implements WebSocketMessageBrokerConfigurer {
             protected Principal determineUser(ServerHttpRequest req,
                     WebSocketHandler wsHandler,
                     Map<String, Object> attributes) {
+                System.out.println("setHandshakeHandler-determineUser");
                 HttpHeaders headers = req.getHeaders();                
                 //System.out.println(headers);
                 String user = "";
