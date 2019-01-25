@@ -17,12 +17,14 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import org.springframework.context.annotation.Configuration;
 
 
 /**
  *
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
+@Configuration
 public class ServicoNotificacaoRestaurante {
     
     private final static ServicoNotificacaoRestaurante instancia = new ServicoNotificacaoRestaurante();
