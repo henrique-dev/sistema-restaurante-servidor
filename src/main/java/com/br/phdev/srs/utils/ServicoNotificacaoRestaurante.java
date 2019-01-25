@@ -34,6 +34,7 @@ public class ServicoNotificacaoRestaurante {
     private final List<Cliente> clientesConectados;
     
     private ServicoNotificacaoRestaurante() {
+        System.out.println("ServicoNotificacaoRestaurante CRIADO");
         this.clientesConectados = new ArrayList<>();
         this.mainThread = new ThreadAguardandoConexao();
         this.mainThread.start();
