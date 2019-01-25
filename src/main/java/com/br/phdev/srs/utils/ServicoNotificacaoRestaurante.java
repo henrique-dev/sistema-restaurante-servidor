@@ -25,8 +25,8 @@ import org.springframework.context.annotation.Configuration;
  * @author Paulo Henrique Gonçalves Bacelar <henrique.phgb@gmail.com>
  */
 public class ServicoNotificacaoRestaurante {
-    /*
-    private final static ServicoNotificacaoRestaurante instancia = new ServicoNotificacaoRestaurante();
+    
+    private final static ServicoNotificacaoRestaurante instance = new ServicoNotificacaoRestaurante();
     
     private final ThreadAguardandoConexao mainThread;
     
@@ -41,8 +41,8 @@ public class ServicoNotificacaoRestaurante {
         this.mainThread.start();
     }
     
-    public static ServicoNotificacaoRestaurante getInstancia() {        
-        return instancia;
+    public static ServicoNotificacaoRestaurante getInstance() {        
+        return instance;
     }
     
     class ThreadAguardandoConexao extends Thread {
@@ -77,6 +77,6 @@ public class ServicoNotificacaoRestaurante {
             System.out.println("ServicoNotificacaoRestaurante > Novo cliente adicionado");
         }
         
-    }*/
-    
+    }
+   
 }
