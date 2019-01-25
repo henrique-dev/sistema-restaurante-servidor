@@ -5,6 +5,7 @@
  */
 package com.br.phdev.srs.interceptors;
 
+import com.br.phdev.srs.utils.HttpUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -20,6 +21,7 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String uri = request.getRequestURI();        
         System.out.println(uri);
+        new HttpUtils().showHeaders(request);
         if (request.getSession().getAttribute("usuario") != null) {
             return true;
         } else {            
