@@ -19,10 +19,10 @@ public class AutorizadorInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String uri = request.getRequestURI();        
+        System.out.println(uri);
         if (request.getSession().getAttribute("usuario") != null) {
             return true;
-        } else {
-            System.out.println(uri);
+        } else {            
             if (uri.endsWith("autenticar") || uri.endsWith("cliente/sem-autorizacao") || uri.contains("cliente/teste")
                     || uri.contains("imagens") || uri.contains("validar-cadastro") || uri.endsWith("cliente/cadastrar")
                     || uri.endsWith("cliente/sair") || uri.endsWith("cliente/verificar-numero") || uri.endsWith("cliente/validar-numero")

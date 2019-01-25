@@ -44,7 +44,22 @@ public class ServicoNotificacao implements WebSocketMessageBrokerConfigurer {
         //ser.addEndpoint("/chat");
         //ser.addEndpoint("/chat").setAllowedOrigins("*").withSockJS();
 
-        ser.addEndpoint("/chat").setAllowedOrigins("*").withSockJS();
+        ser.addEndpoint("/chat").setHandshakeHandler(new DefaultHandshakeHandler() {
+            @Override
+            protected Principal determineUser(ServerHttpRequest req,
+                    WebSocketHandler wsHandler,
+                    Map<String, Object> attributes) {                
+                HttpHeaders headers = req.getHeaders();                
+                String user = "";
+                if (req instanceof ServletServerHttpRequest) {
+                    ServletServerHttpRequest serverHttpRequest = (ServletServerHttpRequest) req;
+                    HttpSession sessao = serverHttpRequest.getServletRequest().getSession();
+                    user = sessao.getId();
+                }
+                System.out.println("usuario GERADO: " + user);
+                return new StompPrincipal(user);
+            }
+        }).setAllowedOrigins("*").withSockJS();
     }
 
     @Override
