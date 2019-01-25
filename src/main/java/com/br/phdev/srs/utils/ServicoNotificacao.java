@@ -44,38 +44,7 @@ public class ServicoNotificacao implements WebSocketMessageBrokerConfigurer {
         //ser.addEndpoint("/chat");
         //ser.addEndpoint("/chat").setAllowedOrigins("*").withSockJS();
 
-        ser.addEndpoint("/chat").addInterceptors(new HttpSessionHandshakeInterceptor() {
-            @Override
-            public boolean beforeHandshake(ServerHttpRequest req,
-                    ServerHttpResponse res, WebSocketHandler handler,
-                    Map attributes) {
-                if (req instanceof ServletServerHttpRequest) {
-                    ServletServerHttpRequest serverHttpRequest = (ServletServerHttpRequest) req;
-                    HttpSession sessao = serverHttpRequest.getServletRequest().getSession();
-                    attributes.put("sessionId", sessao.getId());
-                    sessoes.add(0, sessao.getId());
-                }
-                return true;
-            }
-
-        }).setHandshakeHandler(new DefaultHandshakeHandler() {
-            @Override
-            protected Principal determineUser(ServerHttpRequest req,
-                    WebSocketHandler wsHandler,
-                    Map<String, Object> attributes) {
-                System.out.println("setHandshakeHandler-determineUser");
-                HttpHeaders headers = req.getHeaders();
-                //System.out.println(headers);
-                String user = "";
-                if (req instanceof ServletServerHttpRequest) {
-                    ServletServerHttpRequest serverHttpRequest = (ServletServerHttpRequest) req;
-                    HttpSession sessao = serverHttpRequest.getServletRequest().getSession();
-                    user = sessao.getId();
-                }
-                System.out.println("usuario GERADO: " + user);
-                return new StompPrincipal(user);
-            }
-        }).setAllowedOrigins("*").withSockJS();
+        ser.addEndpoint("/chat").setAllowedOrigins("*").withSockJS();
     }
 
     @Override
