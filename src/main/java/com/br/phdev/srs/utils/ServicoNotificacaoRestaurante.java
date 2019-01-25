@@ -25,7 +25,7 @@ import java.util.Scanner;
  */
 public class ServicoNotificacaoRestaurante {
     
-    private static ServicoNotificacaoRestaurante instancia = new ServicoNotificacaoRestaurante();
+    private final static ServicoNotificacaoRestaurante instancia = new ServicoNotificacaoRestaurante();
     
     private final ThreadAguardandoConexao mainThread;
     
@@ -39,9 +39,7 @@ public class ServicoNotificacaoRestaurante {
         this.mainThread.start();
     }
     
-    public static ServicoNotificacaoRestaurante getInstancia() {
-        if (instancia == null)
-            instancia = new ServicoNotificacaoRestaurante();
+    public static ServicoNotificacaoRestaurante getInstancia() {        
         return instancia;
     }
     
