@@ -43,7 +43,7 @@ public class ServicoNotificacao implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry ser) {
         //ser.addEndpoint("/chat");
         //ser.addEndpoint("/chat").setAllowedOrigins("*").withSockJS();
-        
+
         ser.addEndpoint("/chat").addInterceptors(new HttpSessionHandshakeInterceptor() {
             @Override
             public boolean beforeHandshake(ServerHttpRequest req,
@@ -53,7 +53,7 @@ public class ServicoNotificacao implements WebSocketMessageBrokerConfigurer {
                     ServletServerHttpRequest serverHttpRequest = (ServletServerHttpRequest) req;
                     HttpSession sessao = serverHttpRequest.getServletRequest().getSession();
                     attributes.put("sessionId", sessao.getId());
-                    sessoes.add(0, sessao.getId());                    
+                    sessoes.add(0, sessao.getId());
                 }
                 return true;
             }
@@ -64,7 +64,7 @@ public class ServicoNotificacao implements WebSocketMessageBrokerConfigurer {
                     WebSocketHandler wsHandler,
                     Map<String, Object> attributes) {
                 System.out.println("setHandshakeHandler-determineUser");
-                HttpHeaders headers = req.getHeaders();                
+                HttpHeaders headers = req.getHeaders();
                 //System.out.println(headers);
                 String user = "";
                 if (req instanceof ServletServerHttpRequest) {
@@ -75,22 +75,22 @@ public class ServicoNotificacao implements WebSocketMessageBrokerConfigurer {
                 System.out.println("usuario GERADO: " + user);
                 return new StompPrincipal(user);
             }
-        }).withSockJS();
+        }).setAllowedOrigins("*").withSockJS();
     }
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration wstr) {
-            
+        System.out.println("configureWebSocketTransport");
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration cr) {
-
+        System.out.println("configureClientInboundChannel");
     }
 
     @Override
     public void configureClientOutboundChannel(ChannelRegistration cr) {
-
+        
     }
 
     @Override
@@ -111,23 +111,23 @@ public class ServicoNotificacao implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry mbr) {
         mbr.enableSimpleBroker("/queue", "/user");
-        mbr.setApplicationDestinationPrefixes("/app");        
+        mbr.setApplicationDestinationPrefixes("/app");
         //mbr.setUserDestinationPrefix("/user");
     }
-    
+
     public class StompPrincipal implements Principal {
-        
+
         private String name;
 
         public StompPrincipal(String name) {
             this.name = name;
-        }                
+        }
 
         @Override
         public String getName() {
             return this.name;
         }
-        
+
     }
 
 }
