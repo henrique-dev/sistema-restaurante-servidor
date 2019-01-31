@@ -19,6 +19,7 @@ public class ConfirmaPedido {
     private List<Endereco> enderecos;
     private String codigoPromocional;
     private double precoTotal;
+    private String observacaoEntrega;
 
     public ConfirmaPedido() {
     }
@@ -72,11 +73,19 @@ public class ConfirmaPedido {
 
     public void setCodigoPromocional(String codigoPromocional) {
         this.codigoPromocional = codigoPromocional;
+    }  
+
+    public String getObservacaoEntrega() {
+        return observacaoEntrega;
+    }
+
+    public void setObservacaoEntrega(String observacaoEntrega) {
+        this.observacaoEntrega = observacaoEntrega;
     }        
 
     @Override
     public String toString() {
-        return "ConfirmaPedido{" + "itens=" + itens + ", formaPagamentos=" + formaPagamentos + ", enderecos=" + enderecos + ", codigoPromocional=" + codigoPromocional + ", precoTotal=" + precoTotal + '}';
+        return "ConfirmaPedido{" + "itens=" + itens + ", formaPagamentos=" + formaPagamentos + ", enderecos=" + enderecos + ", codigoPromocional=" + codigoPromocional + ", precoTotal=" + precoTotal + ", observacaoEntrega=" + observacaoEntrega + '}';
     }    
         
 }

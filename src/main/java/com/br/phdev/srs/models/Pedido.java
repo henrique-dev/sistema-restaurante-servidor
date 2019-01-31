@@ -24,11 +24,12 @@ public class Pedido {
     private FormaPagamento formaPagamento;    
     private Endereco endereco;
     private String status;
+    private String observacaoEntrega;
 
     public Pedido() {
     }
 
-    public Pedido(long id, double precoTotal, Timestamp data, List<ItemPedidoFacil> itens, FormaPagamento formaPagamento, Endereco endereco, String status) {
+    public Pedido(long id, double precoTotal, Timestamp data, List<ItemPedidoFacil> itens, FormaPagamento formaPagamento, Endereco endereco, String status, String observacaoEntrega) {
         this.id = id;
         this.precoTotal = precoTotal;
         this.data = data;
@@ -36,7 +37,8 @@ public class Pedido {
         this.formaPagamento = formaPagamento;
         this.endereco = endereco;
         this.status = status;
-    }     
+        this.observacaoEntrega = observacaoEntrega;
+    }         
 
     public long getId() {
         return id;
@@ -99,6 +101,14 @@ public class Pedido {
 
     public void setPrecoTotal(double precoTotal) {
         this.precoTotal = precoTotal;
+    }   
+
+    public String getObservacaoEntrega() {
+        return observacaoEntrega;
+    }
+
+    public void setObservacaoEntrega(String observacaoEntrega) {
+        this.observacaoEntrega = observacaoEntrega;
     }        
     
 }

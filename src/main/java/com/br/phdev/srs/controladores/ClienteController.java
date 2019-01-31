@@ -39,6 +39,7 @@ import com.br.phdev.srs.utils.ServicoValidacaoCliente;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paypal.api.payments.Payment;
 import com.twilio.exception.ApiException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.security.NoSuchAlgorithmException;
@@ -438,7 +439,7 @@ public class ClienteController {
     }
 
     @PostMapping(value = "cliente/pre-confirmar-pedido")
-    public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao, HttpServletRequest req) {        
+    public ResponseEntity<ConfirmaPedido> preConfirmaPedido(@RequestBody ConfirmaPedido confirmaPedido, HttpSession sessao, HttpServletRequest req) {
         HttpStatus httpStatus = HttpStatus.OK;
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
@@ -452,7 +453,6 @@ public class ClienteController {
                 confirmaPedido.calcularPrecoTotal(RepositorioProdutos.getInstancia().frete);
 
                 {
-                    Random rand = new Random();
                     String codigo = confirmaPedido.getCodigoPromocional();
                     if (codigo != null) {
                         if (codigo.equals("teste")) {
@@ -502,6 +502,7 @@ public class ClienteController {
                 pedido.setFormaPagamento(confirmaPedido.getFormaPagamentos().get(0));
                 pedido.convertItemParaItemFacil((List<ItemPedido>) sessao.getAttribute("pre-pedido-itens"));
                 pedido.setPrecoTotal((Double) sessao.getAttribute("pre-pedido-preco"));
+                pedido.setObservacaoEntrega(confirmaPedido.getObservacaoEntrega());
                 switch ((int) confirmaPedido.getFormaPagamentos().get(0).getId()) {
                     case 0:
                         clienteDAO.inserirPedido(pedido, cliente);
@@ -524,8 +525,9 @@ public class ClienteController {
                             if (sessao.getAttribute("token_sessao_pagseguro") == null) {
                                 ServicoPagamentoPagSeguro servicoPagamento = new ServicoPagamentoPagSeguro();
                                 tokenSessao = servicoPagamento.criarTokenPagamento();
-                                if (tokenSessao == null)
+                                if (tokenSessao == null) {
                                     throw new PaymentException();
+                                }
                                 sessao.setAttribute("token_sessao_pagseguro", tokenSessao);
                             } else {
                                 tokenSessao = (String) sessao.getAttribute("token_sessao_pagseguro");
@@ -605,8 +607,7 @@ public class ClienteController {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(pedidos, httpHeaders, httpStatus);
     }
-
-    /*
+    
     @PostMapping("cliente/info-pedido")
     public ResponseEntity<Pedido> listarPedidos(@RequestBody Pedido pedido, HttpSession sessao) {
         try (Connection conexao = new FabricaConexao().conectar()) {
@@ -623,7 +624,8 @@ public class ClienteController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(pedido, httpHeaders, HttpStatus.OK);
-    }*/
+    }
+    
     @PostMapping("cliente/info-entrega")
     public ResponseEntity<List<Pedido>> infoEntrega() {
         return null;

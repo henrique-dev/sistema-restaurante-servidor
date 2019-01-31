@@ -496,7 +496,7 @@ public class ClienteDAO extends BasicDAO {
         if (pedido == null || cliente == null) {
             throw new DAOIncorrectData(300);
         }
-        String sql = "call inserir_pre_pedido(?,?,?,?,?,?,?)";
+        String sql = "call inserir_pre_pedido(?,?,?,?,?,?,?,?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setObject(1, pedido.getData());
             stmt.setDouble(2, pedido.getPrecoTotal());
@@ -507,6 +507,7 @@ public class ClienteDAO extends BasicDAO {
             String json = objectMapper.writeValueAsString(pedido.getItens());
             stmt.setString(6, json);
             stmt.setString(7, token);
+            stmt.setString(8, pedido.getObservacaoEntrega());
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 if (rs.getObject("erro") == null) {
@@ -525,7 +526,7 @@ public class ClienteDAO extends BasicDAO {
         if (pedido == null || cliente == null) {
             throw new DAOIncorrectData(300);
         }
-        String sql = "call inserir_pedido(?,?,?,?,?,?)";
+        String sql = "call inserir_pedido(?,?,?,?,?,?,?)";
         try (PreparedStatement stmt = super.conexao.prepareStatement(sql)) {
             stmt.setObject(1, pedido.getData());
             stmt.setDouble(2, pedido.getPrecoTotal());
@@ -535,6 +536,7 @@ public class ClienteDAO extends BasicDAO {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(pedido.getItens());
             stmt.setString(6, json);
+            stmt.setString(7, pedido.getObservacaoEntrega());
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(e, 200);
@@ -543,7 +545,7 @@ public class ClienteDAO extends BasicDAO {
         }
     }
 
-    synchronized public boolean atualizarTokenPrePedido(String idPagamento, String idComprador) throws DAOException {
+     synchronized public boolean atualizarTokenPrePedido(String idPagamento, String idComprador) throws DAOException {
         if (idPagamento == null) {
             throw new DAOIncorrectData(300);
         }
@@ -636,6 +638,20 @@ public class ClienteDAO extends BasicDAO {
                 pedido.setData(rs.getObject("datapedido", Timestamp.class));
                 pedido.setPrecoTotal(rs.getDouble("precototal"));
                 pedido.setFormaPagamento(new FormaPagamento(0, rs.getString("formapagamento_descricao")));
+                switch (rs.getInt("estado")) {
+                    case 1:
+                        pedido.setStatus("Conferido");
+                       break;
+                    case 2:
+                        pedido.setStatus("Em produção");
+                        break;
+                    case 3:
+                        pedido.setStatus("Saiu pra entrega");
+                        break;
+                    case 4:
+                        pedido.setStatus("Entregue");
+                        break;                        
+                }
                 Endereco endereco = new Endereco();
                 endereco.setId(-1);
                 endereco.setDescricao(rs.getString("endereco_descricao"));
