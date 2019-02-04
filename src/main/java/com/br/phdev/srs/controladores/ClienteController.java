@@ -473,6 +473,7 @@ public class ClienteController {
 
                 sessao.setAttribute("pre-pedido-itens", confirmaPedido.getItens());
                 sessao.setAttribute("pre-pedido-preco", confirmaPedido.getPrecoTotal());
+                
             } else {
                 httpStatus = HttpStatus.UNAUTHORIZED;
             }
@@ -609,7 +610,7 @@ public class ClienteController {
     }
     
     @PostMapping("cliente/info-pedido")
-    public ResponseEntity<Pedido> listarPedidos(@RequestBody Pedido pedido, HttpSession sessao) {
+    public ResponseEntity<Pedido2> listarPedidos(@RequestBody Pedido2 pedido, HttpSession sessao) {
         try (Connection conexao = new FabricaConexao().conectar()) {
             ClienteDAO clienteDAO = new ClienteDAO(conexao);
             Cliente cliente = (Cliente) sessao.getAttribute("cliente");

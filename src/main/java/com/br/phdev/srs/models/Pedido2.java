@@ -22,6 +22,7 @@ public class Pedido2 {
     private FormaPagamento formaPagamento;    
     private Endereco endereco;
     private String status;
+    private String observacaoEntrega;
 
     public long getId() {
         return id;
@@ -77,6 +78,14 @@ public class Pedido2 {
 
     public void setStatus(String status) {
         this.status = status;
+    }      
+
+    public String getObservacaoEntrega() {
+        return observacaoEntrega;
+    }
+
+    public void setObservacaoEntrega(String observacaoEntrega) {
+        this.observacaoEntrega = observacaoEntrega;
     }        
     
 }

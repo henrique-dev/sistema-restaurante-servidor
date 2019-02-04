@@ -629,15 +629,17 @@ public class ClienteDAO extends BasicDAO {
         return pedidos;
     }
 
-    public void getPedido(Pedido pedido, Cliente cliente) throws DAOException, IOException {
+    public void getPedido(Pedido2 pedido, Cliente cliente) throws DAOException, IOException {
         try (PreparedStatement stmt = super.conexao.prepareStatement("CALL get_pedido(?,?)")) {
             stmt.setLong(1, cliente.getId());
             stmt.setLong(2, pedido.getId());
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                pedido.setData(rs.getObject("datapedido", Timestamp.class));
+                String time = new SimpleDateFormat("dd/MM/YYYY - HH:mm").format(new Date(((Timestamp) rs.getObject("datapedido", Timestamp.class)).getTime()));
+                pedido.setData(time);
                 pedido.setPrecoTotal(rs.getDouble("precototal"));
                 pedido.setFormaPagamento(new FormaPagamento(0, rs.getString("formapagamento_descricao")));
+                pedido.setObservacaoEntrega(rs.getString("observacao_entrega"));
                 switch (rs.getInt("estado")) {
                     case 1:
                         pedido.setStatus("Conferido");
