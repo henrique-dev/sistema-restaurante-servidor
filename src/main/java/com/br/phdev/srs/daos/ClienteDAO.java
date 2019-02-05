@@ -450,6 +450,7 @@ public class ClienteDAO extends BasicDAO {
                     ip.setQuantidade(ipf.getQuantidade());
                     ip.setPreco(ipf.getPreco());
                     ip.setVariacoes(ipf.getVariacoes());
+                    ip.setIngredientes(ipf.getIngredientes());
                     Set<Complemento> complementos = new HashSet<>();
                     for (ComplementoFacil cf : ipf.getComplementos()) {
                         Complemento complemento = new Complemento();
@@ -490,6 +491,49 @@ public class ClienteDAO extends BasicDAO {
         } catch (SQLException e) {
             throw new DAOException(e, 200);
         }
+    }
+    
+    public List<ItemPedido> refazerPedido(Cliente cliente, Pedido pedido) throws DAOException {
+        List<ItemPedido> itens = null;
+        try (PreparedStatement stmt = super.conexao.prepareStatement("CALL recuperar_itens_pedido(?,?)")) {
+            stmt.setLong(1, cliente.getId());
+            stmt.setLong(2, pedido.getId());
+            ResultSet rs = stmt.executeQuery();
+            List<ItemPedidoFacil> itemPedidos = new ArrayList<>();
+            if (rs.next()) {
+                ObjectMapper mapeador = new ObjectMapper();
+                itemPedidos = mapeador.readValue(rs.getString("itens"),
+                        new TypeReference<List<ItemPedidoFacil>>() {
+                });
+            }
+            if (!itemPedidos.isEmpty()) {
+                RepositorioProdutos.getInstancia().carregar(super.conexao);
+                itens = new ArrayList<>();
+                for (ItemPedidoFacil ipf : itemPedidos) {
+                    ItemPedido ip = new ItemPedido();
+                    ip.setId(ipf.getId());
+                    ip.setQuantidade(ipf.getQuantidade());
+                    ip.setPreco(ipf.getPreco());
+                    ip.setVariacoes(ipf.getVariacoes());
+                    ip.setIngredientes(ipf.getIngredientes());
+                    Set<Complemento> complementos = new HashSet<>();
+                    for (ComplementoFacil cf : ipf.getComplementos()) {
+                        Complemento complemento = new Complemento();
+                        complemento.setId(cf.getId());
+                        complemento.setNome(cf.getNome());
+                        complemento.setPreco(cf.getPreco());
+                        complemento.setCheck(true);
+                        complementos.add(complemento);
+                    }
+                    ip.setComplementos(complementos);
+                    RepositorioProdutos.getInstancia().preencherItem(ip);
+                    itens.add(ip);
+                }
+            }
+        } catch (SQLException | IOException e) {
+            throw new DAOException(e, 200);
+        }
+        return itens;
     }
 
     synchronized public boolean inserirPrePedido(Pedido pedido, Cliente cliente, String token) throws DAOException {
